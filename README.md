@@ -8,7 +8,7 @@ deploy to **Vercel**.
 
 1. **Hero** — name, tagline, scroll cue
 2. **Visuals** — responsive image grid
-3. **Music** — Spotify / Apple Music embeds
+3. **Music** — Spotify artist embed
 4. **Members** — member/artist cards
 5. **Contact** — socials + mailto
 
@@ -52,24 +52,26 @@ No environment variables are required.
 | --- | --- | --- |
 | Collective name, tagline, hero intro | `content/site.ts` → `hero` | — |
 | Site title / meta description / OG copy | `content/site.ts` → `site` | — |
-| Live domain URL | `content/site.ts` → `site.url` | `REPLACE_WITH_ACTUAL_DOMAIN` |
+| Live domain URL | `content/site.ts` → `site.url` | — |
 | Contact email (used in nav + Contact) | `content/site.ts` → `site.email` | `REPLACE_WITH_ACTUAL_EMAIL` |
-| Gallery images | `content/site.ts` → `visuals.images` | `REPLACE_WITH_ALT_TEXT` |
-| Spotify / Apple Music embeds | `content/site.ts` → `music.releases` | `REPLACE_WITH_ACTUAL_EMBED` |
+| Gallery images | `content/site.ts` → `visuals.images` (files in `public/images/gallery/`) | — |
+| Spotify embed | `content/site.ts` → `music.spotifyEmbed` | — |
 | Member names / roles / photos | `content/site.ts` → `members.people` | `REPLACE` |
-| Social links | `content/site.ts` → `contact.socials` | `REPLACE` |
+| Social links | `content/site.ts` → `contact.socials` | — |
 | Social share image | `public/og-placeholder.svg` | (replace the file) |
 | Favicon | `app/icon.svg` | (replace the file) |
 
 ### Gallery images
 
-By default each tile renders as a **labelled solid-color placeholder block** (no
-external image service, so it always looks intentional). To use your own images:
+Gallery photos live in `public/images/gallery/` and are wired to tiles via the
+`src` field in `content/site.ts`. To swap an image:
 
-1. Drop image files into `public/` (e.g. `public/gallery/shot-01.jpg`).
-2. In `content/site.ts`, set that tile's `src` to the local path
-   (e.g. `"/gallery/shot-01.jpg"`) — this replaces the placeholder block.
-3. Write a real `alt` description for each (replace `REPLACE_WITH_ALT_TEXT`).
+1. Drop the new file into `public/images/gallery/`.
+2. In `content/site.ts`, update that tile's `src` and `alt`.
+
+> **Filenames are case-sensitive on Vercel.** Match the exact name *and*
+> extension casing (e.g. `04-live.JPG`, not `04-live.jpg`). A tile with `src`
+> set to `""` falls back to a labelled placeholder block.
 
 Each tile has a `span` of `"tall"`, `"wide"`, or `"square"` that controls how
 much space it occupies in the grid — mix them for a dynamic masonry look. The
@@ -79,18 +81,12 @@ much space it occupies in the grid — mix them for a dynamic masonry look. The
 > `next.config.mjs` under `images.remotePatterns` (required by `next/image`).
 > Images placed in `/public` need no config.
 
-### Music embeds
+### Music (Spotify embed)
 
-The Music section expects the **full `<iframe>` embed code** as a string:
-
-- **Spotify:** on a track/album/playlist, click **⋯ → Share → Embed** and copy
-  the `<iframe …>` snippet.
-- **Apple Music:** click **⋯ → Share → Embed this song/album** and copy the
-  `<iframe …>` snippet.
-
-Paste it into the `embed: ""` field for the matching release in
-`content/site.ts`. Until you do, a labelled placeholder card is shown. You can
-add or remove releases by editing the `releases` array.
+The Music section renders a single **Spotify artist embed**. To change it, open
+the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
+`<iframe …>` snippet, and paste it into `music.spotifyEmbed` in
+`content/site.ts`.
 
 ### Members
 
@@ -146,8 +142,8 @@ tailwind.config.ts  # design tokens (colors, fonts)
 - Single `<h1>` (hero), sequential `<h2>`/`<h3>` hierarchy, semantic
   `<section>` / `<nav>` / `<footer>` landmarks.
 - Visible keyboard focus rings; mobile menu is `aria-expanded` controlled.
-- All images take real `alt` text (swap the `REPLACE_WITH_ALT_TEXT`
-  placeholders for accurate descriptions).
+- All images carry descriptive `alt` text (edit it alongside each `src` in
+  `content/site.ts`).
 - `title`, `description`, and Open Graph / Twitter Card tags are set in
   `app/layout.tsx` from `content/site.ts`.
 - Replace `public/og-placeholder.svg` with a real **1200×630** image
