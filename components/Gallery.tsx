@@ -3,13 +3,6 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import { visuals } from "@/content/site";
 
-// Maps the `span` value from content to grid-span classes (masonry-like grid).
-const spanClasses: Record<string, string> = {
-  tall: "sm:row-span-2",
-  wide: "sm:col-span-2",
-  square: "",
-};
-
 export default function Gallery() {
   return (
     <section id="visuals" className="scroll-mt-20 py-24 sm:py-32">
@@ -20,29 +13,33 @@ export default function Gallery() {
           subheading={visuals.subheading}
         />
 
-        <div className="grid auto-rows-[220px] grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:auto-rows-[260px]">
+        {/* CSS multi-column masonry. Each image keeps its natural aspect ratio
+            (rendered via next/image with its real width/height), so nothing is
+            cropped or distorted — tiles simply flow into 2 columns on mobile
+            and 3 on larger screens. */}
+        <div className="columns-2 [column-gap:0.75rem] sm:columns-3 sm:[column-gap:1rem]">
           {visuals.images.map((img, i) => (
             <Reveal
               key={img.id}
               delay={i * 60}
-              className={`group relative overflow-hidden rounded-lg bg-surface ${
-                spanClasses[img.span] ?? ""
-              }`}
+              className="mb-3 break-inside-avoid sm:mb-4"
             >
               {img.src ? (
-                <>
+                <div className="group relative overflow-hidden rounded-lg bg-surface">
                   <Image
                     src={img.src}
                     alt={img.alt}
-                    fill
-                    sizes="(max-width: 640px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                    width={img.width}
+                    height={img.height}
+                    sizes="(min-width: 640px) 33vw, 50vw"
+                    className="h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                   />
+                  {/* Hover veil for a touch of polish. Decorative only. */}
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-ink/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   />
-                </>
+                </div>
               ) : (
                 <Placeholder index={i} label={img.label} />
               )}
@@ -55,13 +52,13 @@ export default function Gallery() {
 }
 
 /**
- * Styled fallback tile shown until a real image `src` is provided.
+ * Styled fallback tile shown when an image has no `src` yet.
  * Uses a subtle diagonal texture + the accent so the grid always reads as
  * intentional design rather than a broken image.
  */
 function Placeholder({ index, label }: { index: number; label: string }) {
   return (
-    <div className="absolute inset-0 flex flex-col justify-between p-4">
+    <div className="group relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-lg bg-surface p-4">
       {/* Faint diagonal hatch texture. Decorative. */}
       <div
         aria-hidden="true"

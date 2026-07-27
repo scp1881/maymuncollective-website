@@ -13,31 +13,27 @@ export default function Hero() {
       />
 
       <div className="container-page relative">
-        {hero.kicker && (
-          <p className="eyebrow mb-6 animate-fade-up opacity-0 [animation-delay:100ms]">
-            {hero.kicker}
-          </p>
-        )}
-
-        <h1 className="animate-fade-up whitespace-pre-line font-display text-[clamp(3rem,12vw,9rem)] font-bold leading-[0.92] tracking-tightest opacity-0 [animation-delay:200ms]">
+        <h1 className="animate-fade-up whitespace-pre-line font-display text-[clamp(3.25rem,13vw,10rem)] font-bold uppercase leading-[0.9] tracking-[-0.02em] opacity-0 [animation-delay:150ms]">
           {hero.title}
         </h1>
 
-        <p className="mt-8 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:400ms] sm:text-xl">
+        <p className="mt-6 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:350ms] sm:mt-8 sm:text-xl">
           {hero.tagline}
         </p>
-
-        {hero.intro && (
-          <p className="mt-4 max-w-xl animate-fade-up text-base leading-relaxed text-muted/80 opacity-0 [animation-delay:500ms]">
-            {hero.intro}
-          </p>
-        )}
       </div>
+
+      {/* Bottom fade: dissolves the section (and its glow) into the page
+          background so the hand-off to the Visuals section reads as a smooth
+          gradient rather than a hard edge. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ink"
+      />
 
       {/* Scroll cue */}
       <a
         href="#visuals"
-        className="group absolute inset-x-0 bottom-8 mx-auto flex w-fit animate-fade-up flex-col items-center gap-2 text-muted opacity-0 [animation-delay:700ms]"
+        className="group absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit animate-fade-up flex-col items-center gap-2 text-muted opacity-0 [animation-delay:600ms]"
         aria-label={`${hero.scrollCue} to visuals`}
       >
         <span className="text-xs uppercase tracking-[0.2em] transition-colors group-hover:text-bone">
