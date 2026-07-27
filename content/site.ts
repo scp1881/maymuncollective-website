@@ -54,7 +54,7 @@ export const visuals = {
   images: [
     { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Portrait", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 5464, height: 8192 },
     { id: 2, src: "/images/gallery/02-studio.PNG", label: "Studio", alt: "Saxophone, drums, and guitar during a Maymun Collective rehearsal in the studio.", width: 851, height: 658 },
-    { id: 3, src: "/images/gallery/03-artwork.jpg", label: "Artwork", alt: "A Maymun Collective member on a boat at dusk, city lights along the water behind.", width: 3451, height: 2335 },
+    { id: 3, src: "/images/gallery/03-newartwork.jpg", label: "Artwork", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 3024, height: 3912 },
     { id: 4, src: "/images/gallery/04-live.JPG", label: "Live", alt: "Maymun Collective playing an intimate show bathed in red light — sax, keys, guitar, and drums.", width: 1600, height: 1600 },
     { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 5464, height: 8192 },
     { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", width: 5451, height: 2223 },
