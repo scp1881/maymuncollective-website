@@ -12,8 +12,8 @@
 /* ---------------------------------------------------------------- SITE META */
 export const site = {
   name: "Maymun Collective",
-  // Used in <title>, Open Graph, etc.
-  shortDescription: "A hip hop and creative collective.",
+  // Drives the <title>, meta description, and Open Graph / Twitter tags.
+  shortDescription: "A creative collective.",
   // The canonical URL of the deployed site (used for Open Graph / SEO).
   url: "https://maymuncollective.com",
   // Path (in /public) to the social share image. REPLACE with a real 1200x630 image.
