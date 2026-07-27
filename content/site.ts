@@ -71,16 +71,20 @@ export const music = {
 };
 
 /* --------------------------------------------------------------- MEMBERS */
-// Add/remove entries freely. `photo` can be a /public path, a full URL, or ""
-// (an initials monogram is shown when empty).
+// Trading-card style member cards. Each card shows the `role` (instrument) as a
+// vertical label up the left edge, a large `photo`, and the `nickname` on a
+// bottom banner. Add portrait photos to public/images/members/ and set `photo`
+// to the path (e.g. "/images/members/findik.jpg"); until a photo is set, a
+// labelled placeholder tile is shown. Portrait-ish images fit the card best.
 export const members = {
   heading: "Members",
   subheading: "The people behind the collective.",
   people: [
-    { id: 1, name: "REPLACE — Member One", role: "MC / Songwriter", photo: "" },
-    { id: 2, name: "REPLACE — Member Two", role: "Producer / Beatmaker", photo: "" },
-    { id: 3, name: "REPLACE — Member Three", role: "DJ / Engineer", photo: "" },
-    { id: 4, name: "REPLACE — Member Four", role: "Visual Artist / Director", photo: "" },
+    { id: 1, nickname: "Fındık", role: "Saxophone", photo: "" },
+    { id: 2, nickname: "SS", role: "Guitar", photo: "" },
+    { id: 3, nickname: "Pat", role: "Keys", photo: "" },
+    { id: 4, nickname: "Bıdık", role: "Drums", photo: "" },
+    { id: 5, nickname: "Ata", role: "Bass", photo: "" },
   ],
 };
 
