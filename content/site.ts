@@ -73,18 +73,20 @@ export const music = {
 /* --------------------------------------------------------------- MEMBERS */
 // Trading-card style member cards. Each card shows the `role` (instrument) as a
 // vertical label up the left edge, a large `photo`, and the `nickname` on a
-// bottom banner. Add portrait photos to public/images/members/ and set `photo`
-// to the path (e.g. "/images/members/findik.jpg"); until a photo is set, a
-// labelled placeholder tile is shown. Portrait-ish images fit the card best.
+// bottom banner. Photos live in public/images/members/ — match the exact
+// filename AND extension casing (Vercel is case-sensitive; note ata is .jpg
+// while the rest are .jpeg). Set `photo` to "" to show a labelled placeholder.
+// `objectPosition` tunes the photo's vertical framing per image (CSS
+// object-position) so each face stays comfortably in view — lower % = higher up.
 export const members = {
   heading: "Members",
   subheading: "The people behind the collective.",
   people: [
-    { id: 1, nickname: "Fındık", role: "Saxophone", photo: "" },
-    { id: 2, nickname: "SS", role: "Guitar", photo: "" },
-    { id: 3, nickname: "Pat", role: "Keys", photo: "" },
-    { id: 4, nickname: "Bıdık", role: "Drums", photo: "" },
-    { id: 5, nickname: "Ata", role: "Bass", photo: "" },
+    { id: 1, nickname: "Fındık", role: "Saxophone", photo: "/images/members/findik.jpeg", objectPosition: "50% 34%" },
+    { id: 2, nickname: "SS", role: "Guitar", photo: "/images/members/ss.jpeg", objectPosition: "50% 26%" },
+    { id: 3, nickname: "Pat", role: "Keys", photo: "/images/members/pat.jpeg", objectPosition: "50% 38%" },
+    { id: 4, nickname: "Bıdık", role: "Drums", photo: "/images/members/bidik.jpeg", objectPosition: "50% 28%" },
+    { id: 5, nickname: "Ata", role: "Bass", photo: "/images/members/ata.jpg", objectPosition: "50% 22%" },
   ],
 };
 
