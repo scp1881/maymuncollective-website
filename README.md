@@ -1,8 +1,8 @@
 # Maymun Collective — Website
 
-A single-page scrolling site for **Maymun Collective**, a hip hop and creative
-collective. Built with **Next.js (App Router)** and **Tailwind CSS**, ready to
-deploy to **Vercel**.
+A single-page scrolling site for **Maymun Collective**, a creative collective.
+Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
+**Vercel**.
 
 ## Sections (in order)
 
