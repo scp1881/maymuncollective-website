@@ -3,14 +3,6 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import { members } from "@/content/site";
 
-// Builds initials from a name for the fallback monogram (skips REPLACE markers).
-function initials(name: string) {
-  const clean = name.replace(/REPLACE\s*—?\s*/i, "").trim();
-  const parts = clean.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
-}
-
 export default function Members() {
   return (
     <section id="members" className="scroll-mt-20 border-t border-line py-24 sm:py-32">
@@ -21,35 +13,108 @@ export default function Members() {
           subheading={members.subheading}
         />
 
-        <ul className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-3">
           {members.people.map((person, i) => (
-            <Reveal as="li" key={person.id} delay={i * 70} className="group">
-              <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-lg bg-surface">
-                {person.photo ? (
-                  <Image
-                    src={person.photo}
-                    alt={`Portrait of ${person.name}`}
-                    fill
-                    sizes="(max-width: 640px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                  />
-                ) : (
-                  // Monogram fallback until a real photo is added.
-                  <div className="flex h-full w-full items-center justify-center">
-                    <span className="font-display text-4xl font-semibold text-line">
-                      {initials(person.name)}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <h3 className="font-display text-lg font-semibold tracking-tight">
-                {person.name}
-              </h3>
-              <p className="mt-1 text-sm text-muted">{person.role}</p>
+            <Reveal as="li" key={person.id} delay={i * 70}>
+              <MemberCard
+                nickname={person.nickname}
+                role={person.role}
+                photo={person.photo}
+              />
             </Reveal>
           ))}
         </ul>
       </div>
     </section>
+  );
+}
+
+type CardProps = { nickname: string; role: string; photo: string };
+
+/**
+ * A collectible trading-card style member card:
+ *   - thick accent frame + a thin inset double-line detail
+ *   - the role/instrument as a bold vertical label up the left edge
+ *   - a large photo bleeding to the frame edges
+ *   - the nickname on a bold bottom banner
+ */
+function MemberCard({ nickname, role, photo }: CardProps) {
+  return (
+    <article className="group relative aspect-[5/7] overflow-hidden rounded-md border-4 border-accent bg-ink">
+      {/* Photo (bleeds to the inner frame edges) */}
+      <div className="absolute inset-0 bg-surface">
+        {photo ? (
+          <Image
+            src={photo}
+            alt={`${nickname} — ${role}`}
+            fill
+            sizes="(min-width: 768px) 33vw, 50vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <PhotoPlaceholder nickname={nickname} />
+        )}
+      </div>
+
+      {/* Scrims keep the vertical label + banner legible over any photo. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink via-ink/60 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-ink/70 to-transparent"
+      />
+
+      {/* Thin inset line — with the thick frame this reads as a double-line. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2 rounded-sm border border-accent/50"
+      />
+      {/* Extra corner accents near the top for a premium collectible feel. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-2 top-2 h-6 w-6 rounded-tl-sm border-l-2 border-t-2 border-accent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-2 top-2 h-6 w-6 rounded-tr-sm border-r-2 border-t-2 border-accent"
+      />
+
+      {/* Vertical role label running up the left edge. */}
+      <div className="absolute bottom-16 left-0 top-4 z-10 flex items-center">
+        <span className="pl-3 font-display text-xs font-bold uppercase tracking-[0.25em] text-bone [writing-mode:vertical-rl] rotate-180 sm:text-sm">
+          {role}
+        </span>
+      </div>
+
+      {/* Bottom banner: nickname. */}
+      <div className="absolute inset-x-0 bottom-0 z-10 p-3">
+        <div className="rounded-sm bg-accent px-3 py-2">
+          <h3 className="truncate text-center font-display text-xl font-extrabold uppercase leading-none tracking-tight text-ink sm:text-2xl">
+            {nickname}
+          </h3>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/** Styled fallback for the photo area until a real portrait is wired in. */
+function PhotoPlaceholder({ nickname }: { nickname: string }) {
+  return (
+    <div className="relative flex h-full w-full items-center justify-center">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(45deg, #f5f3ef 0, #f5f3ef 1px, transparent 1px, transparent 12px)",
+        }}
+      />
+      <span className="font-display text-7xl font-bold text-line">
+        {nickname.charAt(0).toLocaleUpperCase("tr")}
+      </span>
+    </div>
   );
 }
