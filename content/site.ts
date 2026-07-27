@@ -19,7 +19,7 @@ export const site = {
   // Path (in /public) to the social share image. REPLACE with a real 1200x630 image.
   ogImage: "/og-placeholder.svg",
   // Primary contact address (also used by the Contact section mailto link).
-  email: "hello@maymuncollective.com", // REPLACE_WITH_ACTUAL_EMAIL
+  email: "info@maymuncollective.com",
 };
 
 /* ------------------------------------------------------------------- NAV */
@@ -33,35 +33,31 @@ export const nav = [
 
 /* ------------------------------------------------------------------- HERO */
 export const hero = {
-  // Small kicker above the name (optional — set to "" to hide).
-  kicker: "Est. 2024 — Worldwide",
-  // The big name. Rendered as the page's single <h1>.
+  // The big name. Rendered as the page's single <h1> (displayed in all caps).
+  // The "\n" forces the line break between the two words.
   title: "Maymun\nCollective",
-  tagline: "A hip hop and creative collective.",
-  // Secondary supporting line under the tagline (optional).
-  intro:
-    "Music, visuals, and everything in between — built by a crew that treats the studio, the stage, and the street as one canvas.",
+  tagline: "A creative collective.",
   scrollCue: "Scroll",
 };
 
 /* --------------------------------------------------------------- VISUALS */
 // Gallery tiles. `src` points at a file in /public (image files live in
 // public/images/gallery/). To swap an image, drop a new file in and update the
-// `src` + `alt`. NOTE: paths are case-sensitive on Vercel — match the exact
-// filename, including extension casing (e.g. .PNG, .JPG). Set `src` to "" to
-// fall back to a labelled placeholder block. `label` shows on the placeholder
-// only. `span` controls the tile's size in the masonry grid:
-//   "tall"  -> taller tile      "wide" -> wider tile      "square" -> 1x1
+// `src`, `alt`, and the `width`/`height` (the image's real pixel dimensions —
+// they let the layout reserve the correct space and preserve aspect ratio so
+// nothing is cropped or distorted). NOTE: paths are case-sensitive on Vercel —
+// match the exact filename, including extension casing (e.g. .PNG, .JPG). Set
+// `src` to "" to fall back to a labelled placeholder tile; `label` shows there.
 export const visuals = {
   heading: "Visuals",
   subheading: "Selected photography, artwork, and stills from the collective.",
   images: [
-    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Portrait", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", span: "tall" },
-    { id: 2, src: "/images/gallery/02-studio.PNG", label: "Studio", alt: "Saxophone, drums, and guitar during a Maymun Collective rehearsal in the studio.", span: "wide" },
-    { id: 3, src: "/images/gallery/03-artwork.jpg", label: "Artwork", alt: "A Maymun Collective member on a boat at dusk, city lights along the water behind.", span: "square" },
-    { id: 4, src: "/images/gallery/04-live.JPG", label: "Live", alt: "Maymun Collective playing an intimate show bathed in red light — sax, keys, guitar, and drums.", span: "square" },
-    { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", span: "tall" },
-    { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", span: "wide" },
+    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Portrait", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 5464, height: 8192 },
+    { id: 2, src: "/images/gallery/02-studio.PNG", label: "Studio", alt: "Saxophone, drums, and guitar during a Maymun Collective rehearsal in the studio.", width: 851, height: 658 },
+    { id: 3, src: "/images/gallery/03-artwork.jpg", label: "Artwork", alt: "A Maymun Collective member on a boat at dusk, city lights along the water behind.", width: 3451, height: 2335 },
+    { id: 4, src: "/images/gallery/04-live.JPG", label: "Live", alt: "Maymun Collective playing an intimate show bathed in red light — sax, keys, guitar, and drums.", width: 1600, height: 1600 },
+    { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 5464, height: 8192 },
+    { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", width: 5451, height: 2223 },
   ],
 };
 

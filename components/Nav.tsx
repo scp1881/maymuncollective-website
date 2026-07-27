@@ -49,14 +49,6 @@ export default function Nav() {
               </a>
             </li>
           ))}
-          <li>
-            <a
-              href={`mailto:${site.email}`}
-              className="rounded-full border border-line px-4 py-1.5 text-sm text-bone transition-colors hover:border-accent hover:text-accent"
-            >
-              Contact
-            </a>
-          </li>
         </ul>
 
         {/* Mobile toggle */}
@@ -102,15 +94,6 @@ export default function Nav() {
               </a>
             </li>
           ))}
-          <li>
-            <a
-              href={`mailto:${site.email}`}
-              onClick={() => setOpen(false)}
-              className="block py-2 text-base text-accent"
-            >
-              Contact
-            </a>
-          </li>
         </ul>
       </div>
     </header>
