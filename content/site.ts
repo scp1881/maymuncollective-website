@@ -36,6 +36,9 @@ export const hero = {
   // The big name. Rendered as the page's single <h1> (displayed in all caps).
   // The "\n" forces the line break between the two words.
   title: "Maymun\nCollective",
+  // Substring of `title` (case-insensitive) to highlight with an accent block,
+  // its letters knocked out in the background colour. Set to "" for none.
+  highlight: "iv",
   tagline: "A creative collective.",
   scrollCue: "Scroll",
 };
