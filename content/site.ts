@@ -62,29 +62,31 @@ export const visuals = {
 };
 
 /* ----------------------------------------------------------------- MUSIC */
-// Spotify artist profile embed. To change it: open the artist page in Spotify,
-// click ⋯ ▸ Share ▸ Embed, and paste the full <iframe> code into `spotifyEmbed`.
+// Streaming embeds. To change one, open the artist page on Spotify / Apple Music,
+// use Share ▸ Embed, and paste the full <iframe> code into the matching field.
 export const music = {
   heading: "Music",
-  subheading: "Listen on Spotify.",
+  subheading: "Listen on Spotify and Apple Music.",
   spotifyEmbed: `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`,
+  appleMusicEmbed: `<iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;background:transparent;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/nl/artist/maymun-04/1697489205?l=en-GB"></iframe>`,
 };
 
 /* --------------------------------------------------------------- MEMBERS */
 // Simple contact list. Each entry has a `name`, `role`, and one contact method:
 // either a `phone` (rendered as a tel: link) or an `email` (mailto: link).
-// Leave the unused field as "".
+// Leave BOTH blank to show a muted "—" placeholder until a number is added.
+// Phone numbers are placeholders for now — drop the real number into `phone`.
 export const members = {
   heading: "Members",
   subheading: "The people behind the collective.",
   people: [
-    { id: 1, name: "Ada Fındıkoğlu", role: "Saxophone", phone: "+90 535 253 68 59", email: "" },
-    { id: 2, name: "Sarp Serinan", role: "Guitar", phone: "+90 532 492 88 51", email: "" },
-    { id: 3, name: "Adahan Altılar", role: "Drums", phone: "+90 533 058 16 86", email: "" },
-    { id: 4, name: "Ada Kar Tamyürek", role: "Keyboard", phone: "+32 492 98 61 56", email: "" },
-    { id: 5, name: "Ata Gökdemir", role: "Bass", phone: "+90 544 358 70 07", email: "" },
-    { id: 6, name: "Mert Adıgüzel", role: "Management & Booking", phone: "+90 531 941 54 00", email: "" },
-    { id: 7, name: "San Ertuğ", role: "Social Media", phone: "+90 532 347 02 72", email: "" },
+    { id: 1, name: "Ada Fındıkoğlu", role: "Saxophone", phone: "", email: "" },
+    { id: 2, name: "Sarp Serinan", role: "Guitar", phone: "", email: "" },
+    { id: 3, name: "Adahan Altılar", role: "Drums", phone: "", email: "" },
+    { id: 4, name: "Ada Kar Tamyürek", role: "Keyboard", phone: "", email: "" },
+    { id: 5, name: "Ata Gökdemir", role: "Bass", phone: "", email: "" },
+    { id: 6, name: "Mert Adıgüzel", role: "Management & Booking", phone: "", email: "" },
+    { id: 7, name: "San Ertuğ", role: "Social Media", phone: "", email: "" },
     { id: 8, name: "Selimcan Paydaş", role: "Corporate & Business Inquiries", phone: "", email: "info@maymuncollective.com" },
   ],
 };
@@ -125,6 +127,7 @@ export const contact = {
   socials: [
     { label: "Instagram", href: "https://www.instagram.com/maymun.collective?igsh=MWE3dmx2MHppZ2F4Mw==" },
     { label: "TikTok", href: "https://www.tiktok.com/@maymuncollective?_r=1&_t=ZS-92W1QWdmZV9" },
+    { label: "YouTube", href: "https://www.youtube.com/channel/UCJ1cnAUNK68gRJXUH9G_GuQ" },
   ],
 };
 

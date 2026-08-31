@@ -4,13 +4,17 @@ import { members } from "@/content/site";
 
 type Person = (typeof members.people)[number];
 
-// Resolve a person's single contact method into a display label + href.
-function contactFor(person: Person): { label: string; href: string } {
+// Resolve a person's single contact method into a display label + optional
+// href. With no phone or email set, returns a muted placeholder (no link).
+function contactFor(person: Person): { label: string; href?: string } {
   if (person.email) {
     return { label: person.email, href: `mailto:${person.email}` };
   }
-  // tel: links must be free of spaces; keep the pretty spacing for display.
-  return { label: person.phone, href: `tel:${person.phone.replace(/\s+/g, "")}` };
+  if (person.phone) {
+    // tel: links must be free of spaces; keep the pretty spacing for display.
+    return { label: person.phone, href: `tel:${person.phone.replace(/\s+/g, "")}` };
+  }
+  return { label: "—" };
 }
 
 export default function Members() {
@@ -33,12 +37,21 @@ export default function Members() {
                     {person.name}
                   </h3>
                   <p className="text-sm text-muted sm:text-base">{person.role}</p>
-                  <a
-                    href={contact.href}
-                    className="w-fit text-sm text-muted transition-colors hover:text-accent sm:justify-self-end sm:text-base"
-                  >
-                    {contact.label}
-                  </a>
+                  {contact.href ? (
+                    <a
+                      href={contact.href}
+                      className="w-fit text-sm text-muted transition-colors hover:text-accent sm:justify-self-end sm:text-base"
+                    >
+                      {contact.label}
+                    </a>
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="w-fit text-sm text-muted/60 sm:justify-self-end sm:text-base"
+                    >
+                      {contact.label}
+                    </span>
+                  )}
                 </div>
               </Reveal>
             );
