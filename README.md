@@ -9,8 +9,12 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 1. **Hero** — name, tagline, scroll cue
 2. **Visuals** — responsive image grid
 3. **Music** — Spotify artist embed
-4. **Members** — member/artist cards
+4. **Members** — contact list (name / role / phone or email)
 5. **Contact** — socials + mailto
+
+There is also a standalone **`/gallery`** page (linked from the "View more"
+link under the homepage Visuals section) — a fuller image + video grid with an
+inline lightbox.
 
 ---
 
@@ -56,7 +60,8 @@ No environment variables are required.
 | Contact email (used in nav + Contact) | `content/site.ts` → `site.email` | `REPLACE_WITH_ACTUAL_EMAIL` |
 | Gallery images | `content/site.ts` → `visuals.images` (files in `public/images/gallery/`) | — |
 | Spotify embed | `content/site.ts` → `music.spotifyEmbed` | — |
-| Member names / roles / photos | `content/site.ts` → `members.people` | `REPLACE` |
+| Member names / roles / contacts | `content/site.ts` → `members.people` | — |
+| Gallery page items (images + video) | `content/site.ts` → `galleryPage.items` | — |
 | Social links | `content/site.ts` → `contact.socials` | — |
 | Social share image | `public/og-placeholder.svg` | (replace the file) |
 | Favicon | `app/icon.svg` | (replace the file) |
@@ -90,9 +95,23 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 
 ### Members
 
-Add or remove entries in `members.people`. Each needs a `name` and `role`.
-`photo` is optional — leave it as `""` to show an auto-generated initials
-monogram, or set it to a `/public` path or full URL for a real portrait.
+A simple contact list. Add or remove entries in `members.people`; each needs a
+`name`, a `role`, and one contact method — either a `phone` (rendered as a
+tap-to-call `tel:` link) or an `email` (a `mailto:` link). Leave the unused
+field as `""`.
+
+### Gallery page (`/gallery`)
+
+The `/gallery` route renders `galleryPage.items` from `content/site.ts` as a
+masonry grid with a lightbox. Each item is either:
+
+- an **image** (`type: "image"`, a `src` in `/public`, plus `width`/`height`), or
+- a **video** (`type: "video"`, a `src` to an `.mp4`/`.webm` in `/public` and a
+  `poster` still). Leave `src: ""` to show the poster as a placeholder (with a
+  play affordance and a "Video coming soon" state) until the clip is added.
+
+Items currently reuse the homepage gallery images as placeholders — swap in the
+real curated assets when ready.
 
 ---
 
@@ -116,16 +135,18 @@ to rebrand:
 ```
 app/
   layout.tsx        # <html>, fonts, SEO metadata (title / description / OG)
-  page.tsx          # section order for the single-page scroll
+  page.tsx          # homepage — section order for the single-page scroll
+  gallery/page.tsx  # /gallery route (minimal header + GalleryGrid)
   globals.css       # base styles, focus rings, reduced-motion handling
   icon.svg          # favicon (replaceable)
 components/
   Nav.tsx           # fixed header + mobile menu
   Hero.tsx          # section 1
-  Gallery.tsx       # section 2
+  Gallery.tsx       # section 2 (+ "View more" link to /gallery)
   Music.tsx         # section 3
-  Members.tsx       # section 4
+  Members.tsx       # section 4 — contact list
   Contact.tsx       # section 5 + footer
+  GalleryGrid.tsx   # /gallery masonry grid + image/video lightbox (client)
   SectionHeading.tsx# shared heading block
   Reveal.tsx        # scroll fade-in wrapper (IntersectionObserver)
 content/

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import { visuals } from "@/content/site";
@@ -46,6 +47,22 @@ export default function Gallery() {
             </Reveal>
           ))}
         </div>
+
+        {/* Understated link through to the full gallery page. */}
+        <Reveal className="mt-10 sm:mt-12">
+          <Link
+            href="/gallery"
+            className="group inline-flex items-center gap-2 border-b border-line pb-1 text-sm font-medium uppercase tracking-[0.15em] text-muted transition-colors hover:border-accent hover:text-bone"
+          >
+            View more
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            >
+              →
+            </span>
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

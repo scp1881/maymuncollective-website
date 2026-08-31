@@ -71,22 +71,47 @@ export const music = {
 };
 
 /* --------------------------------------------------------------- MEMBERS */
-// Trading-card style member cards. Each card shows the `role` (instrument) as a
-// vertical label up the left edge, a large `photo`, and the `nickname` on a
-// bottom banner. Photos live in public/images/members/ — match the exact
-// filename AND extension casing (Vercel is case-sensitive; note ata is .jpg
-// while the rest are .jpeg). Set `photo` to "" to show a labelled placeholder.
-// `objectPosition` tunes the photo's vertical framing per image (CSS
-// object-position) so each face stays comfortably in view — lower % = higher up.
+// Simple contact list. Each entry has a `name`, `role`, and one contact method:
+// either a `phone` (rendered as a tel: link) or an `email` (mailto: link).
+// Leave the unused field as "".
 export const members = {
   heading: "Members",
   subheading: "The people behind the collective.",
   people: [
-    { id: 1, nickname: "Fındık", role: "Saxophone", photo: "/images/members/findik.jpeg", objectPosition: "50% 34%" },
-    { id: 2, nickname: "SS", role: "Guitar", photo: "/images/members/ss.jpeg", objectPosition: "50% 26%" },
-    { id: 3, nickname: "Pat", role: "Keys", photo: "/images/members/pat.jpeg", objectPosition: "50% 38%" },
-    { id: 4, nickname: "Bıdık", role: "Drums", photo: "/images/members/bidik.jpeg", objectPosition: "50% 28%" },
-    { id: 5, nickname: "Ata", role: "Bass", photo: "/images/members/ata.jpg", objectPosition: "50% 22%" },
+    { id: 1, name: "Ada Fındıkoğlu", role: "Saxophone", phone: "+90 535 253 68 59", email: "" },
+    { id: 2, name: "Sarp Serinan", role: "Guitar", phone: "+90 532 492 88 51", email: "" },
+    { id: 3, name: "Adahan Altılar", role: "Drums", phone: "+90 533 058 16 86", email: "" },
+    { id: 4, name: "Ada Kar Tamyürek", role: "Keyboard", phone: "+32 492 98 61 56", email: "" },
+    { id: 5, name: "Ata Gökdemir", role: "Bass", phone: "+90 544 358 70 07", email: "" },
+    { id: 6, name: "Mert Adıgüzel", role: "Management & Booking", phone: "+90 531 941 54 00", email: "" },
+    { id: 7, name: "San Ertuğ", role: "Social Media", phone: "+90 532 347 02 72", email: "" },
+    { id: 8, name: "Selimcan Paydaş", role: "Corporate & Business Inquiries", phone: "", email: "info@maymuncollective.com" },
+  ],
+};
+
+/* ------------------------------------------------------------ GALLERY PAGE */
+// Content for the standalone /gallery page — a curated grid of images and video.
+//   - Image: type "image", `src` = a file in /public, with real width/height.
+//   - Video: type "video", `src` = an .mp4/.webm in /public and `poster` = a
+//     still image. Leave `src: ""` to show the poster as a placeholder (a play
+//     affordance still appears) until the real clip is added. Use the poster's
+//     dimensions for width/height so the masonry reserves the right space.
+// The items below are placeholders reusing the homepage gallery images so the
+// layout is complete; swap in the real curated assets when ready.
+export const galleryPage = {
+  heading: "Gallery",
+  subheading:
+    "A fuller collection of photography, artwork, and video from the collective. More coming soon.",
+  items: [
+    { id: 1, type: "image", src: "/images/gallery/01-portrait.jpg", poster: "", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 5464, height: 8192 },
+    { id: 2, type: "video", src: "", poster: "/images/gallery/04-live.JPG", alt: "Live performance clip — video coming soon.", width: 1600, height: 1600 },
+    { id: 3, type: "image", src: "/images/gallery/02-studio.PNG", poster: "", alt: "Saxophone, drums, and guitar during a rehearsal in the studio.", width: 851, height: 658 },
+    { id: 4, type: "image", src: "/images/gallery/06-crew.JPG", poster: "", alt: "The members of Maymun Collective posing together in front of a packed crowd.", width: 5451, height: 2223 },
+    { id: 5, type: "video", src: "", poster: "/images/gallery/01-portrait.jpg", alt: "Backstage clip — video coming soon.", width: 5464, height: 8192 },
+    { id: 6, type: "image", src: "/images/gallery/03-newartwork.jpg", poster: "", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 3024, height: 3912 },
+    { id: 7, type: "image", src: "/images/gallery/05-backstage.jpeg", poster: "", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 5464, height: 8192 },
+    { id: 8, type: "video", src: "", poster: "/images/gallery/06-crew.JPG", alt: "Show recap — video coming soon.", width: 5451, height: 2223 },
+    { id: 9, type: "image", src: "/images/gallery/04-live.JPG", poster: "", alt: "Maymun Collective playing an intimate show bathed in red light.", width: 1600, height: 1600 },
   ],
 };
 
