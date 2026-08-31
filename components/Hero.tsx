@@ -1,5 +1,25 @@
 import { hero } from "@/content/site";
 
+/**
+ * Renders the hero title, wrapping the `highlight` substring in an accent block
+ * with the letters knocked out in the page background colour. The highlight is
+ * an inline background (box-decoration-break: clone) so it hugs the letters and
+ * sits in the normal flow without shifting the baseline or line height.
+ */
+function renderTitle(title: string, highlight: string) {
+  const idx = highlight ? title.toLowerCase().indexOf(highlight.toLowerCase()) : -1;
+  if (idx === -1) return title;
+  return (
+    <>
+      {title.slice(0, idx)}
+      <span className="bg-accent px-[0.06em] py-[0.02em] text-ink [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
+        {title.slice(idx, idx + highlight.length)}
+      </span>
+      {title.slice(idx + highlight.length)}
+    </>
+  );
+}
+
 export default function Hero() {
   return (
     <section
@@ -14,7 +34,7 @@ export default function Hero() {
 
       <div className="container-page relative">
         <h1 className="animate-fade-up whitespace-pre-line font-display text-[clamp(3.25rem,13vw,10rem)] font-bold uppercase leading-[0.9] tracking-[-0.02em] opacity-0 [animation-delay:150ms]">
-          {hero.title}
+          {renderTitle(hero.title, hero.highlight)}
         </h1>
 
         <p className="mt-6 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:350ms] sm:mt-8 sm:text-xl">
