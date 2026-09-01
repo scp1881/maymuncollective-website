@@ -39,7 +39,7 @@ export const hero = {
   // Substring of `title` (case-insensitive) to highlight with an accent block,
   // its letters knocked out in the background colour. Set to "" for none.
   highlight: "iv",
-  tagline: "müzik, música, music",
+  tagline: "müzik, música, music.",
   scrollCue: "Scroll",
 };
 
