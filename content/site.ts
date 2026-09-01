@@ -90,7 +90,7 @@ export const members = {
     { id: 5, name: "Ata Gökdemir", role: "Bass", phone: "", email: "" },
     { id: 6, name: "Mert Adıgüzel", role: "Management & Booking", phone: "", email: "" },
     { id: 7, name: "San Ertuğ", role: "Social Media", phone: "", email: "" },
-    { id: 8, name: "Selimcan Paydaş", role: "Corporate & Business Inquiries", phone: "", email: "info@maymuncollective.com" },
+    { id: 8, name: "Selimcan Paydaş", role: "Corporate", phone: "", email: "info@maymuncollective.com" },
   ],
 };
 
