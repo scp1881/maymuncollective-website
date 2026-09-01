@@ -32,7 +32,7 @@ export default function Members() {
             const contact = contactFor(person);
             return (
               <Reveal as="li" key={person.id} delay={i * 40} className="border-b border-line">
-                <div className="grid grid-cols-1 gap-1 py-5 sm:grid-cols-[1.2fr_1fr_auto] sm:items-baseline sm:gap-8 sm:py-6">
+                <div className="grid grid-cols-1 gap-1 py-5 sm:grid-cols-[1.2fr_1fr_16rem] sm:items-baseline sm:gap-8 sm:py-6">
                   <h3 className="font-display text-lg font-medium tracking-tight sm:text-xl">
                     {person.name}
                   </h3>
