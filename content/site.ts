@@ -65,15 +65,12 @@ export const visuals = {
 };
 
 /* ----------------------------------------------------------------- MUSIC */
-// Streaming embeds. To change one, open the artist page on Spotify / Apple Music,
-// use Share ▸ Embed, and paste the full <iframe> code into the matching field.
+// Spotify artist embed. To change it, open the artist page in Spotify, click
+// ⋯ ▸ Share ▸ Embed, and paste the full <iframe> code into `spotifyEmbed`.
 export const music = {
   heading: "Music",
-  subheading: "Listen on Spotify and Apple Music.",
+  subheading: "Listen on Spotify.",
   spotifyEmbed: `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`,
-  // Height matched to the Spotify embed (352) and the 660px max-width dropped so
-  // both players fill their column evenly; lazy-loaded like the Spotify one.
-  appleMusicEmbed: `<iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="352" style="width:100%;overflow:hidden;background:transparent;border-radius:12px" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/nl/artist/maymun-04/1697489205?l=en-GB" loading="lazy"></iframe>`,
 };
 
 /* --------------------------------------------------------------- MEMBERS */
