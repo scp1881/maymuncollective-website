@@ -55,12 +55,12 @@ export const visuals = {
   heading: "Visuals",
   subheading: "Selected photography, artwork, and stills from the collective.",
   images: [
-    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Portrait", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 5464, height: 8192 },
+    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Portrait", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 1708, height: 2560 },
     { id: 2, src: "/images/gallery/02-studio.PNG", label: "Studio", alt: "Saxophone, drums, and guitar during a Maymun Collective rehearsal in the studio.", width: 851, height: 658 },
-    { id: 3, src: "/images/gallery/03-newartwork.jpg", label: "Artwork", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 3024, height: 3912 },
+    { id: 3, src: "/images/gallery/03-newartwork.jpg", label: "Artwork", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 1979, height: 2560 },
     { id: 4, src: "/images/gallery/04-live.JPG", label: "Live", alt: "Maymun Collective playing an intimate show bathed in red light — sax, keys, guitar, and drums.", width: 1600, height: 1600 },
-    { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 5464, height: 8192 },
-    { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", width: 5451, height: 2223 },
+    { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 1708, height: 2560 },
+    { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", width: 2560, height: 1044 },
   ],
 };
 
@@ -71,7 +71,9 @@ export const music = {
   heading: "Music",
   subheading: "Listen on Spotify and Apple Music.",
   spotifyEmbed: `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`,
-  appleMusicEmbed: `<iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;background:transparent;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/nl/artist/maymun-04/1697489205?l=en-GB"></iframe>`,
+  // Height matched to the Spotify embed (352) and the 660px max-width dropped so
+  // both players fill their column evenly; lazy-loaded like the Spotify one.
+  appleMusicEmbed: `<iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="352" style="width:100%;overflow:hidden;background:transparent;border-radius:12px" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/nl/artist/maymun-04/1697489205?l=en-GB" loading="lazy"></iframe>`,
 };
 
 /* --------------------------------------------------------------- MEMBERS */
@@ -106,14 +108,14 @@ export const galleryPage = {
   subheading:
     "A fuller collection of photography, artwork, and video from the collective. More coming soon.",
   items: [
-    { id: 1, type: "image", src: "/images/gallery/01-portrait.jpg", poster: "", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 5464, height: 8192 },
+    { id: 1, type: "image", src: "/images/gallery/01-portrait.jpg", poster: "", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 1708, height: 2560 },
     { id: 2, type: "video", src: "", poster: "/images/gallery/04-live.JPG", alt: "Live performance clip — video coming soon.", width: 1600, height: 1600 },
     { id: 3, type: "image", src: "/images/gallery/02-studio.PNG", poster: "", alt: "Saxophone, drums, and guitar during a rehearsal in the studio.", width: 851, height: 658 },
-    { id: 4, type: "image", src: "/images/gallery/06-crew.JPG", poster: "", alt: "The members of Maymun Collective posing together in front of a packed crowd.", width: 5451, height: 2223 },
-    { id: 5, type: "video", src: "", poster: "/images/gallery/01-portrait.jpg", alt: "Backstage clip — video coming soon.", width: 5464, height: 8192 },
-    { id: 6, type: "image", src: "/images/gallery/03-newartwork.jpg", poster: "", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 3024, height: 3912 },
-    { id: 7, type: "image", src: "/images/gallery/05-backstage.jpeg", poster: "", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 5464, height: 8192 },
-    { id: 8, type: "video", src: "", poster: "/images/gallery/06-crew.JPG", alt: "Show recap — video coming soon.", width: 5451, height: 2223 },
+    { id: 4, type: "image", src: "/images/gallery/06-crew.JPG", poster: "", alt: "The members of Maymun Collective posing together in front of a packed crowd.", width: 2560, height: 1044 },
+    { id: 5, type: "video", src: "", poster: "/images/gallery/01-portrait.jpg", alt: "Backstage clip — video coming soon.", width: 1708, height: 2560 },
+    { id: 6, type: "image", src: "/images/gallery/03-newartwork.jpg", poster: "", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 1979, height: 2560 },
+    { id: 7, type: "image", src: "/images/gallery/05-backstage.jpeg", poster: "", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 1708, height: 2560 },
+    { id: 8, type: "video", src: "", poster: "/images/gallery/06-crew.JPG", alt: "Show recap — video coming soon.", width: 2560, height: 1044 },
     { id: 9, type: "image", src: "/images/gallery/04-live.JPG", poster: "", alt: "Maymun Collective playing an intimate show bathed in red light.", width: 1600, height: 1600 },
   ],
 };
