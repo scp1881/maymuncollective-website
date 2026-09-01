@@ -75,22 +75,20 @@ export const music = {
 };
 
 /* --------------------------------------------------------------- MEMBERS */
-// Simple contact list. Each entry has a `name`, `role`, and one contact method:
-// either a `phone` (rendered as a tel: link) or an `email` (mailto: link).
-// Leave BOTH blank to show a muted "—" placeholder until a number is added.
-// Phone numbers are placeholders for now — drop the real number into `phone`.
+// Simple roster. Each entry is just a `name` and a `role` — no contact details
+// are shown here; general enquiries go through the Contact section's email.
 export const members = {
   heading: "Members",
   subheading: "The people behind the collective.",
   people: [
-    { id: 1, name: "Ada Fındıkoğlu", role: "Saxophone", phone: "", email: "" },
-    { id: 2, name: "Sarp Serinan", role: "Guitar", phone: "", email: "" },
-    { id: 3, name: "Adahan Altılar", role: "Drums", phone: "", email: "" },
-    { id: 4, name: "Ada Kar Tamyürek", role: "Keyboard", phone: "", email: "" },
-    { id: 5, name: "Ata Gökdemir", role: "Bass", phone: "", email: "" },
-    { id: 6, name: "Mert Adıgüzel", role: "Management & Booking", phone: "", email: "" },
-    { id: 7, name: "San Ertuğ", role: "Social Media", phone: "", email: "" },
-    { id: 8, name: "Selimcan Paydaş", role: "Corporate", phone: "", email: "info@maymuncollective.com" },
+    { id: 1, name: "Ada Fındıkoğlu", role: "Saxophone" },
+    { id: 2, name: "Sarp Serinan", role: "Guitar" },
+    { id: 3, name: "Adahan Altılar", role: "Drums" },
+    { id: 4, name: "Ada Kar Tamyürek", role: "Keyboard" },
+    { id: 5, name: "Ata Gökdemir", role: "Bass" },
+    { id: 6, name: "Mert Adıgüzel", role: "Management & Booking" },
+    { id: 7, name: "San Ertuğ", role: "Social Media" },
+    { id: 8, name: "Selimcan Paydaş", role: "Corporate" },
   ],
 };
 
