@@ -12,7 +12,7 @@ function renderTitle(title: string, highlight: string) {
   return (
     <>
       {title.slice(0, idx)}
-      <span className="bg-accent px-[0.06em] py-[0.02em] text-ink [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
+      <span className="bg-[#9333ea] px-[0.06em] py-[0.02em] text-ink [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
         {title.slice(idx, idx + highlight.length)}
       </span>
       {title.slice(idx + highlight.length)}

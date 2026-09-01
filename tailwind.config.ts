@@ -13,13 +13,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Off-black / off-white base + a single warm signal accent.
+        // Off-black / off-white base + a single vivid signal accent.
         ink: "#0a0a0a", // near-black background
         surface: "#141414", // slightly raised panels
         bone: "#f5f3ef", // warm off-white (primary text)
         muted: "#8f8b83", // secondary text
         line: "#262626", // hairline borders
-        accent: "#ff4d2e", // single accent — swap this one value to re-theme
+        accent: "#a855f7", // single accent — swap this one value to re-theme
       },
       fontFamily: {
         display: ["var(--font-display)", "system-ui", "sans-serif"],

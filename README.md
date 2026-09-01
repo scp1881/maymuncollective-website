@@ -120,8 +120,8 @@ real curated assets when ready.
 Defined once in [`tailwind.config.ts`](./tailwind.config.ts) — edit these tokens
 to rebrand:
 
-- **Palette:** off-black (`ink`) / warm off-white (`bone`) with a single warm
-  signal **accent** (`#ff4d2e`). Change the one `accent` value to re-theme the
+- **Palette:** off-black (`ink`) / warm off-white (`bone`) with a single vivid
+  signal **accent** (`#a855f7`). Change the one `accent` value to re-theme the
   whole site.
 - **Type:** `Space Grotesk` (display / headings) + `Inter` (body), loaded via
   `next/font` in `app/layout.tsx`.
