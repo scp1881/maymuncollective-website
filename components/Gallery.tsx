@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
+import { blurProps } from "@/content/blur";
 import { visuals } from "@/content/site";
 
 export default function Gallery() {
@@ -33,6 +34,19 @@ export default function Gallery() {
                     width={img.width}
                     height={img.height}
                     sizes="(min-width: 640px) 33vw, 50vw"
+                    // `eager`, deliberately, despite every tile starting below
+                    // the fold. Chromium's lazy-loading miscomputes visibility
+                    // for elements fragmented across a CSS multi-column
+                    // container, and the last column here — two of the six
+                    // photos on the 3-column desktop layout — was never
+                    // fetched at all, at any scroll position or viewport
+                    // height. (The 2-column mobile layout was unaffected,
+                    // which is what gives the cause away.) Eager loading side-
+                    // steps the bug; `fetchPriority="low"` then keeps these off
+                    // the critical path, so the hero still paints first.
+                    loading="eager"
+                    fetchPriority="low"
+                    {...blurProps(img.src)}
                     className="h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                   />
                   {/* Hover veil for a touch of polish. Decorative only. */}
