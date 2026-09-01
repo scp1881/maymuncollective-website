@@ -127,6 +127,9 @@ export const contact = {
   subheading:
     "Bookings, collaborations, press. Reach us directly or find us online.",
   email: site.email,
+  // WhatsApp number, shown under the email. The wa.me link is derived from it
+  // (non-digits stripped). Set to "" to hide the WhatsApp line entirely.
+  whatsapp: "+44 7915 378469",
   socials: [
     { label: "Instagram", href: "https://www.instagram.com/maymun.collective?igsh=MWE3dmx2MHppZ2F4Mw==" },
     { label: "TikTok", href: "https://www.tiktok.com/@maymuncollective?_r=1&_t=ZS-92W1QWdmZV9" },
