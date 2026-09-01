@@ -3,9 +3,8 @@ import SectionHeading from "@/components/SectionHeading";
 import { music } from "@/content/site";
 
 /**
- * Renders the Spotify and Apple Music artist embeds side by side (stacked on
- * mobile). The embed strings are trusted, operator-authored markup pasted from
- * each platform's Share ▸ Embed dialog (not user input).
+ * Renders the Spotify artist embed. The embed string is trusted, operator-
+ * authored markup pasted from Spotify's Share ▸ Embed dialog (not user input).
  */
 export default function Music() {
   return (
@@ -17,14 +16,10 @@ export default function Music() {
           subheading={music.subheading}
         />
 
-        <Reveal className="grid gap-6 md:grid-cols-2 md:items-start">
+        <Reveal className="mx-auto max-w-3xl">
           <div
             className="overflow-hidden rounded-xl [&_iframe]:block [&_iframe]:w-full"
             dangerouslySetInnerHTML={{ __html: music.spotifyEmbed }}
-          />
-          <div
-            className="overflow-hidden rounded-xl [&_iframe]:block [&_iframe]:w-full"
-            dangerouslySetInnerHTML={{ __html: music.appleMusicEmbed }}
           />
         </Reveal>
       </div>
