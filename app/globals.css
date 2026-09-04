@@ -29,6 +29,32 @@
   }
 }
 
+/* ── Scroll reveals ──────────────────────────────────────────────────────────
+   Driven by the small inline script in app/layout.tsx, not by React, so the
+   animation is live from DOMContentLoaded instead of waiting on hydration.
+
+   The hidden state is deliberately scoped to `.reveal-js`, a class that script
+   only adds when it knows it can undo it (IntersectionObserver present, motion
+   not reduced). Without it these rules never apply and the content is plainly
+   visible — so a failed or blocked script degrades to "no animation" rather
+   than to an invisible page. */
+[data-reveal] {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal-js [data-reveal] {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+.reveal-js [data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
+}
+
 @layer utilities {
   /* Horizontal page gutters, shared by every section for a consistent grid. */
   .container-page {

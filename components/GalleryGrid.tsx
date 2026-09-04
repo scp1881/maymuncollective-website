@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
+import { blurProps } from "@/content/blur";
 import { galleryPage } from "@/content/site";
 
 type Item = (typeof galleryPage.items)[number];
@@ -35,6 +36,14 @@ export default function GalleryGrid() {
       <div className="columns-2 [column-gap:0.75rem] sm:columns-3 sm:[column-gap:1rem]">
         {items.map((item, i) => {
           const thumb = item.type === "video" ? item.poster : item.src;
+          // The top of this grid IS the fold, so the first tile is the likely
+          // LCP and gets fetched at high priority. Everything after it loads
+          // eagerly but at low priority — eagerly because this grid uses the
+          // same CSS multi-column masonry as the homepage, and Chromium's
+          // lazy-loading strands images in the trailing column there (see the
+          // note in Gallery.tsx); low priority so they still queue behind the
+          // things that actually gate the first paint.
+          const isLcp = i === 0;
           return (
             <Reveal key={item.id} delay={i * 50} className="mb-3 break-inside-avoid sm:mb-4">
               <button
@@ -50,7 +59,14 @@ export default function GalleryGrid() {
                   alt={item.alt}
                   width={item.width}
                   height={item.height}
-                  sizes="(min-width: 640px) 33vw, 50vw"
+                  // Same masonry geometry as the homepage grid — see the note
+                  // in Gallery.tsx. Must stay in step with the column, gap and
+                  // padding classes on the wrapper above.
+                  sizes="(min-width: 1232px) 347px, (min-width: 1024px) calc((100vw - 112px) / 3), (min-width: 640px) calc((100vw - 96px) / 3), calc((100vw - 60px) / 2)"
+                  priority={isLcp}
+                  loading="eager"
+                  {...(isLcp ? {} : { fetchPriority: "low" as const })}
+                  {...blurProps(thumb)}
                   className="h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                 />
                 <div
@@ -120,10 +136,19 @@ function Lightbox({ item, onClose }: { item: Item; onClose: () => void }) {
           />
         ) : (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            {/* Served through next/image rather than a bare <img>: a raw tag
+                here pulled the full-resolution original (up to ~580 KB) on
+                every open, where the optimizer delivers AVIF/WebP sized to the
+                viewer's screen for a fraction of that. The blur preview is
+                already cached from the thumbnail, so it fills the frame
+                instantly while the large version arrives. */}
+            <Image
               src={item.type === "video" ? item.poster : item.src}
               alt={item.alt}
+              width={item.width}
+              height={item.height}
+              sizes="(min-width: 1024px) 1024px, 100vw"
+              {...blurProps(item.type === "video" ? item.poster : item.src)}
               className="max-h-[85vh] w-auto max-w-full rounded-lg object-contain"
             />
             {item.type === "video" && (

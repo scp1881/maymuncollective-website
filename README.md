@@ -72,15 +72,25 @@ Gallery photos live in `public/images/gallery/` and are wired to tiles via the
 `src` field in `content/site.ts`. To swap an image:
 
 1. Drop the new file into `public/images/gallery/`.
-2. In `content/site.ts`, update that tile's `src` and `alt`.
+2. In `content/site.ts`, update that tile's `src`, `alt`, and its `width` /
+   `height` — these must be the image's **real pixel dimensions**. The masonry
+   uses them to reserve the right space and to keep the natural aspect ratio, so
+   a wrong pair means a distorted tile or a layout jump as the image lands.
+3. Optionally add a blur preview for it in [`content/blur.ts`](./content/blur.ts)
+   — that file explains how to generate one in a single command. Without an
+   entry the tile still works; it just fades in from empty rather than from a
+   soft impression of the photo.
 
 > **Filenames are case-sensitive on Vercel.** Match the exact name *and*
 > extension casing (e.g. `04-live.JPG`, not `04-live.jpg`). A tile with `src`
-> set to `""` falls back to a labelled placeholder block.
+> set to `""` falls back to a labelled placeholder block, and its `label` field
+> is what shows there.
 
-Each tile has a `span` of `"tall"`, `"wide"`, or `"square"` that controls how
-much space it occupies in the grid — mix them for a dynamic masonry look. The
-`label` field is only shown on the placeholder block.
+> Gallery images are loaded **eagerly at low priority**, which looks wrong but
+> is not: Chromium's `loading="lazy"` fails to load images stranded in the
+> trailing column of a CSS multi-column container, which silently cost this
+> grid two of its six photos on desktop. Don't switch them back to lazy without
+> re-checking that every tile still loads at the 3-column breakpoint.
 
 > If you point a `src` at an image on **another domain**, add its hostname to
 > `next.config.mjs` under `images.remotePatterns` (required by `next/image`).
