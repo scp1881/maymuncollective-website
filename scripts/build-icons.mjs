@@ -1,0 +1,175 @@
+/**
+ * Builds the site icons from Favicon.svg.
+ *
+ * Why this rebuilds the art rather than just re-cropping it — measured from the
+ * source, at 2048px:
+ *   - the M sits 4.4% left of the badge's centre while the spiral hangs off to
+ *     the right, so the mark reads visibly lop-sided;
+ *   - the badge is 1980x1933, i.e. 2.4% wider than tall — not actually a circle;
+ *   - three stray trace artifacts sit outside the mark;
+ *   - the gloss, the soft rim and the spiral all collapse into grey mush well
+ *     before 32px, and at 16px the M's counters fill in so it reads as an "H".
+ *
+ * So: the exact M letterform is lifted out of the art, everything else is
+ * discarded, and it is recomposed on a true circle in the badge's own measured
+ * off-white. Flat, symmetrical, and legible at 16px.
+ *
+ * Regenerate after changing Favicon.svg:
+ *     npm i --no-save sharp potrace && node scripts/build-icons.mjs
+ * Neither package is a runtime dependency; this only runs by hand.
+ */
+import sharp from "sharp";
+import potrace from "potrace";
+import fs from "fs";
+import os from "os";
+import path from "path";
+
+const SRC = "Favicon.svg";      // design source, at the repo root
+const OUT = "app";              // Next picks icons up from here by filename
+const N = 2048;                 // working resolution for measuring the art
+const M_RATIO = 0.66;           // M cap-height as a fraction of the disc
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "icons-"));
+
+/* ------------------------------------------------ 1. isolate the M ------- */
+await sharp(SRC, { density: 4800 }).resize(N, N, { fit: "inside" }).png().toFile(`${TMP}/src.png`);
+const { data, info } = await sharp(`${TMP}/src.png`).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const W = info.width, H = info.height;
+const at = (x, y) => (y * W + x) * 4;
+
+const ink = new Uint8Array(W * H);
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  const i = at(x, y);
+  const lum = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+  if (data[i + 3] > 128 && lum < 80) ink[y * W + x] = 1;
+}
+
+// The largest connected ink region is the M. The spiral and the three trace
+// artifacts are smaller components and are simply not carried forward.
+const label = new Int32Array(W * H);
+let M = null, next = 1;
+for (let s = 0; s < W * H; s++) {
+  if (!ink[s] || label[s]) continue;
+  const id = next++, stack = [s];
+  label[s] = id;
+  let n = 0, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+  while (stack.length) {
+    const p = stack.pop(), x = p % W, y = (p - x) / W;
+    n++;
+    if (x < x0) x0 = x; if (x > x1) x1 = x;
+    if (y < y0) y0 = y; if (y > y1) y1 = y;
+    if (x > 0 && ink[p - 1] && !label[p - 1]) { label[p - 1] = id; stack.push(p - 1); }
+    if (x < W - 1 && ink[p + 1] && !label[p + 1]) { label[p + 1] = id; stack.push(p + 1); }
+    if (y > 0 && ink[p - W] && !label[p - W]) { label[p - W] = id; stack.push(p - W); }
+    if (y < H - 1 && ink[p + W] && !label[p + W]) { label[p + W] = id; stack.push(p + W); }
+  }
+  if (!M || n > M.n) M = { id, n, x0, y0, x1, y1 };
+}
+const mw = M.x1 - M.x0 + 1, mh = M.y1 - M.y0 + 1;
+const AR = mw / mh;
+
+/* ------------------------------------------------ 2. badge colour -------- */
+let bx0 = 1e9, by0 = 1e9, bx1 = -1, by1 = -1;
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (data[at(x, y) + 3] > 40) {
+  if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y;
+}
+// Median over the middle of the badge, which excludes both the gloss highlight
+// and the dark rim; a mean would be dragged around by both.
+const px = [];
+for (let y = by0 + (by1 - by0) * 0.15; y < by1 - (by1 - by0) * 0.15; y++) {
+  for (let x = bx0 + (bx1 - bx0) * 0.15; x < bx1 - (bx1 - bx0) * 0.15; x++) {
+    const xi = Math.round(x), yi = Math.round(y), i = at(xi, yi);
+    if (data[i + 3] > 200 && !ink[yi * W + xi]) px.push([data[i], data[i + 1], data[i + 2]]);
+  }
+}
+px.sort((a, b) => a[0] + a[1] + a[2] - (b[0] + b[1] + b[2]));
+const med = px[Math.floor(px.length / 2)];
+const DISC = "#" + med.map((v) => v.toString(16).padStart(2, "0")).join("");
+
+console.log(`M: ${mw}x${mh} (aspect ${AR.toFixed(3)}), badge colour ${DISC}`);
+
+/* ------------------------------------------------ 3. mask --------------- */
+const raw = Buffer.alloc(mw * mh * 4, 0);
+for (let y = M.y0; y <= M.y1; y++) for (let x = M.x0; x <= M.x1; x++) {
+  if (label[y * W + x] === M.id) raw[((y - M.y0) * mw + (x - M.x0)) * 4 + 3] = 255;
+}
+const maskPng = await sharp(raw, { raw: { width: mw, height: mh, channels: 4 } }).png().toBuffer();
+
+/* ------------------------------------------------ 4. compose ------------ */
+// The M is sized as a fraction of the disc. This was tuned by rendering 0.64 /
+// 0.66 / 0.68 at 16, 32 and 128px and comparing: below ~0.62 the M's counters
+// close up at 16px and it reads as an "H"; above ~0.70 it crowds the disc. 0.66
+// holds at every size, so the .ico and the .svg stay visually identical.
+const SIZE = 1024;
+async function master(mRatio) {
+  const MH = Math.round(SIZE * mRatio), MW = Math.round(MH * AR);
+  const scaled = await sharp(maskPng).resize(MW, MH, { fit: "fill" }).toBuffer();
+  const black = await sharp({
+    create: { width: MW, height: MH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 1 } },
+  }).composite([{ input: scaled, blend: "dest-in" }]).png().toBuffer();
+  const disc = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}">` +
+    `<circle cx="${SIZE / 2}" cy="${SIZE / 2}" r="${SIZE / 2}" fill="${DISC}"/></svg>`
+  );
+  return sharp({ create: { width: SIZE, height: SIZE, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([
+      { input: disc },
+      { input: black, left: Math.round((SIZE - MW) / 2), top: Math.round((SIZE - MH) / 2) },
+    ])
+    .png()
+    .toBuffer();
+}
+const art = await master(M_RATIO);
+
+/* ------------------------------------------------ 5. vector icon -------- */
+// A traced SVG stays crisp at every size and costs ~2 KB, so modern browsers
+// get that; the .ico below is the fallback.
+const flat = await sharp(maskPng).flatten({ background: "#ffffff" }).png().toBuffer();
+const d = await new Promise((res, rej) => {
+  const p = new potrace.Potrace({ threshold: 128, turdSize: 8, optCurve: true, optTolerance: 0.2 });
+  p.loadImage(flat, (err) => (err ? rej(err) : res(p.getPathTag().match(/ d="([^"]+)"/)[1])));
+});
+const R = 50, mH = 2 * R * M_RATIO, mW = mH * AR;
+const k = mH / mh; // trace is in source-mask pixel units
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="${DISC}"/>
+  <g transform="translate(${(100 - mW) / 2} ${(100 - mH) / 2}) scale(${k})"><path d="${d}" fill="#000000"/></g>
+</svg>
+`;
+fs.writeFileSync(`${OUT}/icon.svg`, svg);
+
+/* ------------------------------------------------ 6. emit --------------- */
+// The Apple touch icon is a square tile, not a disc — iOS applies its own
+// rounded-rect mask — so the circle is dropped and the M is set against a plain
+// field of the badge colour. It also gets its own, smaller ratio: 0.66 is tuned
+// for a disc that the corners of a square do not have, and reusing it here left
+// the M almost touching the edges.
+const APPLE = 180, AH = Math.round(APPLE * 0.52), AW = Math.round(AH * AR);
+const aScaled = await sharp(maskPng).resize(AW, AH, { fit: "fill" }).toBuffer();
+const aBlack = await sharp({
+  create: { width: AW, height: AH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 1 } },
+}).composite([{ input: aScaled, blend: "dest-in" }]).png().toBuffer();
+await sharp({ create: { width: APPLE, height: APPLE, channels: 4, background: DISC } })
+  .composite([{ input: aBlack, left: Math.round((APPLE - AW) / 2), top: Math.round((APPLE - AH) / 2) }])
+  .png({ compressionLevel: 9 })
+  .toFile(`${OUT}/apple-icon.png`);
+
+// Multi-resolution .ico, written by hand: sharp cannot emit ICO, and the format
+// is just a 6-byte header, one 16-byte directory entry per image, then the PNGs.
+const sizes = [16, 32, 48];
+const blobs = [];
+for (const s of sizes) blobs.push(await sharp(art).resize(s, s).png({ compressionLevel: 9 }).toBuffer());
+const head = Buffer.alloc(6);
+head.writeUInt16LE(0, 0); head.writeUInt16LE(1, 2); head.writeUInt16LE(blobs.length, 4);
+let off = 6 + 16 * blobs.length;
+const dir = blobs.map((b, i) => {
+  const e = Buffer.alloc(16);
+  e.writeUInt8(sizes[i], 0); e.writeUInt8(sizes[i], 1);
+  e.writeUInt16LE(1, 4); e.writeUInt16LE(32, 6);
+  e.writeUInt32LE(b.length, 8); e.writeUInt32LE(off, 12);
+  off += b.length;
+  return e;
+});
+fs.writeFileSync(`${OUT}/favicon.ico`, Buffer.concat([head, ...dir, ...blobs]));
+
+fs.rmSync(TMP, { recursive: true, force: true });
+console.log(`wrote ${OUT}/icon.svg, ${OUT}/favicon.ico (16/32/48), ${OUT}/apple-icon.png (180)`);
