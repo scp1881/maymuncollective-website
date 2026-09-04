@@ -59,7 +59,10 @@ export default function GalleryGrid() {
                   alt={item.alt}
                   width={item.width}
                   height={item.height}
-                  sizes="(min-width: 640px) 33vw, 50vw"
+                  // Same masonry geometry as the homepage grid — see the note
+                  // in Gallery.tsx. Must stay in step with the column, gap and
+                  // padding classes on the wrapper above.
+                  sizes="(min-width: 1232px) 347px, (min-width: 1024px) calc((100vw - 112px) / 3), (min-width: 640px) calc((100vw - 96px) / 3), calc((100vw - 60px) / 2)"
                   priority={isLcp}
                   loading="eager"
                   {...(isLcp ? {} : { fetchPriority: "low" as const })}
