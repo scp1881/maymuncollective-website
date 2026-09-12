@@ -1,5 +1,7 @@
 /**
- * Builds the site icons from Favicon.svg.
+ * Builds the site's brand assets from Favicon.svg:
+ *   app/icon.svg, app/favicon.ico, app/apple-icon.png  — the site icon
+ *   public/logo-wordmark.svg                           — the nav wordmark
  *
  * Why this rebuilds the art rather than just re-cropping it — measured from the
  * source, at 2048px:
@@ -26,6 +28,7 @@ import path from "path";
 
 const SRC = "Favicon.svg";      // design source, at the repo root
 const OUT = "app";              // Next picks icons up from here by filename
+const PUB = "public";           // served assets
 const N = 2048;                 // working resolution for measuring the art
 const M_RATIO = 0.66;           // M cap-height as a fraction of the disc
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "icons-"));
@@ -171,5 +174,60 @@ const dir = blobs.map((b, i) => {
 });
 fs.writeFileSync(`${OUT}/favicon.ico`, Buffer.concat([head, ...dir, ...blobs]));
 
-fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`wrote ${OUT}/icon.svg, ${OUT}/favicon.ico (16/32/48), ${OUT}/apple-icon.png (180)`);
+
+/* ------------------------------------------------ 7. nav wordmark ------- */
+// The full "MAYMUN COLLECTIVE" lockup is not drawn in the badge — it is the
+// luminance mask the badge art is built from, embedded as the first base64 PNG
+// in the source. It comes out as white artwork on black at only 294x168 after
+// trimming, which is too soft for a retina nav bar, so it is traced to vector.
+const b64 = fs.readFileSync(SRC, "utf8").match(/base64,([A-Za-z0-9+/=]+)/);
+if (!b64) throw new Error(`no embedded raster found in ${SRC}`);
+const wmSrc = Buffer.from(b64[1], "base64");
+
+// Trim to the artwork's own bounds so the SVG viewBox carries no dead margin —
+// the component can then size it purely by height and trust the aspect ratio.
+const wmGrey = await sharp(wmSrc).greyscale().raw().toBuffer({ resolveWithObject: true });
+let wx0 = 1e9, wy0 = 1e9, wx1 = -1, wy1 = -1;
+for (let y = 0; y < wmGrey.info.height; y++) for (let x = 0; x < wmGrey.info.width; x++) {
+  if (wmGrey.data[y * wmGrey.info.width + x] > 110) {
+    if (x < wx0) wx0 = x; if (x > wx1) wx1 = x; if (y < wy0) wy0 = y; if (y > wy1) wy1 = y;
+  }
+}
+const wmW = wx1 - wx0 + 1, wmH = wy1 - wy0 + 1;
+
+// potrace traces dark regions, so the white-on-black mask is inverted first.
+const wmFlat = await sharp(wmSrc)
+  .extract({ left: wx0, top: wy0, width: wmW, height: wmH })
+  .greyscale()
+  .negate()
+  .png()
+  .toBuffer();
+
+// optTolerance 0.4: measured against 0.15 / 0.8 / 1.5, all four are
+// indistinguishable at nav size. The path weight is dominated by the spiral's
+// concentric turns rather than curve precision, so it bottoms out near 8 KB and
+// there is nothing to gain by simplifying harder.
+const wmPath = await new Promise((res, rej) => {
+  const p = new potrace.Potrace({ threshold: 128, turdSize: 2, optCurve: true, optTolerance: 0.4 });
+  p.loadImage(wmFlat, (err) => (err ? rej(err) : res(p.getPathTag().match(/ d="([^"]+)"/)[1])));
+});
+
+// The fill is baked rather than left as `currentColor`: this is loaded through
+// an <img>, and an SVG in an <img> is an isolated document, so `currentColor`
+// would resolve to its own default black and the wordmark would disappear
+// against the dark nav. Inlining the SVG would allow inheritance, but at ~9 KB
+// of path data that is more than the entire HTML document currently weighs, on
+// every page — not worth it for a mark that is always this one colour. The
+// value is the palette's `bone` token; keep the two in step.
+const BONE = "#f5f3ef";
+fs.writeFileSync(
+  `${PUB}/logo-wordmark.svg`,
+  // width/height on the root as well as the viewBox, so the file has a real
+  // intrinsic size instead of falling back to the SVG-in-<img> default of 150px
+  // tall with a derived width.
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${BONE}"/></svg>\n`
+);
+console.log(`wrote ${PUB}/logo-wordmark.svg (${wmW}x${wmH}, aspect ${(wmW / wmH).toFixed(3)})`);
+
+fs.rmSync(TMP, { recursive: true, force: true });
