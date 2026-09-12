@@ -1,16 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Wordmark from "@/components/Wordmark";
 import { nav } from "@/content/site";
 
 /**
  * Minimal fixed header. Transparent over the hero, then gains a subtle
  * backdrop once the user scrolls. Includes a compact mobile menu.
+ *
+ * Used on every page, so it is path-aware. The section links are bare hashes
+ * (`#gallery`) which only resolve on the homepage — from anywhere else they are
+ * prefixed to `/#gallery` so they navigate home *and* land on the section.
+ * Likewise the wordmark scrolls to the top when already home, and is a plain
+ * link home when it isn't.
  */
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const onHome = usePathname() === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -52,26 +61,32 @@ export default function Nav() {
         className="container-page flex h-16 items-center justify-between"
         aria-label="Primary"
       >
-        <a
-          href="#top"
-          onClick={toTop}
-          // No hover treatment: the wordmark is the one thing in the bar that
-          // is already unmistakably a link, and dimming it read as a highlight
-          // rather than as feedback. The negative margin + padding keeps a
-          // comfortable tap target without making the mark itself bigger, and
-          // the rounded corner is only there for the keyboard focus ring, which
-          // stays (see :focus-visible in globals.css).
-          className="-m-2 flex shrink-0 items-center rounded-md p-2"
-        >
-          <Wordmark className="h-8 sm:h-9" />
-        </a>
+        {/* No hover treatment: the wordmark is the one thing in the bar that is
+            already unmistakably a link, and dimming it read as a highlight
+            rather than as feedback. The negative margin + padding keeps a
+            comfortable tap target without making the mark itself bigger, and
+            the rounded corner is only there for the keyboard focus ring, which
+            stays (see :focus-visible in globals.css). */}
+        {onHome ? (
+          <a
+            href="#top"
+            onClick={toTop}
+            className="-m-2 flex shrink-0 items-center rounded-md p-2"
+          >
+            <Wordmark className="h-8 sm:h-9" />
+          </a>
+        ) : (
+          <Link href="/" className="-m-2 flex shrink-0 items-center rounded-md p-2">
+            <Wordmark className="h-8 sm:h-9" />
+          </Link>
+        )}
 
         {/* Desktop links */}
         <ul className="hidden items-center gap-8 md:flex">
           {nav.map((item) => (
             <li key={item.href}>
               <a
-                href={item.href}
+                href={onHome ? item.href : `/${item.href}`}
                 className="text-sm text-muted transition-colors hover:text-bone"
               >
                 {item.label}
@@ -115,7 +130,7 @@ export default function Nav() {
           {nav.map((item) => (
             <li key={item.href}>
               <a
-                href={item.href}
+                href={onHome ? item.href : `/${item.href}`}
                 onClick={() => setOpen(false)}
                 className="block py-2 text-base text-muted transition-colors hover:text-bone"
               >

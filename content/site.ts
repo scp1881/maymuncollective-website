@@ -25,7 +25,7 @@ export const site = {
 /* ------------------------------------------------------------------- NAV */
 // Anchor links shown in the header. `href` values match the section ids.
 export const nav = [
-  { label: "Visuals", href: "#visuals" },
+  { label: "Gallery", href: "#gallery" },
   { label: "Music", href: "#music" },
   { label: "Members", href: "#members" },
   { label: "Contact", href: "#contact" },
@@ -33,17 +33,15 @@ export const nav = [
 
 /* ------------------------------------------------------------------- HERO */
 export const hero = {
-  // The big name. Rendered as the page's single <h1> (displayed in all caps).
-  // The "\n" forces the line break between the two words.
-  title: "Maymun\nCollective",
-  // Substring of `title` (case-insensitive) to highlight with an accent block,
-  // its letters knocked out in the background colour. Set to "" for none.
-  highlight: "iv",
+  // The two lines of the name, rendered as the page's single <h1> in all caps.
+  // Kept as an array rather than one string with a "\n" so each line is its own
+  // element and the lockup can be balanced line by line (see components/Hero).
+  titleLines: ["Maymun", "Collective"],
   tagline: "müzik, música, music.",
   scrollCue: "Scroll",
 };
 
-/* --------------------------------------------------------------- VISUALS */
+/* --------------------------------------------------------------- GALLERY */
 // Gallery tiles. `src` points at a file in /public (image files live in
 // public/images/gallery/). To swap an image, drop a new file in and update the
 // `src`, `alt`, and the `width`/`height` (the image's real pixel dimensions —
@@ -51,14 +49,14 @@ export const hero = {
 // nothing is cropped or distorted). NOTE: paths are case-sensitive on Vercel —
 // match the exact filename, including extension casing (e.g. .PNG, .JPG). Set
 // `src` to "" to fall back to a labelled placeholder tile; `label` shows there.
-export const visuals = {
-  heading: "Visuals",
-  subheading: "Selected photography, artwork, and stills from the collective.",
+// A curated three-photo selection. The other files are still in
+// public/images/gallery/ — they were removed from this list, not deleted — so
+// adding one back is just a matter of putting its entry back here.
+export const gallery = {
+  heading: "Gallery",
+  subheading: "Selected photography and stills from the collective.",
   images: [
-    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Portrait", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 1708, height: 2560 },
-    { id: 2, src: "/images/gallery/02-studio.PNG", label: "Studio", alt: "Saxophone, drums, and guitar during a Maymun Collective rehearsal in the studio.", width: 851, height: 658 },
-    { id: 3, src: "/images/gallery/03-newartwork.jpg", label: "Artwork", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 1979, height: 2560 },
-    { id: 4, src: "/images/gallery/04-live.JPG", label: "Live", alt: "Maymun Collective playing an intimate show bathed in red light — sax, keys, guitar, and drums.", width: 1600, height: 1600 },
+    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Live", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 1708, height: 2560 },
     { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 1708, height: 2560 },
     { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", width: 2560, height: 1044 },
   ],
@@ -92,29 +90,21 @@ export const members = {
 };
 
 /* ------------------------------------------------------------ GALLERY PAGE */
-// Content for the standalone /gallery page — a curated grid of images and video.
-//   - Image: type "image", `src` = a file in /public, with real width/height.
-//   - Video: type "video", `src` = an .mp4/.webm in /public and `poster` = a
-//     still image. Leave `src: ""` to show the poster as a placeholder (a play
-//     affordance still appears) until the real clip is added. Use the poster's
-//     dimensions for width/height so the masonry reserves the right space.
-// The items below are placeholders reusing the homepage gallery images so the
-// layout is complete; swap in the real curated assets when ready.
+// The standalone /gallery route is intentionally a holding page for now: a
+// heading, a line of copy, and a way back. When the real collection is ready,
+// this is where its copy goes.
+//
+// The grid that used to live here has NOT been thrown away — components/
+// GalleryGrid.tsx still implements the full masonry + image/video lightbox, and
+// the item shape it expects is documented at the top of that file. Dropping an
+// `items` array back onto this object and rendering <GalleryGrid /> again on
+// app/gallery/page.tsx is all it takes to bring it back.
 export const galleryPage = {
-  heading: "Gallery",
+  eyebrow: "Gallery",
+  heading: "Coming soon",
   subheading:
-    "A fuller collection of photography, artwork, and video from the collective. More coming soon.",
-  items: [
-    { id: 1, type: "image", src: "/images/gallery/01-portrait.jpg", poster: "", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 1708, height: 2560 },
-    { id: 2, type: "video", src: "", poster: "/images/gallery/04-live.JPG", alt: "Live performance clip — video coming soon.", width: 1600, height: 1600 },
-    { id: 3, type: "image", src: "/images/gallery/02-studio.PNG", poster: "", alt: "Saxophone, drums, and guitar during a rehearsal in the studio.", width: 851, height: 658 },
-    { id: 4, type: "image", src: "/images/gallery/06-crew.JPG", poster: "", alt: "The members of Maymun Collective posing together in front of a packed crowd.", width: 2560, height: 1044 },
-    { id: 5, type: "video", src: "", poster: "/images/gallery/01-portrait.jpg", alt: "Backstage clip — video coming soon.", width: 1708, height: 2560 },
-    { id: 6, type: "image", src: "/images/gallery/03-newartwork.jpg", poster: "", alt: "A vibrant figurative painting of robed figures in bright yellows, reds, and blues.", width: 1979, height: 2560 },
-    { id: 7, type: "image", src: "/images/gallery/05-backstage.jpeg", poster: "", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 1708, height: 2560 },
-    { id: 8, type: "video", src: "", poster: "/images/gallery/06-crew.JPG", alt: "Show recap — video coming soon.", width: 2560, height: 1044 },
-    { id: 9, type: "image", src: "/images/gallery/04-live.JPG", poster: "", alt: "Maymun Collective playing an intimate show bathed in red light.", width: 1600, height: 1600 },
-  ],
+    "A fuller collection of photography and video from the collective is on its way. In the meantime, there is a selection on the homepage.",
+  backLabel: "Back to home",
 };
 
 /* --------------------------------------------------------------- CONTACT */

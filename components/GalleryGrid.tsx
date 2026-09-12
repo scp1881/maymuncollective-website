@@ -4,12 +4,41 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import { blurProps } from "@/content/blur";
-import { galleryPage } from "@/content/site";
 
-type Item = (typeof galleryPage.items)[number];
+/**
+ * One tile. Either:
+ *   - an image: `type: "image"`, `src` a file in /public, `poster` unused ("")
+ *   - a video:  `type: "video"`, `src` an .mp4/.webm in /public and `poster` a
+ *               still image. Leave `src: ""` to show the poster as a
+ *               placeholder (with a play affordance and a "coming soon" state)
+ *               until the real clip exists.
+ *
+ * `width`/`height` must be the real pixel dimensions of whichever file is shown
+ * as the thumbnail — the masonry uses them to reserve the right space and hold
+ * the aspect ratio.
+ */
+export type GalleryItem = {
+  id: number;
+  type: string;
+  src: string;
+  poster: string;
+  alt: string;
+  width: number;
+  height: number;
+};
 
-export default function GalleryGrid() {
-  const items = galleryPage.items;
+type Item = GalleryItem;
+
+/**
+ * Masonry grid with an image/video lightbox.
+ *
+ * NOTE: currently unrendered. /gallery is a holding page while the real
+ * collection is put together, so nothing mounts this today — it is kept, and
+ * kept compiling, because it is the finished implementation for when that
+ * lands. Pass it an `items` array and it works as before; see the note on
+ * `galleryPage` in content/site.ts.
+ */
+export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [openId, setOpenId] = useState<number | null>(null);
   const active = items.find((it) => it.id === openId) ?? null;
   const close = useCallback(() => setOpenId(null), []);

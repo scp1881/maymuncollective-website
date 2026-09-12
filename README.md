@@ -7,14 +7,14 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 ## Sections (in order)
 
 1. **Hero** — name, tagline, scroll cue
-2. **Visuals** — responsive image grid
+2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
-4. **Members** — contact list (name / role / phone or email)
+4. **Members** — the roster (name / role)
 5. **Contact** — socials + mailto
 
-There is also a standalone **`/gallery`** page (linked from the "View more"
-link under the homepage Visuals section) — a fuller image + video grid with an
-inline lightbox.
+There is also a standalone **`/gallery`** page, linked from the "See more" link
+under the homepage Gallery section. It is currently a **holding page** — the
+full collection is still being put together.
 
 ---
 
@@ -58,10 +58,10 @@ No environment variables are required.
 | Site title / meta description / OG copy | `content/site.ts` → `site` | — |
 | Live domain URL | `content/site.ts` → `site.url` | — |
 | Contact email (used in nav + Contact) | `content/site.ts` → `site.email` | `REPLACE_WITH_ACTUAL_EMAIL` |
-| Gallery images | `content/site.ts` → `visuals.images` (files in `public/images/gallery/`) | — |
+| Gallery images | `content/site.ts` → `gallery.images` (files in `public/images/gallery/`) | — |
 | Spotify embed | `content/site.ts` → `music.spotifyEmbed` | — |
-| Member names / roles / contacts | `content/site.ts` → `members.people` | — |
-| Gallery page items (images + video) | `content/site.ts` → `galleryPage.items` | — |
+| Member names / roles | `content/site.ts` → `members.people` | — |
+| Gallery holding-page copy | `content/site.ts` → `galleryPage` | — |
 | Social links | `content/site.ts` → `contact.socials` | — |
 | Social share image | `public/og-placeholder.svg` | (replace the file) |
 | Site icon + nav wordmark | `Favicon.svg` → run `scripts/build-icons.mjs` | — |
@@ -69,13 +69,16 @@ No environment variables are required.
 ### Gallery images
 
 Gallery photos live in `public/images/gallery/` and are wired to tiles via the
-`src` field in `content/site.ts`. To swap an image:
+`src` field in `gallery.images`. The homepage shows a **curated three**; the
+other files are still on disk, just not listed, so putting one back is only a
+matter of restoring its entry. To swap an image:
 
 1. Drop the new file into `public/images/gallery/`.
 2. In `content/site.ts`, update that tile's `src`, `alt`, and its `width` /
-   `height` — these must be the image's **real pixel dimensions**. The masonry
-   uses them to reserve the right space and to keep the natural aspect ratio, so
-   a wrong pair means a distorted tile or a layout jump as the image lands.
+   `height` — these must be the image's **real pixel dimensions**. The grid uses
+   them to reserve the right space, to keep the natural aspect ratio, and to
+   decide whether the tile shares a row or takes the whole one, so a wrong pair
+   means a distorted tile, a layout jump, or the wrong span.
 3. Optionally add a blur preview for it in [`content/blur.ts`](./content/blur.ts)
    — that file explains how to generate one in a single command. Without an
    entry the tile still works; it just fades in from empty rather than from a
@@ -86,11 +89,17 @@ Gallery photos live in `public/images/gallery/` and are wired to tiles via the
 > set to `""` falls back to a labelled placeholder block, and its `label` field
 > is what shows there.
 
-> Gallery images are loaded **eagerly at low priority**, which looks wrong but
-> is not: Chromium's `loading="lazy"` fails to load images stranded in the
-> trailing column of a CSS multi-column container, which silently cost this
-> grid two of its six photos on desktop. Don't switch them back to lazy without
-> re-checking that every tile still loads at the 3-column breakpoint.
+The section lays out as a two-column grid: images narrower than a 1.5:1 ratio
+share a row, anything wider takes the whole row. That is read off the photo's
+own `width`/`height`, so swapping a portrait for a landscape re-flows on its
+own — no per-tile layout flags to keep in sync.
+
+> This used to be a CSS multi-column masonry, and images were forced to load
+> **eagerly** to work around Chromium failing to load images stranded in a
+> multi-column container's trailing column (it silently cost the grid two of
+> six photos on desktop). The grid is not affected, so lazy loading is back.
+> If you ever return this section to `columns-*`, re-check that every tile
+> actually loads at the widest breakpoint.
 
 > If you point a `src` at an image on **another domain**, add its hostname to
 > `next.config.mjs` under `images.remotePatterns` (required by `next/image`).
@@ -105,23 +114,25 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 
 ### Members
 
-A simple contact list. Add or remove entries in `members.people`; each needs a
-`name`, a `role`, and one contact method — either a `phone` (rendered as a
-tap-to-call `tel:` link) or an `email` (a `mailto:` link). Leave the unused
-field as `""`.
+A simple roster. Add or remove entries in `members.people`; each needs only a
+`name` and a `role`. Contact details are deliberately not shown here — all
+enquiries go through the email and WhatsApp number in the Contact section.
 
 ### Gallery page (`/gallery`)
 
-The `/gallery` route renders `galleryPage.items` from `content/site.ts` as a
-masonry grid with a lightbox. Each item is either:
+A **holding page**: an eyebrow, a heading, a line of copy and a way back, all
+editable via `galleryPage` in `content/site.ts`. It carries the site's own
+`<Nav />`, which rewrites its section links to `/#section` when it is not on
+the homepage, so every section stays one click away. It is also `noindex`
+(`follow` stays on) so a "Coming soon" result cannot surface under the site's
+name in search.
 
-- an **image** (`type: "image"`, a `src` in `/public`, plus `width`/`height`), or
-- a **video** (`type: "video"`, a `src` to an `.mp4`/`.webm` in `/public` and a
-  `poster` still). Leave `src: ""` to show the poster as a placeholder (with a
-  play affordance and a "Video coming soon" state) until the clip is added.
-
-Items currently reuse the homepage gallery images as placeholders — swap in the
-real curated assets when ready.
+The grid it replaced has **not** been deleted.
+[`components/GalleryGrid.tsx`](./components/GalleryGrid.tsx) still implements
+the full masonry plus image/video lightbox and still compiles; it just isn't
+mounted. It takes an `items` array whose shape is documented as `GalleryItem`
+at the top of that file, so bringing the real gallery back is a matter of
+supplying items and rendering `<GalleryGrid items={…} />` again.
 
 ### Brand assets (site icon + nav wordmark)
 
@@ -194,7 +205,7 @@ to rebrand:
 app/
   layout.tsx        # <html>, fonts, SEO metadata (title / description / OG)
   page.tsx          # homepage — section order for the single-page scroll
-  gallery/page.tsx  # /gallery route (minimal header + GalleryGrid)
+  gallery/page.tsx  # /gallery holding page (Nav + "Coming soon")
   globals.css       # base styles, focus rings, reduced-motion handling
   icon.svg          # favicon, vector    ┐ all three generated by
   favicon.ico       # favicon, 16/32/48  │ scripts/build-icons.mjs
@@ -202,11 +213,11 @@ app/
 components/
   Nav.tsx           # fixed header + mobile menu
   Hero.tsx          # section 1
-  Gallery.tsx       # section 2 (+ "View more" link to /gallery)
+  Gallery.tsx       # section 2 (+ "See more" link to /gallery)
   Music.tsx         # section 3
   Members.tsx       # section 4 — contact list
   Contact.tsx       # section 5 + footer
-  GalleryGrid.tsx   # /gallery masonry grid + image/video lightbox (client)
+  GalleryGrid.tsx   # masonry + lightbox — kept for the real gallery, unmounted
   SectionHeading.tsx# shared heading block
   Wordmark.tsx      # header logo lockup (homepage nav + /gallery header)
   Reveal.tsx        # scroll reveal marker (animation driven from layout.tsx)
