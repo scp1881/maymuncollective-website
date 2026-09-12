@@ -55,9 +55,15 @@ export default function Nav() {
         <a
           href="#top"
           onClick={toTop}
-          className="-m-2 flex shrink-0 items-center rounded-md p-2 transition-opacity hover:opacity-80"
+          // No hover treatment: the wordmark is the one thing in the bar that
+          // is already unmistakably a link, and dimming it read as a highlight
+          // rather than as feedback. The negative margin + padding keeps a
+          // comfortable tap target without making the mark itself bigger, and
+          // the rounded corner is only there for the keyboard focus ring, which
+          // stays (see :focus-visible in globals.css).
+          className="-m-2 flex shrink-0 items-center rounded-md p-2"
         >
-          <Wordmark className="h-9 sm:h-10" />
+          <Wordmark className="h-8 sm:h-9" />
         </a>
 
         {/* Desktop links */}

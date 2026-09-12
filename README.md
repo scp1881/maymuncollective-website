@@ -167,7 +167,7 @@ isolated document where `currentColor` resolves to its own default black — the
 wordmark would vanish against the dark header. If you change `bone` in
 `tailwind.config.ts`, update `BONE` in the script and regenerate.
 
-Size it with a height class — `<Wordmark className="h-9 sm:h-10" />`. The width
+Size it with a height class — `<Wordmark className="h-8 sm:h-9" />`. The width
 follows from the file's intrinsic 1.75 ratio, so the header reserves the right
 box and does not shift while it loads.
 
