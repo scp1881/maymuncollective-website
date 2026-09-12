@@ -1,34 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
 import { site } from "@/content/site";
 import "./globals.css";
-
-// Display face: tight, modern, a little characterful — used for headings.
-//
-// Left as a variable font on purpose: the design uses three weights (500/600/
-// 700) and one variable file covers all of them. Pinning `weight` was measured
-// and is worse — Google serves a separate static file per weight, and for Inter
-// those are no smaller than the variable font, so the payload multiplies.
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-// Body face: clean, highly legible workhorse.
-//
-// Kept preloaded. Dropping its preload was tried — it is the largest font on
-// the site (~47 KB) and never sets the LCP element — and it did land the
-// display font ~120 ms sooner, but it bought nothing measurable because LCP
-// here is gated by the hero's own entrance animation, not by fonts. What it did
-// cost was visible: body text swapped from the fallback at ~1.85 s, i.e. after
-// the hero had already finished animating in, turning an unnoticed swap into a
-// visible one. Not a good trade.
-const body = Inter({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -72,14 +44,20 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
-      {/* The Music section's Spotify embed is lazy-loaded, so the browser only
-          discovers open.spotify.com once the visitor scrolls to it — and then
-          pays DNS + TCP + TLS before a single byte of the player arrives.
-          Warming the connection up front turns that into a much shorter wait.
-          Only the embed's own origin is listed; the player pulls its assets
-          from further hosts, but speculatively connecting to all of them would
-          cost more on the initial load than it saves. */}
+    <html lang="en">
+      {/* The two `latin` faces cover everything above the fold, so they are
+          preloaded; the `ext` faces (Turkish letters in the member names, far
+          down the page) are left to be discovered by unicode-range, which keeps
+          them off the critical path. Declared here rather than by next/font,
+          which no longer manages these — see app/globals.css. */}
+      <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      {/* The Spotify player is now deliberately withheld until the Music
+          section nears the viewport (see components/SpotifyEmbed), so the
+          browser would otherwise not discover open.spotify.com until then and
+          would pay DNS + TCP + TLS before a single byte of the player arrived.
+          Warming just that one origin up front turns the wait on arrival into a
+          much shorter one, without pulling any of the player itself. */}
       <link rel="preconnect" href="https://open.spotify.com" />
       <body>
         {/* Scroll-reveal enhancement. Deliberately an inline, blocking script

@@ -68,7 +68,13 @@ export const gallery = {
 export const music = {
   heading: "Music",
   subheading: "Listen on Spotify.",
-  spotifyEmbed: `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`,
+  spotifyEmbed: `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`,
+  // Height the embed renders at, in px. The placeholder reserves exactly this
+  // so swapping in the real player shifts nothing. Keep it in step with the
+  // `height` in the iframe above.
+  embedHeight: 352,
+  // Plain link to the same artist, used as the no-JS fallback.
+  spotifyUrl: "https://open.spotify.com/artist/65l6MjVrzKqg5gNzo5K7ly",
 };
 
 /* --------------------------------------------------------------- MEMBERS */

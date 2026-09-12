@@ -110,7 +110,66 @@ own — no per-tile layout flags to keep in sync.
 The Music section renders a single **Spotify artist embed**. To change it, open
 the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 `<iframe …>` snippet, and paste it into `music.spotifyEmbed` in
-`content/site.ts`.
+`content/site.ts`. Also update `music.spotifyUrl` (the no-JS fallback link) and
+`music.embedHeight` if the embed's height changes.
+
+> **The player is deliberately deferred.** `loading="lazy"` was not enough: it
+> is only a hint about viewport distance, and on a page this short Chromium
+> decided the Music section was close enough to fetch immediately — measured
+> going out at +751ms on *every* cold load, at VeryHigh priority, before any
+> scrolling. So each first visit pulled the whole Spotify player (a
+> megabyte-plus of third-party JS, plus its main-thread cost) alongside the
+> hero, whether or not the visitor ever scrolled that far.
+>
+> [`components/SpotifyEmbed.tsx`](./components/SpotifyEmbed.tsx) now injects the
+> iframe from an IntersectionObserver with a 400px margin, so it starts loading
+> just before the section appears. Nothing changes for someone scrolling down.
+> Don't "simplify" this back to a bare iframe without re-checking that
+> `open.spotify.com` is not requested on initial load.
+
+### Webfonts
+
+Both families are **self-hosted from `public/fonts/` and subsetted**, not loaded
+through `next/font`.
+
+Google splits these fonts by `unicode-range`, and the ranges this site renders
+came to ~88 KB across three files. Those are High-priority requests competing
+with the render-blocking stylesheet, so they sit directly on first paint — and
+the site needs a few hundred glyphs, not the several thousand they carry.
+Subsetting takes the loaded total to ~65 KB.
+
+| Piece | Where |
+| :--- | :--- |
+| Served, subsetted fonts | `public/fonts/*.woff2` |
+| Unsubsetted originals (not served) | `fonts-src/*.woff2` |
+| `@font-face` + metric-matched fallbacks | `app/globals.css` |
+| Preloads for the two above-the-fold faces | `app/layout.tsx` |
+| Subsetting script | [`scripts/build-fonts.py`](./scripts/build-fonts.py) |
+
+```bash
+pip install fonttools brotli && python3 scripts/build-fonts.py
+```
+
+Things worth knowing before changing any of this:
+
+- **The originals are vendored on purpose.** `next/font` no longer manages these,
+  so without `fonts-src/` there would be nothing left to subset from and the
+  pipeline would be a one-way door.
+- **The glyph set is deliberately wider than today's copy** — all of Latin-1 and
+  Latin Extended-A. A new member name or a line of Turkish, Spanish, Polish or
+  Czech copy therefore cannot end up silently rendering one letter in Arial.
+  Adding a character outside that range means re-running the script.
+- **The `… Fallback` faces are `next/font`'s own generated output, copied
+  verbatim** (`ascent-override`, `descent-override`, `size-adjust`). They pin
+  Arial's metrics to each webfont's so the swap moves no text. Measured CLS is
+  `0.0000`; deleting them would trade a font saving for layout shift.
+- **`unicode-range` values are Google's, unchanged**, so the extended file is
+  still only fetched when a page actually renders a character from it. On the
+  homepage that means three files load, not four — the Turkish letters in the
+  member names are set in the display face, so Inter's extended file is never
+  requested.
+- The fonts get a one-year immutable `Cache-Control` via `next.config.mjs`;
+  files in `/public` are otherwise served with `max-age=0`.
 
 ### Members
 
@@ -192,8 +251,8 @@ to rebrand:
 - **Palette:** off-black (`ink`) / warm off-white (`bone`) with a single vivid
   signal **accent** (`#a855f7`). Change the one `accent` value to re-theme the
   whole site.
-- **Type:** `Space Grotesk` (display / headings) + `Inter` (body), loaded via
-  `next/font` in `app/layout.tsx`.
+- **Type:** `Space Grotesk` (display / headings) + `Inter` (body), self-hosted
+  and subsetted — see [Webfonts](#webfonts).
 - **Motion:** subtle scroll-triggered fade-ups via the `Reveal` component; all
   motion respects `prefers-reduced-motion`.
 
@@ -220,13 +279,17 @@ components/
   GalleryGrid.tsx   # masonry + lightbox — kept for the real gallery, unmounted
   SectionHeading.tsx# shared heading block
   Wordmark.tsx      # header logo lockup (homepage nav + /gallery header)
+  SpotifyEmbed.tsx  # defers the player until the Music section nears the viewport
   Reveal.tsx        # scroll reveal marker (animation driven from layout.tsx)
 content/
   site.ts           # ★ ALL editable copy & placeholders
   blur.ts           # tiny inlined blur previews for the gallery images
 scripts/
   build-icons.mjs   # regenerates the app/ icons from Favicon.svg
+  build-fonts.py    # subsets the webfonts from fonts-src/ into public/fonts/
+fonts-src/          # unsubsetted font originals (not served)
 public/
+  fonts/            # subsetted webfonts (generated — see Webfonts)
   logo-wordmark.svg # header wordmark (generated — see Brand assets)
   og-placeholder.svg# social share image (replaceable)
 tailwind.config.ts  # design tokens (colors, fonts)

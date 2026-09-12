@@ -1,10 +1,11 @@
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
+import SpotifyEmbed from "@/components/SpotifyEmbed";
 import { music } from "@/content/site";
 
 /**
- * Renders the Spotify artist embed. The embed string is trusted, operator-
- * authored markup pasted from Spotify's Share ▸ Embed dialog (not user input).
+ * The Music section. The player itself is deferred until this section nears the
+ * viewport — see components/SpotifyEmbed for why.
  */
 export default function Music() {
   return (
@@ -17,10 +18,7 @@ export default function Music() {
         />
 
         <Reveal className="mx-auto max-w-3xl">
-          <div
-            className="overflow-hidden rounded-xl [&_iframe]:block [&_iframe]:w-full"
-            dangerouslySetInnerHTML={{ __html: music.spotifyEmbed }}
-          />
+          <SpotifyEmbed />
         </Reveal>
       </div>
     </section>
