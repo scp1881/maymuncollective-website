@@ -22,6 +22,26 @@ const nextConfig = {
     // remotePatterns: [{ protocol: "https", hostname: "images.example.com" }],
     remotePatterns: [],
   },
+
+  async headers() {
+    return [
+      {
+        // Files in /public are served with `max-age=0` by default, so the
+        // self-hosted fonts would be revalidated on every navigation. Their
+        // contents only change when scripts/build-fonts.py is re-run, and that
+        // is a deliberate act, so they are safe to pin hard. (Assets under
+        // /_next/static already get this automatically via content hashing.)
+        source: "/fonts/:file*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // Same reasoning, but a shorter window: the wordmark has a stable
+        // filename, so a year of immutability would make replacing it awkward.
+        source: "/logo-wordmark.svg",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -22,8 +22,11 @@ const config: Config = {
         accent: "#a855f7", // single accent — swap this one value to re-theme
       },
       fontFamily: {
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
-        body: ["var(--font-body)", "system-ui", "sans-serif"],
+        // The "… Fallback" entries are the metric-matched Arial faces declared
+        // in globals.css; they sit between the real face and system-ui so text
+        // shown before the webfont arrives occupies the same space.
+        display: ["Space Grotesk", "Space Grotesk Fallback", "system-ui", "sans-serif"],
+        body: ["Inter", "Inter Fallback", "system-ui", "sans-serif"],
       },
       letterSpacing: {
         tightest: "-0.04em",
@@ -35,7 +38,14 @@ const config: Config = {
         },
       },
       animation: {
-        "fade-up": "fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        // 0.35s, not 0.7s. This animation is what reveals the hero headline,
+        // which is the page's LCP element — so its duration and delay are added
+        // directly onto LCP, because the browser cannot count an element that
+        // is still transparent. Measured on a throttled cold load: 0.7s with a
+        // 150ms delay put LCP at 1468ms; at 0.35s with no delay it is 884ms,
+        // and with no animation at all 736ms, which is simply FCP. The fade is
+        // worth ~150ms of that; the other ~580ms was not buying anything.
+        "fade-up": "fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards",
       },
     },
   },

@@ -13,6 +13,11 @@ import { hero } from "@/content/site";
  * `tracking-[-0.03em]` is slightly tighter than the old setting — at this size
  * the default spacing reads loose, and pulling it in also buys the width that
  * lets the type run larger.
+ *
+ * The headline carries no animation delay on purpose. It is the LCP element, so
+ * every millisecond before it is opaque is a millisecond of LCP; the tagline and
+ * scroll cue keep a stagger behind it, just a much tighter one than before. See
+ * the note on `fade-up` in tailwind.config.ts for the measurements.
  */
 export default function Hero() {
   return (
@@ -27,7 +32,7 @@ export default function Hero() {
       />
 
       <div className="container-page relative">
-        <h1 className="animate-fade-up font-display text-[clamp(3.5rem,15.5vw,12rem)] font-bold uppercase leading-[0.82] tracking-[-0.03em] opacity-0 [animation-delay:150ms]">
+        <h1 className="animate-fade-up font-display text-[clamp(3.5rem,15.5vw,12rem)] font-bold uppercase leading-[0.82] tracking-[-0.03em] opacity-0">
           {hero.titleLines.map((line) => (
             <span key={line} className="block">
               {line}
@@ -35,7 +40,7 @@ export default function Hero() {
           ))}
         </h1>
 
-        <p className="mt-8 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:350ms] sm:mt-10 sm:text-xl">
+        <p className="mt-8 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:120ms] sm:mt-10 sm:text-xl">
           {hero.tagline}
         </p>
       </div>
@@ -51,7 +56,7 @@ export default function Hero() {
       {/* Scroll cue */}
       <a
         href="#gallery"
-        className="group absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit animate-fade-up flex-col items-center gap-2 text-muted opacity-0 [animation-delay:600ms]"
+        className="group absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit animate-fade-up flex-col items-center gap-2 text-muted opacity-0 [animation-delay:260ms]"
         aria-label={`${hero.scrollCue} to gallery`}
       >
         <span className="text-xs uppercase tracking-[0.2em] transition-colors group-hover:text-bone">
