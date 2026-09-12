@@ -1,25 +1,19 @@
 import { hero } from "@/content/site";
 
 /**
- * Renders the hero title, wrapping the `highlight` substring in an accent block
- * with the letters knocked out in the page background colour. The highlight is
- * an inline background (box-decoration-break: clone) so it hugs the letters and
- * sits in the normal flow without shifting the baseline or line height.
+ * Hero: the name as a two-line stacked lockup, a tagline, and a scroll cue.
+ *
+ * The two lines are rendered as separate blocks at the same font size, with
+ * `leading-[0.82]` closing the gap between them so "MAYMUN" and "COLLECTIVE"
+ * read as one mass rather than two sentences. The size is driven by the longer
+ * line: `clamp()` is tuned so COLLECTIVE lands just inside the container gutter
+ * at every width, which is what makes the block feel sized *to* the hero
+ * instead of floating in it.
+ *
+ * `tracking-[-0.03em]` is slightly tighter than the old setting — at this size
+ * the default spacing reads loose, and pulling it in also buys the width that
+ * lets the type run larger.
  */
-function renderTitle(title: string, highlight: string) {
-  const idx = highlight ? title.toLowerCase().indexOf(highlight.toLowerCase()) : -1;
-  if (idx === -1) return title;
-  return (
-    <>
-      {title.slice(0, idx)}
-      <span className="bg-[#9333ea] px-[0.06em] py-[0.02em] text-ink [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
-        {title.slice(idx, idx + highlight.length)}
-      </span>
-      {title.slice(idx + highlight.length)}
-    </>
-  );
-}
-
 export default function Hero() {
   return (
     <section
@@ -33,17 +27,21 @@ export default function Hero() {
       />
 
       <div className="container-page relative">
-        <h1 className="animate-fade-up whitespace-pre-line font-display text-[clamp(3.25rem,13vw,10rem)] font-bold uppercase leading-[0.9] tracking-[-0.02em] opacity-0 [animation-delay:150ms]">
-          {renderTitle(hero.title, hero.highlight)}
+        <h1 className="animate-fade-up font-display text-[clamp(3.5rem,15.5vw,12rem)] font-bold uppercase leading-[0.82] tracking-[-0.03em] opacity-0 [animation-delay:150ms]">
+          {hero.titleLines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
         </h1>
 
-        <p className="mt-6 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:350ms] sm:mt-8 sm:text-xl">
+        <p className="mt-8 max-w-xl animate-fade-up text-lg text-muted opacity-0 [animation-delay:350ms] sm:mt-10 sm:text-xl">
           {hero.tagline}
         </p>
       </div>
 
       {/* Bottom fade: dissolves the section (and its glow) into the page
-          background so the hand-off to the Visuals section reads as a smooth
+          background so the hand-off to the Gallery section reads as a smooth
           gradient rather than a hard edge. */}
       <div
         aria-hidden="true"
@@ -52,9 +50,9 @@ export default function Hero() {
 
       {/* Scroll cue */}
       <a
-        href="#visuals"
+        href="#gallery"
         className="group absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit animate-fade-up flex-col items-center gap-2 text-muted opacity-0 [animation-delay:600ms]"
-        aria-label={`${hero.scrollCue} to visuals`}
+        aria-label={`${hero.scrollCue} to gallery`}
       >
         <span className="text-xs uppercase tracking-[0.2em] transition-colors group-hover:text-bone">
           {hero.scrollCue}

@@ -3,72 +3,77 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import { blurProps } from "@/content/blur";
-import { visuals } from "@/content/site";
+import { gallery } from "@/content/site";
+
+/** An image at least this wide relative to its height takes the full row
+ *  instead of sharing it. Derived from the photo itself rather than hard-coded
+ *  per tile, so swapping a portrait for a landscape re-lays-out on its own. */
+const WIDE_RATIO = 1.5;
+
+// A half-width tile at each breakpoint, and a full-width one. Both spell out
+// (content width − gaps) ÷ columns for the layout below: a max-w-6xl (1152px)
+// container with px-6 / sm:px-8 / lg:px-10 gutters, one column below 640px and
+// two above it, with a 16px gap. Keep these in step with the grid classes.
+const HALF_SIZES =
+  "(min-width: 1232px) 528px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 640px) calc((100vw - 80px) / 2), calc(100vw - 48px)";
+const FULL_SIZES =
+  "(min-width: 1232px) 1072px, (min-width: 1024px) calc(100vw - 80px), (min-width: 640px) calc(100vw - 64px), calc(100vw - 48px)";
 
 export default function Gallery() {
   return (
-    <section id="visuals" className="scroll-mt-20 py-24 sm:py-32">
+    <section id="gallery" className="scroll-mt-20 py-24 sm:py-32">
       <div className="container-page">
         <SectionHeading
-          eyebrow="01 — Visuals"
-          heading={visuals.heading}
-          subheading={visuals.subheading}
+          eyebrow="01 — Gallery"
+          heading={gallery.heading}
+          subheading={gallery.subheading}
         />
 
-        {/* CSS multi-column masonry. Each image keeps its natural aspect ratio
-            (rendered via next/image with its real width/height), so nothing is
-            cropped or distorted — tiles simply flow into 2 columns on mobile
-            and 3 on larger screens. */}
-        <div className="columns-2 [column-gap:0.75rem] sm:columns-3 sm:[column-gap:1rem]">
-          {visuals.images.map((img, i) => (
-            <Reveal
-              key={img.id}
-              delay={i * 60}
-              className="mb-3 break-inside-avoid sm:mb-4"
-            >
-              {img.src ? (
-                <div className="group relative overflow-hidden rounded-lg bg-surface">
-                  <Image
-                    src={img.src}
-                    alt={img.alt}
-                    width={img.width}
-                    height={img.height}
-                    // Derived from the actual masonry geometry, not estimated.
-                    // `33vw` was 37% wider than a tile really is, and the
-                    // browser believed it: it fetched a 640px file for a 347px
-                    // slot. The container is max-w-6xl (1152px) with px-6 /
-                    // sm:px-8 / lg:px-10 gutters, 2 columns and a 12px gap
-                    // below 640px, 3 columns and a 16px gap above it — so a
-                    // tile is (content width − gaps) ÷ columns, which is what
-                    // each clause below spells out. Keep these in step with the
-                    // column/gap/padding classes on the wrapper.
-                    sizes="(min-width: 1232px) 347px, (min-width: 1024px) calc((100vw - 112px) / 3), (min-width: 640px) calc((100vw - 96px) / 3), calc((100vw - 60px) / 2)"
-                    // `eager`, deliberately, despite every tile starting below
-                    // the fold. Chromium's lazy-loading miscomputes visibility
-                    // for elements fragmented across a CSS multi-column
-                    // container, and the last column here — two of the six
-                    // photos on the 3-column desktop layout — was never
-                    // fetched at all, at any scroll position or viewport
-                    // height. (The 2-column mobile layout was unaffected,
-                    // which is what gives the cause away.) Eager loading side-
-                    // steps the bug; `fetchPriority="low"` then keeps these off
-                    // the critical path, so the hero still paints first.
-                    loading="eager"
-                    fetchPriority="low"
-                    {...blurProps(img.src)}
-                    className="h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                  />
-                  {/* Hover veil for a touch of polish. Decorative only. */}
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                  />
-                </div>
-              ) : (
-                <Placeholder index={i} label={img.label} />
-              )}
-            </Reveal>
-          ))}
+        {/* An explicit two-column grid rather than the CSS multi-column masonry
+            this section used to use. With three photos, column balancing put
+            them at unrelated sizes; a grid lets the two portraits — which share
+            an identical 1708x2560 ratio — sit level as a pair, with the wide
+            crowd shot spanning the row beneath.
+
+            Dropping multi-column also means `loading="lazy"` is safe again.
+            Chromium fails to load images stranded in the trailing column of a
+            multi-column container, which is why these were previously forced
+            eager; in a grid they lazy-load correctly, verified at both
+            breakpoints. */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          {gallery.images.map((img, i) => {
+            const wide = img.width / img.height >= WIDE_RATIO;
+            return (
+              <Reveal
+                key={img.id}
+                delay={i * 80}
+                className={wide ? "sm:col-span-2" : undefined}
+              >
+                {img.src ? (
+                  <div className="group relative h-full overflow-hidden rounded-lg bg-surface">
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      width={img.width}
+                      height={img.height}
+                      sizes={wide ? FULL_SIZES : HALF_SIZES}
+                      loading="lazy"
+                      fetchPriority="low"
+                      {...blurProps(img.src)}
+                      className="h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                    />
+                    {/* Hover veil for a touch of polish. Decorative only. */}
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    />
+                  </div>
+                ) : (
+                  <Placeholder index={i} label={img.label} />
+                )}
+              </Reveal>
+            );
+          })}
         </div>
 
         {/* Understated link through to the full gallery page. */}
@@ -77,7 +82,7 @@ export default function Gallery() {
             href="/gallery"
             className="group inline-flex items-center gap-2 border-b border-line pb-1 text-sm font-medium uppercase tracking-[0.15em] text-muted transition-colors hover:border-accent hover:text-bone"
           >
-            View more
+            See more
             <span
               aria-hidden="true"
               className="transition-transform duration-300 group-hover:translate-x-1"
