@@ -18,9 +18,9 @@ export default function GalleryPage() {
         <nav className="container-page flex h-16 items-center justify-between" aria-label="Primary">
           <Link
             href="/"
-            className="-m-2 flex shrink-0 items-center rounded-md p-2 transition-opacity hover:opacity-80"
+            className="-m-2 flex shrink-0 items-center rounded-md p-2"
           >
-            <Wordmark className="h-9 sm:h-10" />
+            <Wordmark className="h-8 sm:h-9" />
           </Link>
           <Link
             href="/"

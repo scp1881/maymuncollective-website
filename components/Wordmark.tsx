@@ -22,7 +22,7 @@ const H = 168;
  * or it would override this and duplicate the labelling. It also means the name
  * still renders as text if the SVG ever fails to load.
  *
- * Size it with a height class (e.g. `h-9 sm:h-10`); width follows.
+ * Size it with a height class (e.g. `h-8 sm:h-9`); width follows.
  */
 export default function Wordmark({ className = "" }: { className?: string }) {
   return (
