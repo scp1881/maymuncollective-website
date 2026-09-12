@@ -64,7 +64,7 @@ No environment variables are required.
 | Gallery page items (images + video) | `content/site.ts` → `galleryPage.items` | — |
 | Social links | `content/site.ts` → `contact.socials` | — |
 | Social share image | `public/og-placeholder.svg` | (replace the file) |
-| Site icon / favicon | `Favicon.svg` → run `scripts/build-icons.mjs` | — |
+| Site icon + nav wordmark | `Favicon.svg` → run `scripts/build-icons.mjs` | — |
 
 ### Gallery images
 
@@ -123,18 +123,19 @@ masonry grid with a lightbox. Each item is either:
 Items currently reuse the homepage gallery images as placeholders — swap in the
 real curated assets when ready.
 
-### Site icon (favicon)
+### Brand assets (site icon + nav wordmark)
 
-Three files in `app/` are picked up by Next automatically, by filename — there
-is no config and no `<link>` tag to write:
+Four files are generated from a single design source. The three in `app/` are
+picked up by Next automatically, by filename — no config, no `<link>` tags:
 
 | File | Size | Used by |
 | :--- | :--- | :--- |
 | `app/icon.svg` | vector | Modern browsers — stays crisp at any size |
 | `app/favicon.ico` | 16 / 32 / 48 | Older browsers, Windows, Google Search |
 | `app/apple-icon.png` | 180×180 | iOS home screen |
+| `public/logo-wordmark.svg` | vector | The header wordmark, via `components/Wordmark.tsx` |
 
-All three are **generated**, not hand-drawn. The design source is
+All four are **generated**, not hand-drawn. The design source is
 [`Favicon.svg`](./Favicon.svg) at the repo root; to change the icon, replace
 that file and regenerate:
 
@@ -154,6 +155,21 @@ crowds the disc).
 > Google requires a favicon that is square and a **multiple of 48px** — the
 > `.ico` carries a 48×48 for exactly this, and the SVG has no size requirement.
 > If you swap these files by hand, keep that in mind.
+
+The **wordmark** is the arched "MAYMUN COLLECTIVE" lockup. It is not drawn in
+the badge art — it is the luminance mask the badge is built from, embedded in
+`Favicon.svg`, and it trims to only 294×168, which is too soft for a retina
+header. So it is traced to vector too.
+
+Its fill is **baked** to the palette's `bone` value rather than left as
+`currentColor`: it loads through an `<img>`, and an SVG in an `<img>` is an
+isolated document where `currentColor` resolves to its own default black — the
+wordmark would vanish against the dark header. If you change `bone` in
+`tailwind.config.ts`, update `BONE` in the script and regenerate.
+
+Size it with a height class — `<Wordmark className="h-9 sm:h-10" />`. The width
+follows from the file's intrinsic 1.75 ratio, so the header reserves the right
+box and does not shift while it loads.
 
 ---
 
@@ -192,6 +208,7 @@ components/
   Contact.tsx       # section 5 + footer
   GalleryGrid.tsx   # /gallery masonry grid + image/video lightbox (client)
   SectionHeading.tsx# shared heading block
+  Wordmark.tsx      # header logo lockup (homepage nav + /gallery header)
   Reveal.tsx        # scroll reveal marker (animation driven from layout.tsx)
 content/
   site.ts           # ★ ALL editable copy & placeholders
@@ -199,6 +216,7 @@ content/
 scripts/
   build-icons.mjs   # regenerates the app/ icons from Favicon.svg
 public/
+  logo-wordmark.svg # header wordmark (generated — see Brand assets)
   og-placeholder.svg# social share image (replaceable)
 tailwind.config.ts  # design tokens (colors, fonts)
 ```

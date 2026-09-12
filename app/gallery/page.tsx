@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import GalleryGrid from "@/components/GalleryGrid";
-import { galleryPage, site } from "@/content/site";
+import Wordmark from "@/components/Wordmark";
+import { galleryPage } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Gallery",
@@ -17,9 +18,9 @@ export default function GalleryPage() {
         <nav className="container-page flex h-16 items-center justify-between" aria-label="Primary">
           <Link
             href="/"
-            className="font-display text-sm font-semibold uppercase tracking-tightest"
+            className="-m-2 flex shrink-0 items-center rounded-md p-2 transition-opacity hover:opacity-80"
           >
-            {site.name}
+            <Wordmark className="h-9 sm:h-10" />
           </Link>
           <Link
             href="/"

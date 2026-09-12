@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { nav, site } from "@/content/site";
+import { useCallback, useEffect, useState } from "react";
+import Wordmark from "@/components/Wordmark";
+import { nav } from "@/content/site";
 
 /**
  * Minimal fixed header. Transparent over the hero, then gains a subtle
@@ -18,6 +19,27 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /**
+   * Home / back-to-top. The anchor still points at #top so it works without
+   * JS, but plain `href="#top"` is not quite the behaviour wanted here: it
+   * lands 80px short (globals.css sets `scroll-padding-top: 5rem` so section
+   * anchors clear the fixed nav), leaves `#top` stuck in the address bar, and
+   * does nothing at all if the hash is already `#top`. Scrolling explicitly to
+   * 0 avoids all three.
+   *
+   * `scroll-behavior: smooth` in CSS does not apply to scrollTo(), so the
+   * reduced-motion preference has to be honoured here rather than inherited.
+   */
+  const toTop = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Let modified clicks (new tab/window) behave normally.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    setOpen(false);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }, []);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -32,9 +54,10 @@ export default function Nav() {
       >
         <a
           href="#top"
-          className="font-display text-sm font-semibold uppercase tracking-tightest"
+          onClick={toTop}
+          className="-m-2 flex shrink-0 items-center rounded-md p-2 transition-opacity hover:opacity-80"
         >
-          {site.name}
+          <Wordmark className="h-9 sm:h-10" />
         </a>
 
         {/* Desktop links */}
