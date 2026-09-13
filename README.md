@@ -6,7 +6,7 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 
 ## Sections (in order)
 
-1. **Hero** — the name set as a centred poster over a still of the stage
+1. **Hero** — a still of the stage; the LED backdrop in it carries the name
 2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
 4. **Members** — the roster (name / role)
@@ -143,31 +143,37 @@ history is in PRs #28–#30.
 
 Four things about the treatment are deliberate:
 
-- **The type is centred because the photograph is.** The arch, the LED backdrop
-  and the barrier all mirror around the centre line; a left-aligned headline
-  fought that and left the right-hand third empty.
-- **The backdrop lettering is a design constraint.** The stage's LED screen
-  shows the collective's own wordmark, large and dead centre, and the headline
-  is the same two words. They must not overlap — a headline slicing through the
-  backdrop's "COLLECTIVE" reads as a bug. The gold ends at 47% of the frame's
-  height, so the content is anchored to the foot of the section and the headline
-  sized to clear it. What makes the repetition *work* is the size gap: the
-  headline runs nearly the full viewport width, so the hand-drawn mark reads as
-  a banner in a photograph rather than a competing logo. Shrinking the headline
-  is what would make it look like a mistake.
-- **Portrait gets a band, not a crop.** Covering a 9:16 screen with a 16:9 frame
-  shows only its middle sliver, which halves the lockup. So on portrait
-  (`max-aspect-ratio: 1/1`) the photograph becomes a 4:3 band across the top,
-  feathered into the page, with the type centred in the space below it. The band
-  is exactly `75vw` tall, which is where the section's portrait `padding-top`
-  comes from.
-- **The scrim runs bottom-to-top, not left-to-right.** Two stacked ink layers
-  put the foot of the section near 93% dark and the top around 33% — legible
-  type where the type is, a lit stage above it.
+- **There is no visible headline, and that is the point.** The stage's LED
+  screen shows the collective's own hand-drawn wordmark, large and dead centre.
+  Setting the same two words underneath it in a grotesque said everything twice,
+  and every attempt to make that work — left-aligned, centred, sized to clear
+  the lettering — was damage control on the repetition. The photograph's lockup
+  is the title now.
+- **The `<h1>` still exists; only its pixels are gone.** It carries `sr-only`.
+  The photograph is decorative (`alt=""`, correctly — it is a backdrop), so
+  without that element a screen reader would meet a page with no name and a
+  search result would have nothing under the title tag. Hiding it is fine;
+  **deleting it is the one change here that would actually break something.**
+- **The lockup must never be cropped**, since it is the only thing naming the
+  collective on that screen. Measured off the frame, the gold spans x 528–1344
+  of 1920 and its midpoint is 48.75%, not 50% — so `object-position` is set to
+  that, and any container down to a 4:5 aspect shows it whole. Landscape fills
+  the section; portrait gets a **6:7 band** across the top, feathered into the
+  page, with the tagline centred below. The band is `116.67vw` tall, which is
+  where the section's portrait `padding-top` comes from — change one and the
+  other has to follow.
+- **The scrim is light** — top around 19%, foot near 86%. It no longer has to
+  bed bone type at 10vw, only keep the nav legible and hand off to the page.
+
+> **Neither the tagline nor the `<h1>` may fade in.** Chrome will not treat a
+> transparent element as an LCP candidate, so a fade on the largest text on the
+> first screen pushes LCP out by the length of the animation — measured at
+> 672 ms without, ~1150 ms with. The scroll cue keeps its fade; nothing is gated
+> on that.
 
 Swapping the photograph: replace the three files at `public/images/hero-stage.*`
-(same aspect ratio, or re-check the two clearances above). Nothing else needs to
-change — there is no blur placeholder and no `content/` entry for it.
+(same aspect ratio, or re-check the crop clearances above). Nothing else needs
+to change — there is no blur placeholder and no `content/` entry for it.
 
 ### Webfonts
 
