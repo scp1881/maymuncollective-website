@@ -40,15 +40,18 @@ export default function Hero() {
 
       {/* Directional scrim — heavy behind the type, open over the stage.
           Two stacked ink layers, so the darkness at any point is
-          1 − (1−gradient)(1−flat). With the flat layer at 0.15 that puts the
-          left edge near 0.87, the middle around 0.66 and the right about 0.40:
-          enough for bone type on the left, light enough on the right that the
-          film still reads as film rather than a grey wash. */}
+          1 − (1−gradient)(1−flat). With the flat layer at 0.10 that puts the
+          left edge near 0.78, the middle around 0.50 and the right about 0.23.
+          Sampled off a render, the backdrop behind the headline averages 14:1
+          against bone — a clean bed for the type — while the right is open
+          enough that the stage lights and the band read as footage rather than
+          a grey wash. Lighter than this and bright frames start to crowd the
+          letters; darker and the film may as well be a still. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/60 to-ink/30"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/75 via-ink/45 to-ink/15"
       />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-ink/15" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-ink/10" />
       {/* Keeps the fixed nav legible over the film. */}
       <div
         aria-hidden="true"
@@ -60,7 +63,7 @@ export default function Hero() {
           for the nav's logo. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 h-[45%] w-[45%] bg-[radial-gradient(ellipse_at_top_left,theme(colors.ink)_0%,transparent_70%)]"
+        className="pointer-events-none absolute left-0 top-0 h-[55%] w-[50%] bg-[radial-gradient(ellipse_at_top_left,theme(colors.ink)_0%,theme(colors.ink)_32%,transparent_78%)]"
       />
 
       <div className="container-page relative z-10">

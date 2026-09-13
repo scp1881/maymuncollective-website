@@ -141,9 +141,9 @@ wherever the raw footage lives and pass its path to the script.
 
 | File | Size | For |
 | :--- | :--- | :--- |
-| `hero-desktop.webm` / `.mp4` | 268 / 436 KB | 16:9, ≥768px |
-| `hero-mobile.webm` / `.mp4` | 267 / 390 KB | 9:16 centre crop, phones |
-| `hero-poster-*.webp` | ~9 KB | First frame, painted before the video loads |
+| `hero-desktop.webm` / `.mp4` | 843 / 1135 KB | 1280×720, landscape viewports |
+| `hero-mobile.webm` / `.mp4` | 797 / 982 KB | 608×1080 crop, portrait viewports |
+| `hero-poster-*.webp` | ~10 KB | First frame, painted before the video loads |
 
 Two things here are less obvious than they look, and both are deliberate:
 
@@ -152,23 +152,30 @@ Two things here are less obvious than they look, and both are deliberate:
   is exactly where the hero's headline lands. Used whole, the page showed two
   MAYMUN COLLECTIVEs on top of each other, misaligned. The script starts late
   in the clip and crops to the right of frame, where there is stage, lights and
-  crowd but no lettering. It also made the files a third of the size.
+  crowd but no lettering. The window is `crop=1280:720:640:360` — the bottom
+  right quadrant, which is the largest 16:9 box that clears the backdrop text
+  and is real 720p rather than an upscale.
 - **The scrim is directional.** `components/Hero.tsx` layers two ink washes so
-  the left is ~87% dark behind the type and the right only ~40%, letting the
-  film read as film. A corner wash buries the last of the backdrop lettering,
-  which drifts through the top-left at the start of the loop.
+  the left is ~78% dark behind the type and the right only ~23%, letting the
+  film read as film; the headline still averages 14:1 against its backdrop. A
+  corner wash buries the tail of the backdrop lettering, which clips the
+  top-left at the start of the loop.
 
 [`components/HeroVideo.tsx`](./components/HeroVideo.tsx) keeps it off the
-critical path: no `src` until `requestIdleCallback` fires after mount, so the
-download starts once FCP and LCP are settled. Measured against the same page
-without it, FCP, LCP, CLS and blocking time are all unchanged — the cost is
-+278 KB and about 380ms on the `load` event, nothing that affects perceived
-speed. It also declines to load at all under `prefers-reduced-motion`, Save-Data
-or a 2G/3G connection, leaving the poster.
+critical path: no `src` until `requestIdleCallback` fires after mount. Measured
+on Slow-4G with 4× CPU throttling, the video goes out at ~+1.9s against an LCP
+of ~0.8s, so FCP, LCP, CLS and blocking time are all unchanged by it — the cost
+lands entirely on the `load` event. It declines to load at all under
+`prefers-reduced-motion` or Save-Data, leaving the poster.
 
-> Autoplay requires `muted` + `playsInline`, both set. iOS Low Power Mode blocks
-> it anyway; the poster stays, which is a fine result. Don't add `autoPlay` as a
-> JSX attribute — it would start the download immediately and defeat the point.
+> **Autoplay.** Requires `muted` + `playsInline`, both set, plus `muted` again
+> imperatively because React does not reflect it to an attribute. `autoPlay` is
+> on the element too and is safe there: with no `src` at parse time it downloads
+> nothing early, and it is the backstop if the imperative `play()` is refused.
+> `play()` is retried on `loadeddata`/`canplay` and once more on the first user
+> gesture. Don't reintroduce the old `effectiveType` bail-out — Chrome reports
+> `"3g"` on plenty of usable connections, and it left people staring at a still
+> frame.
 
 ### Webfonts
 
