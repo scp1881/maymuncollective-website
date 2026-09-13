@@ -3,18 +3,24 @@
  *   app/icon.svg, app/favicon.ico, app/apple-icon.png  — the site icon
  *   public/logo-wordmark.svg                           — the nav wordmark
  *
+ * The icon is the spiral — the mark at the centre of the MAYMUN COLLECTIVE
+ * lockup. It used to be the M; the spiral is more distinctive at tab size and
+ * does not compete with the wordmark sitting next to it in the nav.
+ *
  * Why this rebuilds the art rather than just re-cropping it — measured from the
  * source, at 2048px:
- *   - the M sits 4.4% left of the badge's centre while the spiral hangs off to
- *     the right, so the mark reads visibly lop-sided;
  *   - the badge is 1980x1933, i.e. 2.4% wider than tall — not actually a circle;
+ *   - the spiral hangs off to the right of the badge's centre, so a straight
+ *     crop reads visibly lop-sided;
  *   - three stray trace artifacts sit outside the mark;
- *   - the gloss, the soft rim and the spiral all collapse into grey mush well
- *     before 32px, and at 16px the M's counters fill in so it reads as an "H".
+ *   - the gloss and the soft rim collapse into grey mush well before 32px.
  *
- * So: the exact M letterform is lifted out of the art, everything else is
- * discarded, and it is recomposed on a true circle in the badge's own measured
- * off-white. Flat, symmetrical, and legible at 16px.
+ * So: the spiral is lifted out of the art on its own, everything else is
+ * discarded, and it is recomposed centred on a true circle in the badge's own
+ * measured off-white. Flat, symmetrical, and still legible at 16px.
+ *
+ * It stays dark-on-bone rather than the bone-on-transparent the mark is drawn
+ * as in the wordmark: a pale spiral is invisible against a light tab strip.
  *
  * Regenerate after changing Favicon.svg:
  *     npm i --no-save sharp potrace && node scripts/build-icons.mjs
@@ -30,10 +36,15 @@ const SRC = "Favicon.svg";      // design source, at the repo root
 const OUT = "app";              // Next picks icons up from here by filename
 const PUB = "public";           // served assets
 const N = 2048;                 // working resolution for measuring the art
-const M_RATIO = 0.66;           // M cap-height as a fraction of the disc
+// The spiral is drawn as a thin line at a tighter gauge than the M, so it needs
+// more of the disc to survive the small sizes: rendered at 16/32/48 next to
+// 0.66 and 0.72, 0.78 is the point where the outermost turn still separates
+// from the rim at 32px while the innermost two stop merging at 48px. Below
+// ~0.70 the whole mark closes into a dot at 16px.
+const MARK_RATIO = 0.78;        // spiral diameter as a fraction of the disc
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "icons-"));
 
-/* ------------------------------------------------ 1. isolate the M ------- */
+/* ------------------------------------------------ 1. isolate the spiral -- */
 await sharp(SRC, { density: 4800 }).resize(N, N, { fit: "inside" }).png().toFile(`${TMP}/src.png`);
 const { data, info } = await sharp(`${TMP}/src.png`).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 const W = info.width, H = info.height;
@@ -46,10 +57,12 @@ for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
   if (data[i + 3] > 128 && lum < 80) ink[y * W + x] = 1;
 }
 
-// The largest connected ink region is the M. The spiral and the three trace
-// artifacts are smaller components and are simply not carried forward.
+// Connected-component pass over the badge's ink. The components are, by area:
+// the M, then the spiral, then three small trace artifacts. The icon is the
+// spiral, so this keeps the SECOND largest and discards the rest.
 const label = new Int32Array(W * H);
-let M = null, next = 1;
+const comps = [];
+let next = 1;
 for (let s = 0; s < W * H; s++) {
   if (!ink[s] || label[s]) continue;
   const id = next++, stack = [s];
@@ -65,10 +78,22 @@ for (let s = 0; s < W * H; s++) {
     if (y > 0 && ink[p - W] && !label[p - W]) { label[p - W] = id; stack.push(p - W); }
     if (y < H - 1 && ink[p + W] && !label[p + W]) { label[p + W] = id; stack.push(p + W); }
   }
-  if (!M || n > M.n) M = { id, n, x0, y0, x1, y1 };
+  comps.push({ id, n, x0, y0, x1, y1 });
 }
-const mw = M.x1 - M.x0 + 1, mh = M.y1 - M.y0 + 1;
+
+// Sorted by area: [0] is the M, [1] is the spiral. Picking by rank rather than
+// by position because the badge art has no ids or groups to select on — it is
+// a flat trace. The assertion below is what catches it if the source art ever
+// changes shape underneath this.
+comps.sort((a, b) => b.n - a.n);
+const mark = comps[1];
+if (!mark || comps.length < 2) throw new Error(`expected at least 2 ink components in ${SRC}, found ${comps.length}`);
+const mw = mark.x1 - mark.x0 + 1, mh = mark.y1 - mark.y0 + 1;
 const AR = mw / mh;
+// The spiral is near enough square; a wildly off aspect means the components
+// came out in a different order and we are about to build an icon of the M or
+// of a stray artifact.
+if (AR < 0.8 || AR > 1.25) throw new Error(`component 2 has aspect ${AR.toFixed(2)}, expected ~1 (the spiral)`);
 
 /* ------------------------------------------------ 2. badge colour -------- */
 let bx0 = 1e9, by0 = 1e9, bx1 = -1, by1 = -1;
@@ -88,20 +113,19 @@ px.sort((a, b) => a[0] + a[1] + a[2] - (b[0] + b[1] + b[2]));
 const med = px[Math.floor(px.length / 2)];
 const DISC = "#" + med.map((v) => v.toString(16).padStart(2, "0")).join("");
 
-console.log(`M: ${mw}x${mh} (aspect ${AR.toFixed(3)}), badge colour ${DISC}`);
+console.log(`spiral: ${mw}x${mh} (aspect ${AR.toFixed(3)}), badge colour ${DISC}`);
 
 /* ------------------------------------------------ 3. mask --------------- */
 const raw = Buffer.alloc(mw * mh * 4, 0);
-for (let y = M.y0; y <= M.y1; y++) for (let x = M.x0; x <= M.x1; x++) {
-  if (label[y * W + x] === M.id) raw[((y - M.y0) * mw + (x - M.x0)) * 4 + 3] = 255;
+for (let y = mark.y0; y <= mark.y1; y++) for (let x = mark.x0; x <= mark.x1; x++) {
+  if (label[y * W + x] === mark.id) raw[((y - mark.y0) * mw + (x - mark.x0)) * 4 + 3] = 255;
 }
 const maskPng = await sharp(raw, { raw: { width: mw, height: mh, channels: 4 } }).png().toBuffer();
 
 /* ------------------------------------------------ 4. compose ------------ */
-// The M is sized as a fraction of the disc. This was tuned by rendering 0.64 /
-// 0.66 / 0.68 at 16, 32 and 128px and comparing: below ~0.62 the M's counters
-// close up at 16px and it reads as an "H"; above ~0.70 it crowds the disc. 0.66
-// holds at every size, so the .ico and the .svg stay visually identical.
+// The spiral is sized as a fraction of the disc; see MARK_RATIO above for how
+// that number was arrived at. The .ico and the .svg are composed from the same
+// ratio so they stay visually identical.
 const SIZE = 1024;
 async function master(mRatio) {
   const MH = Math.round(SIZE * mRatio), MW = Math.round(MH * AR);
@@ -121,7 +145,7 @@ async function master(mRatio) {
     .png()
     .toBuffer();
 }
-const art = await master(M_RATIO);
+const art = await master(MARK_RATIO);
 
 /* ------------------------------------------------ 5. vector icon -------- */
 // A traced SVG stays crisp at every size and costs ~2 KB, so modern browsers
@@ -131,7 +155,7 @@ const d = await new Promise((res, rej) => {
   const p = new potrace.Potrace({ threshold: 128, turdSize: 8, optCurve: true, optTolerance: 0.2 });
   p.loadImage(flat, (err) => (err ? rej(err) : res(p.getPathTag().match(/ d="([^"]+)"/)[1])));
 });
-const R = 50, mH = 2 * R * M_RATIO, mW = mH * AR;
+const R = 50, mH = 2 * R * MARK_RATIO, mW = mH * AR;
 const k = mH / mh; // trace is in source-mask pixel units
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <circle cx="50" cy="50" r="50" fill="${DISC}"/>
@@ -142,11 +166,11 @@ fs.writeFileSync(`${OUT}/icon.svg`, svg);
 
 /* ------------------------------------------------ 6. emit --------------- */
 // The Apple touch icon is a square tile, not a disc — iOS applies its own
-// rounded-rect mask — so the circle is dropped and the M is set against a plain
-// field of the badge colour. It also gets its own, smaller ratio: 0.66 is tuned
-// for a disc that the corners of a square do not have, and reusing it here left
-// the M almost touching the edges.
-const APPLE = 180, AH = Math.round(APPLE * 0.52), AW = Math.round(AH * AR);
+// rounded-rect mask — so the circle is dropped and the spiral is set against a
+// plain field of the badge colour. It also gets its own, smaller ratio: the
+// disc ratio is tuned for corners a square does not have, and reusing it here
+// left the spiral almost touching the edges.
+const APPLE = 180, AH = Math.round(APPLE * 0.62), AW = Math.round(AH * AR);
 const aScaled = await sharp(maskPng).resize(AW, AH, { fit: "fill" }).toBuffer();
 const aBlack = await sharp({
   create: { width: AW, height: AH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 1 } },
