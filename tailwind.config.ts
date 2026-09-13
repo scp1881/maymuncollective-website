@@ -25,7 +25,16 @@ const config: Config = {
         // The "… Fallback" entries are the metric-matched Arial faces declared
         // in globals.css; they sit between the real face and system-ui so text
         // shown before the webfont arrives occupies the same space.
-        display: ["Space Grotesk", "Space Grotesk Fallback", "system-ui", "sans-serif"],
+        display: [
+          // "Bricolage Display" is the headline-only cut and covers only the
+          // capitals the H1s use; everything else falls through to the full
+          // face behind it. See app/globals.css.
+          "Bricolage Display",
+          "Bricolage Grotesque",
+          "Bricolage Grotesque Fallback",
+          "system-ui",
+          "sans-serif",
+        ],
         body: ["Inter", "Inter Fallback", "system-ui", "sans-serif"],
       },
       letterSpacing: {

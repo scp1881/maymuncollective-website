@@ -58,12 +58,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="build-commit" content={BUILD_COMMIT} />
-      {/* The two `latin` faces cover everything above the fold, so they are
-          preloaded; the `ext` faces (Turkish letters in the member names, far
-          down the page) are left to be discovered by unicode-range, which keeps
-          them off the critical path. Declared here rather than by next/font,
-          which no longer manages these — see app/globals.css. */}
-      <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      {/* Only what the first screen actually draws is preloaded: the
+          headline-only cut of the display face (the H1 is the LCP element) and
+          Inter's latin cut (nav and tagline). The full display face and both
+          `ext` cuts are left to be discovered by unicode-range when a heading
+          or a Turkish member name below the fold needs them, which keeps them
+          off the critical path. Declared here rather than by next/font, which
+          no longer manages these — see app/globals.css. */}
+      <link rel="preload" href="/fonts/bricolage-display.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       {/* The Spotify player is now deliberately withheld until the Music
           section nears the viewport (see components/SpotifyEmbed), so the
