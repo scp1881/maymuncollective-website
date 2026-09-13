@@ -127,55 +127,34 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 > Don't "simplify" this back to a bare iframe without re-checking that
 > `open.spotify.com` is not requested on initial load.
 
-### Hero background film
+### Hero backdrop
 
-The hero sits over a silent, looping drone pass of the stage, built into
-`public/video/` by [`scripts/build-hero-video.sh`](./scripts/build-hero-video.sh):
+The hero sits over a single still of the stage, `public/images/hero-stage.jpg`
+(1920×1080, ~306 KB), rendered by `components/Hero.tsx` as a plain server-side
+`next/image` with `priority` and `sizes="100vw"`. Next serves AVIF/WebP variants
+at the device widths listed in `next.config.mjs`.
 
-```bash
-./scripts/build-hero-video.sh /path/to/DJI_source.mov
-```
+This used to be a looping drone video. It was removed: it did not play reliably
+on real devices, and the still does everything the loop was there for at a
+fraction of the weight. There is no client component, no effect and no playback
+left to fail. If you bring motion back, know what you are taking on — the
+history is in PRs #28–#30.
 
-The ~27 MB source is **not committed** — nothing at runtime needs it. Keep it
-wherever the raw footage lives and pass its path to the script.
+Two things about the treatment are deliberate:
 
-| File | Size | For |
-| :--- | :--- | :--- |
-| `hero-desktop.webm` / `.mp4` | 843 / 1135 KB | 1280×720, landscape viewports |
-| `hero-mobile.webm` / `.mp4` | 797 / 982 KB | 608×1080 crop, portrait viewports |
-| `hero-poster-*.webp` | ~10 KB | First frame, painted before the video loads |
+- **The backdrop lettering is a design constraint.** The stage's LED screen
+  shows the collective's own wordmark, large and dead centre, and the hero's
+  headline is the same two words. To stop them reading as a duplication the
+  headline is anchored low and left (`justify-end` on the section) while the
+  lettering stays up in the lighter top half, where it reads as a photograph of
+  a stage rather than a second logo.
+- **The scrim runs bottom-to-top, not left-to-right.** Two stacked ink layers
+  put the foot of the section near 88% dark and the top around 36% — legible
+  type where the type is, a lit stage above it.
 
-Two things here are less obvious than they look, and both are deliberate:
-
-- **The crop exists to avoid a clash, not to reframe.** The stage's LED backdrop
-  shows the collective's own wordmark, dead centre for most of the clip — which
-  is exactly where the hero's headline lands. Used whole, the page showed two
-  MAYMUN COLLECTIVEs on top of each other, misaligned. The script starts late
-  in the clip and crops to the right of frame, where there is stage, lights and
-  crowd but no lettering. The window is `crop=1280:720:640:360` — the bottom
-  right quadrant, which is the largest 16:9 box that clears the backdrop text
-  and is real 720p rather than an upscale.
-- **The scrim is directional.** `components/Hero.tsx` layers two ink washes so
-  the left is ~78% dark behind the type and the right only ~23%, letting the
-  film read as film; the headline still averages 14:1 against its backdrop. A
-  corner wash buries the tail of the backdrop lettering, which clips the
-  top-left at the start of the loop.
-
-[`components/HeroVideo.tsx`](./components/HeroVideo.tsx) keeps it off the
-critical path: no `src` until `requestIdleCallback` fires after mount. Measured
-on Slow-4G with 4× CPU throttling, the video goes out at ~+1.9s against an LCP
-of ~0.8s, so FCP, LCP, CLS and blocking time are all unchanged by it — the cost
-lands entirely on the `load` event. It declines to load at all under
-`prefers-reduced-motion` or Save-Data, leaving the poster.
-
-> **Autoplay.** Requires `muted` + `playsInline`, both set, plus `muted` again
-> imperatively because React does not reflect it to an attribute. `autoPlay` is
-> on the element too and is safe there: with no `src` at parse time it downloads
-> nothing early, and it is the backstop if the imperative `play()` is refused.
-> `play()` is retried on `loadeddata`/`canplay` and once more on the first user
-> gesture. Don't reintroduce the old `effectiveType` bail-out — Chrome reports
-> `"3g"` on plenty of usable connections, and it left people staring at a still
-> frame.
+Swapping the photograph: drop a replacement at the same path, then regenerate
+its blur placeholder into `content/blur.ts` using the snippet documented at the
+top of that file. Nothing else needs to change.
 
 ### Webfonts
 
@@ -263,14 +242,22 @@ that file and regenerate:
 npm i --no-save sharp potrace && node scripts/build-icons.mjs
 ```
 
+The icon is the **spiral** — the mark at the centre of the MAYMUN COLLECTIVE
+lockup. It was the M until it was changed; the spiral is more distinctive at tab
+size and does not restate the wordmark sitting beside it in the nav.
+
 The script does more than resize, because the source is auto-traced art that
-does not survive being shrunk. It measures the badge, lifts the M out of it by
-connected-component analysis, discards the gloss, the spiral and three stray
-trace artifacts, and recomposes the mark centred on a true circle in the
-badge's own sampled colour. [`scripts/build-icons.mjs`](./scripts/build-icons.mjs)
-explains each decision inline, including why the M is sized at 66% of the disc
-(below ~62% its counters close up at 16px and it reads as an "H"; above ~70% it
-crowds the disc).
+does not survive being shrunk. It measures the badge, lifts the spiral out of it
+by connected-component analysis (it is the second-largest ink region, after the
+M — there is an assertion on its aspect ratio in case that ever stops being
+true), discards the gloss and three stray trace artifacts, and recomposes the
+mark centred on a true circle in the badge's own sampled colour.
+[`scripts/build-icons.mjs`](./scripts/build-icons.mjs) explains each decision
+inline, including why the spiral is sized at 78% of the disc — a thinner gauge
+than the M, so it needs more room before its turns merge at small sizes.
+
+It stays dark-on-bone rather than the bone-on-transparent the mark is drawn as
+in the wordmark: a pale spiral is invisible against a light tab strip.
 
 > Google requires a favicon that is square and a **multiple of 48px** — the
 > `.ico` carries a 48×48 for exactly this, and the SVG has no size requirement.
@@ -330,14 +317,12 @@ components/
   SectionHeading.tsx# shared heading block
   Wordmark.tsx      # header logo lockup (homepage nav + /gallery header)
   SpotifyEmbed.tsx  # defers the player until the Music section nears the viewport
-  HeroVideo.tsx     # hero background film, loaded off the critical path
   Reveal.tsx        # scroll reveal marker (animation driven from layout.tsx)
 content/
   site.ts           # ★ ALL editable copy & placeholders
   blur.ts           # tiny inlined blur previews for the gallery images
 scripts/
   build-icons.mjs   # regenerates the app/ icons from Favicon.svg
-  build-hero-video.sh # encodes the hero film into public/video/
   build-fonts.py    # subsets the webfonts from fonts-src/ into public/fonts/
 fonts-src/          # unsubsetted font originals (not served)
 public/
