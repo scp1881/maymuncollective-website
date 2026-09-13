@@ -35,6 +35,20 @@ const nextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
+        // The hero film and its posters, ~1 MB of it for whichever orientation
+        // a visitor gets. Without this they carry `max-age=0` like everything
+        // else in /public and are revalidated on every navigation.
+        //
+        // Their filenames are stable, so pinning them would normally strand
+        // anyone holding an old cut — components/HeroVideo appends `?v=<CUT>`
+        // to every one of these URLs for exactly that reason. Bump CUT when the
+        // encodes change and the URL changes with it. Nothing else links here,
+        // so an unversioned request pinning an old file is not a path the site
+        // can take.
+        source: "/video/:file*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
         // Same reasoning, but a shorter window: the wordmark has a stable
         // filename, so a year of immutability would make replacing it awkward.
         source: "/logo-wordmark.svg",
