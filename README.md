@@ -6,7 +6,7 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 
 ## Sections (in order)
 
-1. **Hero** — name and tagline over a looping drone shot of the stage
+1. **Hero** — the name set as a centred poster over a still of the stage
 2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
 4. **Members** — the roster (name / role)
@@ -129,10 +129,11 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 
 ### Hero backdrop
 
-The hero sits over a single still of the stage, `public/images/hero-stage.jpg`
-(1920×1080, ~306 KB), rendered by `components/Hero.tsx` as a plain server-side
-`next/image` with `priority` and `sizes="100vw"`. Next serves AVIF/WebP variants
-at the device widths listed in `next.config.mjs`.
+The hero sits over a single still of the stage, `public/images/hero-stage.*`,
+rendered by `components/Hero.tsx` as a hand-rolled `<picture>`: **AVIF 126 KB →
+WebP 158 KB → JPEG 246 KB**, one request, chosen before any script runs and
+found by the preload scanner immediately. Not `next/image`, so the format ladder
+is explicit and the file is static.
 
 This used to be a looping drone video. It was removed: it did not play reliably
 on real devices, and the still does everything the loop was there for at a
@@ -140,26 +141,43 @@ fraction of the weight. There is no client component, no effect and no playback
 left to fail. If you bring motion back, know what you are taking on — the
 history is in PRs #28–#30.
 
-Two things about the treatment are deliberate:
+Four things about the treatment are deliberate:
 
+- **The type is centred because the photograph is.** The arch, the LED backdrop
+  and the barrier all mirror around the centre line; a left-aligned headline
+  fought that and left the right-hand third empty.
 - **The backdrop lettering is a design constraint.** The stage's LED screen
-  shows the collective's own wordmark, large and dead centre, and the hero's
-  headline is the same two words. To stop them reading as a duplication the
-  headline is anchored low and left (`justify-end` on the section) while the
-  lettering stays up in the lighter top half, where it reads as a photograph of
-  a stage rather than a second logo.
+  shows the collective's own wordmark, large and dead centre, and the headline
+  is the same two words. They must not overlap — a headline slicing through the
+  backdrop's "COLLECTIVE" reads as a bug. The gold ends at 47% of the frame's
+  height, so the content is anchored to the foot of the section and the headline
+  sized to clear it. What makes the repetition *work* is the size gap: the
+  headline runs nearly the full viewport width, so the hand-drawn mark reads as
+  a banner in a photograph rather than a competing logo. Shrinking the headline
+  is what would make it look like a mistake.
+- **Portrait gets a band, not a crop.** Covering a 9:16 screen with a 16:9 frame
+  shows only its middle sliver, which halves the lockup. So on portrait
+  (`max-aspect-ratio: 1/1`) the photograph becomes a 4:3 band across the top,
+  feathered into the page, with the type centred in the space below it. The band
+  is exactly `75vw` tall, which is where the section's portrait `padding-top`
+  comes from.
 - **The scrim runs bottom-to-top, not left-to-right.** Two stacked ink layers
-  put the foot of the section near 88% dark and the top around 36% — legible
+  put the foot of the section near 93% dark and the top around 33% — legible
   type where the type is, a lit stage above it.
 
-Swapping the photograph: drop a replacement at the same path, then regenerate
-its blur placeholder into `content/blur.ts` using the snippet documented at the
-top of that file. Nothing else needs to change.
+Swapping the photograph: replace the three files at `public/images/hero-stage.*`
+(same aspect ratio, or re-check the two clearances above). Nothing else needs to
+change — there is no blur placeholder and no `content/` entry for it.
 
 ### Webfonts
 
-Both families are **self-hosted from `public/fonts/` and subsetted**, not loaded
-through `next/font`.
+Both families — **Bricolage Grotesque** (display) and **Inter** (body) — are
+self-hosted from `public/fonts/` and subsetted, not loaded through `next/font`.
+
+Bricolage replaced Space Grotesk when the hero was redesigned: its slightly
+humanist, rounded capitals sit with the hand-drawn MAYMUN COLLECTIVE lockup
+instead of ignoring it, and it holds the width of a full-bleed headline, which
+Space Grotesk did not.
 
 Google splits these fonts by `unicode-range`, and the ranges this site renders
 came to ~88 KB across three files. Those are High-priority requests competing
@@ -188,10 +206,25 @@ Things worth knowing before changing any of this:
   Latin Extended-A. A new member name or a line of Turkish, Spanish, Polish or
   Czech copy therefore cannot end up silently rendering one letter in Arial.
   Adding a character outside that range means re-running the script.
-- **The `… Fallback` faces are `next/font`'s own generated output, copied
-  verbatim** (`ascent-override`, `descent-override`, `size-adjust`). They pin
-  Arial's metrics to each webfont's so the swap moves no text. Measured CLS is
-  `0.0000`; deleting them would trade a font saving for layout shift.
+- **`bricolage-display.woff2` is the hero's font, and it is 4.6 KB.** It carries
+  only the capitals the two `<h1>`s can draw and sits first in the `display`
+  stack, with the full 33 KB face right behind it; any character it lacks falls
+  through to that, same family, same weight, identical pixels. It exists because
+  the hero headline is the LCP element — waiting on the full face put LCP at
+  1176 ms on Slow-4G. Changing the headline copy cannot break rendering; at
+  worst it costs one more font request. Only this cut and Inter's latin cut are
+  preloaded.
+- **The hero headline does not fade in, deliberately.** Chrome will not treat a
+  transparent element as an LCP candidate, so any fade on it pushes LCP out by
+  the length of the animation — far enough, on this page, that the 20px tagline
+  became the largest *eligible* element and LCP ended up gated on Inter. Painting
+  it immediately puts LCP at 672 ms, level with FCP.
+- **Inter's `… Fallback` face is `next/font`'s own generated output, copied
+  verbatim.** Bricolage's is measured rather than derived: the face it stands in
+  for is ExtraBold, `local("Arial")` has no bold, and the synthesised one comes
+  out *wider* than real Bricolage ExtraBold — so the usual average-advance
+  calculation gets the direction wrong. See the note in `app/globals.css`.
+  Measured CLS is `0.0000`.
 - **`unicode-range` values are Google's, unchanged**, so the extended file is
   still only fetched when a page actually renders a character from it. On the
   homepage that means three files load, not four — the Turkish letters in the
