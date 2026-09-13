@@ -38,7 +38,11 @@ export default function HeroVideo() {
     const video = ref.current;
     if (!video) return;
 
-    const portrait = window.matchMedia("(max-width: 767px)").matches;
+    // Orientation, not width. What decides which crop fits is the shape of the
+    // viewport: a 768x1024 tablet held upright is as portrait as a phone, and
+    // covering it with the 16:9 file would upscale the middle sliver ~3.2x. A
+    // phone turned sideways is the reverse and wants the wide file.
+    const portrait = window.matchMedia("(max-aspect-ratio: 1/1)").matches;
     setPoster(portrait ? "/video/hero-poster-mobile.webp" : "/video/hero-poster-desktop.webp");
 
     let reduced = false;
