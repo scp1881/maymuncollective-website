@@ -39,14 +39,22 @@ FF="${FFMPEG:-ffmpeg}"
 
 START=12.8       # seconds into the source; past the last of the backdrop text
 SLOW=2.0         # PTS multiplier — 0.5x speed
-FPS=24
-CRF_H264=33      # sits behind a heavy scrim, so this is generous already
-CRF_VP9=50       # tuned to match the H.264 quality; ~20% smaller
+FPS=25          # 50fps source slowed 2x = 25 unique frames/sec; matching it
+                # exactly means every output frame is a real one
+CRF_H264=26      # the scrim is lighter now and the film is meant to read
+                 # clearly, so this buys back the detail 33 was throwing away
+CRF_VP9=38       # tuned to match the H.264 quality; still smaller
 
 # Landscape 16:9 from the right of the frame, and a 9:16 centre-right crop for
 # phones. A 16:9 file object-cover'd into a portrait viewport would show only
 # its middle sliver, upscaled ~2.6x; a real portrait crop is sharper and smaller.
-CROP_WIDE="crop=1120:630:800:330"
+# 1280x720 is exactly two thirds of the 1920x1080 source and the largest 16:9
+# window that still starts to the right of the backdrop lettering. Only the tail
+# of "COLLECTIVE" clips the very top-left corner, where the hero's radial wash
+# sits anyway — and taking the whole bottom-right quadrant rather than a tighter
+# box means the full band, the keys rig and the sweep of pink floor lights are
+# all in shot, at real 720p instead of an upscale.
+CROP_WIDE="crop=1280:720:640:360"
 CROP_TALL="crop=608:1080:1150:0"
 
 mkdir -p "$OUT"
@@ -77,8 +85,10 @@ encode() {  # name, crop, width, height
     "$(stat -c%s "$OUT/hero-poster-${name}.webp" | awk '{print $1/1024}')"
 }
 
-encode desktop "$CROP_WIDE" 1152 648
-encode mobile  "$CROP_TALL"  576 1024
+# Output at the crop's own pixel size. Scaling beyond it cannot add detail,
+# only weight; the browser upscales from a clean source better than we can.
+encode desktop "$CROP_WIDE" 1280 720
+encode mobile  "$CROP_TALL"  608 1080
 
 echo
 echo "  total: $(du -sh "$OUT" | cut -f1)"
