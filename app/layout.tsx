@@ -34,6 +34,18 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/**
+ * Which commit this page was built from, stamped into the markup.
+ *
+ * "Is what I'm looking at the new build, or a cached old one?" has come up
+ * repeatedly and there was no way to answer it from the page itself. Now
+ * `view-source` (or the Elements panel) shows the short SHA, and it can be
+ * compared against the repo without guessing from behaviour.
+ *
+ * Vercel sets VERCEL_GIT_COMMIT_SHA during the build; local builds say "local".
+ */
+const BUILD_COMMIT = (process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7);
+
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
   width: "device-width",
@@ -45,6 +57,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <meta name="build-commit" content={BUILD_COMMIT} />
       {/* The two `latin` faces cover everything above the fold, so they are
           preloaded; the `ext` faces (Turkish letters in the member names, far
           down the page) are left to be discovered by unicode-range, which keeps

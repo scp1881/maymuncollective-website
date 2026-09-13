@@ -41,9 +41,19 @@ import { useEffect, useRef, useState } from "react";
  * React does not reflect it to an attribute, and some browsers check the
  * attribute when deciding whether autoplay is permitted.
  */
+/**
+ * Bump this whenever scripts/build-hero-video.sh is re-run.
+ *
+ * The encodes keep stable filenames, so without a version in the URL a new cut
+ * is indistinguishable from the old one to any cache holding the previous
+ * bytes. That is what lets the files be pinned as `immutable` in
+ * next.config.mjs — the URL changes when, and only when, the film does.
+ */
+const CUT = "2";
+
 export default function HeroVideo() {
   const ref = useRef<HTMLVideoElement | null>(null);
-  const [poster, setPoster] = useState("/video/hero-poster-desktop.webp");
+  const [poster, setPoster] = useState(`/video/hero-poster-desktop.webp?v=${CUT}`);
 
   useEffect(() => {
     const video = ref.current;
@@ -54,7 +64,9 @@ export default function HeroVideo() {
     // covering it with the 16:9 file would upscale the middle sliver ~3.2x. A
     // phone turned sideways is the reverse and wants the wide file.
     const portrait = window.matchMedia("(max-aspect-ratio: 1/1)").matches;
-    setPoster(portrait ? "/video/hero-poster-mobile.webp" : "/video/hero-poster-desktop.webp");
+    setPoster(
+      `/video/hero-poster-${portrait ? "mobile" : "desktop"}.webp?v=${CUT}`,
+    );
 
     let reduced = false;
     try {
@@ -89,7 +101,7 @@ export default function HeroVideo() {
       const webm = v.canPlayType('video/webm; codecs="vp9"') === "probably";
       const base = portrait ? "/video/hero-mobile" : "/video/hero-desktop";
       v.muted = true;
-      v.src = `${base}.${webm ? "webm" : "mp4"}`;
+      v.src = `${base}.${webm ? "webm" : "mp4"}?v=${CUT}`;
       v.load();
       attempt();
 
