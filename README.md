@@ -6,7 +6,7 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 
 ## Sections (in order)
 
-1. **Hero** — name, tagline, scroll cue
+1. **Hero** — name and tagline over a looping drone shot of the stage
 2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
 4. **Members** — the roster (name / role)
@@ -126,6 +126,49 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 > just before the section appears. Nothing changes for someone scrolling down.
 > Don't "simplify" this back to a bare iframe without re-checking that
 > `open.spotify.com` is not requested on initial load.
+
+### Hero background film
+
+The hero sits over a silent, looping drone pass of the stage, built into
+`public/video/` by [`scripts/build-hero-video.sh`](./scripts/build-hero-video.sh):
+
+```bash
+./scripts/build-hero-video.sh /path/to/DJI_source.mov
+```
+
+The ~27 MB source is **not committed** — nothing at runtime needs it. Keep it
+wherever the raw footage lives and pass its path to the script.
+
+| File | Size | For |
+| :--- | :--- | :--- |
+| `hero-desktop.webm` / `.mp4` | 268 / 436 KB | 16:9, ≥768px |
+| `hero-mobile.webm` / `.mp4` | 267 / 390 KB | 9:16 centre crop, phones |
+| `hero-poster-*.webp` | ~9 KB | First frame, painted before the video loads |
+
+Two things here are less obvious than they look, and both are deliberate:
+
+- **The crop exists to avoid a clash, not to reframe.** The stage's LED backdrop
+  shows the collective's own wordmark, dead centre for most of the clip — which
+  is exactly where the hero's headline lands. Used whole, the page showed two
+  MAYMUN COLLECTIVEs on top of each other, misaligned. The script starts late
+  in the clip and crops to the right of frame, where there is stage, lights and
+  crowd but no lettering. It also made the files a third of the size.
+- **The scrim is directional.** `components/Hero.tsx` layers two ink washes so
+  the left is ~87% dark behind the type and the right only ~40%, letting the
+  film read as film. A corner wash buries the last of the backdrop lettering,
+  which drifts through the top-left at the start of the loop.
+
+[`components/HeroVideo.tsx`](./components/HeroVideo.tsx) keeps it off the
+critical path: no `src` until `requestIdleCallback` fires after mount, so the
+download starts once FCP and LCP are settled. Measured against the same page
+without it, FCP, LCP, CLS and blocking time are all unchanged — the cost is
++278 KB and about 380ms on the `load` event, nothing that affects perceived
+speed. It also declines to load at all under `prefers-reduced-motion`, Save-Data
+or a 2G/3G connection, leaving the poster.
+
+> Autoplay requires `muted` + `playsInline`, both set. iOS Low Power Mode blocks
+> it anyway; the poster stays, which is a fine result. Don't add `autoPlay` as a
+> JSX attribute — it would start the download immediately and defeat the point.
 
 ### Webfonts
 
@@ -280,16 +323,19 @@ components/
   SectionHeading.tsx# shared heading block
   Wordmark.tsx      # header logo lockup (homepage nav + /gallery header)
   SpotifyEmbed.tsx  # defers the player until the Music section nears the viewport
+  HeroVideo.tsx     # hero background film, loaded off the critical path
   Reveal.tsx        # scroll reveal marker (animation driven from layout.tsx)
 content/
   site.ts           # ★ ALL editable copy & placeholders
   blur.ts           # tiny inlined blur previews for the gallery images
 scripts/
   build-icons.mjs   # regenerates the app/ icons from Favicon.svg
+  build-hero-video.sh # encodes the hero film into public/video/
   build-fonts.py    # subsets the webfonts from fonts-src/ into public/fonts/
 fonts-src/          # unsubsetted font originals (not served)
 public/
   fonts/            # subsetted webfonts (generated — see Webfonts)
+  video/            # hero background film + posters (generated)
   logo-wordmark.svg # header wordmark (generated — see Brand assets)
   og-placeholder.svg# social share image (replaceable)
 tailwind.config.ts  # design tokens (colors, fonts)
