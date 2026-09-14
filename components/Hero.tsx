@@ -1,111 +1,145 @@
+import HeroMotionGuard from "@/components/HeroMotionGuard";
 import { hero } from "@/content/site";
 
 /**
- * Hero: the name set bottom-left over a still of the stage.
+ * Bump when scripts/build-hero-video.sh is re-run. The encodes keep stable
+ * filenames, so without this a new cut is indistinguishable from the old one to
+ * any cache holding the previous bytes — and at 5 MB that is not a mistake you
+ * want people to have to clear their cache to escape. It is also what lets
+ * next.config.mjs pin /video as immutable for a year.
+ */
+const CUT = "3";
+
+/**
+ * Hero: the name set bottom-left over the drone film of the stage.
  *
- * ── Why the headline works here and did not before ──────────────────────────
- * The previous frame put the collective's own hand-drawn wordmark dead centre
- * on the LED screen, so a set headline anywhere on the page said the same two
- * words twice, stacked. This frame is shot from the left: the band and the
- * IMAG screen fill the left two thirds and the backdrop's lockup sits over on
- * the right, at x 958–1735 of 1920. That separates the two horizontally — the
- * headline takes the left, the photograph's lockup keeps the right, and
- * neither crowds the other. It is the composition, not the type, that changed.
+ * ── Playback needs no JavaScript ────────────────────────────────────────────
+ * This is the third attempt at a video here, and the first two failed in the
+ * same way: they were clever. The source was withheld until `requestIdleCallback`
+ * fired and then attached by an effect, to keep the download off the critical
+ * path — which meant that if anything went wrong in that chain, visitors got a
+ * still frame forever, and that is exactly what happened.
  *
- * The headline uses `container-page`, the same measure as every other section,
- * so its left edge lines up with the Gallery and Members headings below it
- * rather than floating at some hero-only margin.
+ * So the element is now plain HTML: `<source>` children in the markup,
+ * `autoplay muted loop playsinline`. No effect, no `src` assignment, nothing
+ * between the server and the first frame. A browser with JavaScript disabled
+ * entirely still plays it. (There is one client component here — the
+ * reduced-motion guard — but it can only ever STOP the film, never start it,
+ * so a failure there leaves playback untouched.) The cost
+ * is that the film now competes for bandwidth from the start rather than
+ * waiting its turn; the measured effect on FCP/LCP is in the README, and it is
+ * smaller than it sounds because the headline is text and its font is 4.6 KB.
  *
- * ── Two crops, because one cannot work ──────────────────────────────────────
- * Covering a 9:16 screen with a 16:9 frame shows a middle sliver about a
- * quarter of its width. Here that would keep the LED wall's lettering and throw
- * away the band — and a half-cut wordmark next to the page's own headline looks
- * like a mistake. So portrait gets its own cut: `hero-stage-tall` is the left
- * 950px of the frame, everything up to where the gold starts — the arch, the
- * IMAG screen, the band, the barrier, and no second wordmark at all. It runs as
- * a 7:8 band across the top with the type below it.
+ * `muted` is required for autoplay everywhere and the film is silent anyway.
+ * iOS Low Power Mode still refuses autoplay — in that case the poster stays,
+ * which is a fine result and the reason the poster is the film's own first
+ * frame rather than a designed still.
  *
- * <picture> picks exactly one of the two, before any script runs, so the crop a
- * visitor does not get costs them nothing.
+ * ── Two framings ────────────────────────────────────────────────────────────
+ * A 16:9 film `object-cover`-ed into a 9:16 phone shows about a quarter of its
+ * width — here, a sliver of stage floor with the band and the backdrop both cut
+ * away, upscaled 2.8x. So phones get a true 9:16 centre crop of the same
+ * footage, full length, at native height.
  *
- * ── On the scrim ────────────────────────────────────────────────────────────
- * See the note beside the layers below. In short: landscape needs a real scrim
- * because the type sits *on* the photograph; portrait does not, because the
- * type sits under it on clean ink — so the landscape layers are hidden there
- * rather than dimming a photograph that needs no dimming. Getting that wrong is
- * what made the first pass at this frame look muddy on a phone.
+ * The `media` attribute on `<source>` does the switching, which works in
+ * Chromium and Safari. The wide pair is listed FIRST and is itself
+ * media-qualified, so a browser that ignores `media` on media elements falls
+ * back to the wide film everywhere rather than stretching the phone crop across
+ * a desktop — the safe direction to fail in.
  *
- * ── On nothing in here fading in ────────────────────────────────────────────
- * The headline is the LCP element and Chrome will not treat a transparent
- * element as an LCP candidate, so any fade on it costs LCP the length of the
- * animation — measured at +480ms when the tagline carried one. Both paint
- * immediately. The scroll cue keeps its fade; nothing is gated on that.
+ * The poster is a <picture> behind the video rather than the `poster`
+ * attribute, because `poster` takes one URL and cannot be art-directed; this
+ * way each orientation gets a first frame that matches its own crop.
+ *
+ * ── Why the headline works over this footage ────────────────────────────────
+ * The film is a drone orbit, and the LED wall carries the collective's own
+ * hand-drawn wordmark. For most of the orbit that wordmark sits right of centre
+ * while the band holds the left, so the page's headline takes the left and the
+ * two never stack. The scrim below is measured against the brightest moment of
+ * the whole 17 seconds, not against frame one.
+ *
+ * Nothing in here fades in: Chrome will not treat a transparent element as an
+ * LCP candidate, so a fade on the headline costs LCP the length of the
+ * animation. The scroll cue keeps its fade; nothing is gated on that.
  */
 export default function Hero() {
   return (
-    // Landscape pins the type to the foot of the section. Portrait centres it
-    // in what is left under the photo band: the band is 7:8, so it is
-    // 100/7*8 = 114.29vw tall, and padding the section by that much turns
-    // "centre the content" into "centre it in the space the photograph does
-    // not occupy".
     <section
       id="top"
-      className="relative flex min-h-svh flex-col justify-end overflow-hidden bg-ink pb-24 [@media(max-aspect-ratio:1/1)]:justify-center [@media(max-aspect-ratio:1/1)]:pb-28 [@media(max-aspect-ratio:1/1)]:pt-[114.29vw]"
+      className="relative flex min-h-svh flex-col justify-end overflow-hidden bg-ink pb-24 sm:pb-28"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-full [@media(max-aspect-ratio:1/1)]:aspect-[7/8] [@media(max-aspect-ratio:1/1)]:h-auto"
-      >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <picture>
-          <source media="(max-aspect-ratio: 1/1)" srcSet="/images/hero-stage-tall.avif" type="image/avif" />
-          <source media="(max-aspect-ratio: 1/1)" srcSet="/images/hero-stage-tall.webp" type="image/webp" />
-          <source media="(max-aspect-ratio: 1/1)" srcSet="/images/hero-stage-tall.jpg" />
-          <source srcSet="/images/hero-stage-wide.avif" type="image/avif" />
-          <source srcSet="/images/hero-stage-wide.webp" type="image/webp" />
+          <source
+            media="(max-aspect-ratio: 1/1)"
+            srcSet={`/video/hero-poster-tall.webp?v=${CUT}`}
+            type="image/webp"
+          />
           <img
-            src="/images/hero-stage-wide.jpg"
+            src={`/video/hero-poster-wide.webp?v=${CUT}`}
             alt=""
             fetchPriority="high"
             decoding="async"
-            className="h-full w-full select-none object-cover object-center"
+            className="absolute inset-0 h-full w-full select-none object-cover"
           />
         </picture>
-        {/* Portrait only. The type is below the band on clean ink, so all the
-            photograph needs here is a whisper of ink to sit it into the page,
-            and a feathered foot so it dissolves rather than ending on a line. */}
-        <div className="absolute inset-0 bg-ink/12 [@media(min-aspect-ratio:1/1)]:hidden" />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-ink [@media(min-aspect-ratio:1/1)]:hidden" />
+        <video
+          id="hero-film"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          tabIndex={-1}
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source
+            media="(min-aspect-ratio: 1/1)"
+            src={`/video/hero-wide.webm?v=${CUT}`}
+            type="video/webm"
+          />
+          <source
+            media="(min-aspect-ratio: 1/1)"
+            src={`/video/hero-wide.mp4?v=${CUT}`}
+            type="video/mp4"
+          />
+          <source
+            media="(max-aspect-ratio: 1/1)"
+            src={`/video/hero-tall.webm?v=${CUT}`}
+            type="video/webm"
+          />
+          <source
+            media="(max-aspect-ratio: 1/1)"
+            src={`/video/hero-tall.mp4?v=${CUT}`}
+            type="video/mp4"
+          />
+        </video>
+        {/* Reduced motion, as a pure enhancement — it only ever stops the film,
+            never starts it. See components/HeroMotionGuard. */}
+        <HeroMotionGuard />
       </div>
 
-      {/* Scrim, landscape only — the type sits on the photograph there. Darkness
-          at any point is 1 − Π(1−layer).
+      {/* Scrim. Darkness at any point is 1 − Π(1−layer).
 
-          This frame is shot in daylight with open sky in the top-left corner,
-          the brightest thing in it by a wide margin, while the part worth seeing
-          — the LED wall and its lockup — sits mid-right. So the vertical layer
-          is a sandwich rather than a ramp: heavy at the foot (0.85) under the
-          type, heavy again at the top (0.72) to put the sky and the trusses
-          down, and light across the middle (0.45) where the wall is. A single
-          ramp either blew out the sky or flattened the wall.
-
-          The second layer is a left-to-right wash that only deepens the side the
-          headline is on, so the type gets its bed without the photograph paying
-          for it on the right. Bottom-left lands near 0.93, the lockup around
-          0.53, the sky about 0.80. */}
+          Tuned against the film rather than a single frame: the composite was
+          sampled at eight points across the 17s orbit and the worst case is
+          what these numbers answer to. The vertical layer is a sandwich, not a
+          ramp — heavy at the foot (0.88) under the type, heavy again at the top
+          (0.70) because the clip opens on blown-out daylight sky, and light
+          across the middle (0.50) where the LED wall is. The left-to-right wash
+          deepens only the side the headline is on, so the type gets its bed
+          without the film paying for it on the right. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/45 to-ink/72 [@media(max-aspect-ratio:1/1)]:hidden"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/88 via-ink/50 to-ink/70"
       />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/45 via-ink/12 to-transparent [@media(max-aspect-ratio:1/1)]:hidden"
       />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-ink/15 [@media(max-aspect-ratio:1/1)]:hidden"
-      />
-      {/* Keeps the fixed nav legible. Both orientations: the top of either crop
-          is the brightest part of it. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-ink/15" />
+      {/* Keeps the fixed nav legible over the brightest part of the orbit. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-ink/85 to-transparent"
@@ -125,7 +159,7 @@ export default function Hero() {
           ))}
         </h1>
 
-        <p className="mt-6 text-xs uppercase tracking-[0.32em] text-bone/60 sm:mt-7 sm:text-sm">
+        <p className="mt-6 text-xs uppercase tracking-[0.32em] text-bone/65 sm:mt-7 sm:text-sm">
           {hero.tagline}
         </p>
       </div>
