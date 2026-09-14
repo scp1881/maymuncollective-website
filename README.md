@@ -6,7 +6,7 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 
 ## Sections (in order)
 
-1. **Hero** — the name bottom-left over a still of the stage
+1. **Hero** — the name bottom-left over the drone film of the stage
 2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
 4. **Members** — the roster (name / role)
@@ -129,60 +129,71 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 
 ### Hero backdrop
 
-The hero sits over a still of the stage, rendered by `components/Hero.tsx` as a
-hand-rolled `<picture>` — not `next/image`, so the format ladder is explicit,
-the files are static, and the two crops below can be art-directed by media
-query. One request either way, chosen before any script runs.
+The hero sits over the full 16.88s drone orbit of the stage, built into
+`public/video/` by [`scripts/build-hero-video.sh`](./scripts/build-hero-video.sh):
 
-| File | AVIF / WebP / JPEG | Used by |
+```bash
+./scripts/build-hero-video.sh /path/to/DJI_source.mov
+```
+
+The ~27 MB source is **not committed** — nothing at runtime needs it. Keep it
+wherever the raw footage lives and pass its path in.
+
+| File | MP4 / WebM | Used by |
 | :--- | :--- | :--- |
-| `hero-stage-wide.*` | 140 / 185 / 273 KB | landscape — the full 1920×1080 frame |
-| `hero-stage-tall.*` | 69 / 96 / 137 KB | portrait — the left 950px of it |
+| `hero-wide.*` | 2.56 / 2.58 MB | landscape — the whole frame at 1600×900 |
+| `hero-tall.*` | 2.46 / 2.52 MB | portrait — a true 9:16 centre crop, 608×1080 |
+| `hero-poster-*.webp` | 32 / 15 KB | the film's own first frame, painted immediately |
 
-This used to be a looping drone video. It was removed: it did not play reliably
-on real devices, and the still does everything the loop was there for at a
-fraction of the weight. There is no client component, no effect and no playback
-left to fail. If you bring motion back, know what you are taking on — the
-history is in PRs #28–#30.
+**This is the third attempt at a video here and the first two shipped a frozen
+frame to real visitors.** Both failed the same way, and the notes below are the
+reasons why — please read them before changing any of it.
 
-Four things about the treatment are deliberate:
+- **Playback does not depend on JavaScript.** The `<source>` children are in the
+  markup with `autoplay muted loop playsinline`. The previous versions withheld
+  the `src` until `requestIdleCallback` fired and then attached it from an
+  effect, to keep the download off the critical path — so any break in that
+  chain left the poster up forever, which is exactly what happened. There is a
+  regression test asserting the sources are in the markup, and another that the
+  film plays with **JavaScript disabled entirely**. Don't reintroduce a script
+  between the server and the first frame.
+- **Bitrate, not file size, decides whether it looks broken.** A progressive
+  download the browser cannot stream in real time makes it buffer a large
+  fraction of the file before it will start. Measured on Slow-4G (1.6 Mbps),
+  time to the first `playing` event on the landscape cut:
 
-- **The frame is chosen so the headline has somewhere to go.** The LED wall
-  carries the collective's own hand-drawn wordmark; set the page's headline over
-  a frame where that sits dead centre and the page says the same two words
-  twice, stacked. This frame is shot from the left, so the lockup lives at
-  x 958–1735 of 1920 and the headline takes the left. If you swap the
-  photograph, check that separation first — it is what makes the headline
-  possible at all.
-- **The headline is on `container-page`**, the same measure as every section
-  below it, so its left edge lines up with the Gallery and Members headings
-  rather than floating at a hero-only margin. There is a test for this.
-- **Portrait gets its own crop, not a squeeze.** Covering a 9:16 screen with a
-  16:9 frame shows a middle sliver about a quarter of its width — here that
-  would keep the wall's lettering and throw away the band, and a half-cut
-  wordmark beside the page's own headline looks like a mistake. So
-  `hero-stage-tall` is the left 950px, up to where the gold starts: arch, IMAG
-  screen, band, barrier, no second wordmark. It runs as a **7:8 band** across
-  the top (`114.29vw` tall — the section's portrait `padding-top` is derived
-  from that, so change one and the other must follow) with the type below it.
-- **The scrim is landscape-only.** On landscape the type sits *on* the
-  photograph and needs a bed: a vertical sandwich (0.85 at the foot, 0.72 at the
-  top to put the open sky down, 0.45 across the middle where the wall is) plus a
-  left-to-right wash that deepens only the side the headline is on. On portrait
-  the type sits *under* the band on clean ink and needs none of it, so those
-  layers are hidden there. Leaving them on is what made the first pass at this
-  frame look muddy on a phone.
+  | encode | time to first frame |
+  | :--- | ---: |
+  | 2.51 Mbps (5.3 MB) | 11.8 s |
+  | 1.62 Mbps (3.3 MB) | 4.7 s |
+  | **1.28 Mbps (2.6 MB)** | **3.5 s** |
 
-> **Nothing in the hero may fade in.** Chrome will not treat a transparent
-> element as an LCP candidate, so a fade on the headline — the largest thing on
-> the first screen — pushes LCP out by the length of the animation. Measured at
-> 680 ms without, ~1150 ms with. The scroll cue keeps its fade; nothing is gated
-> on that.
+  So the CRFs in the build script are chosen to land under ~1.3 Mbps, not to hit
+  a quality target. Within that budget resolution beats compression: 1600×900 at
+  CRF 45 is both smaller and visibly sharper than 1280×720 at CRF 40.
+- **Two framings, because one cannot serve both orientations.** A 16:9 film
+  `object-cover`-ed into a 9:16 phone shows about a quarter of its width. The
+  `media` attribute on `<source>` switches between them; the wide pair is listed
+  **first** and is itself media-qualified, so a browser that ignores `media` on
+  media elements falls back to the wide film everywhere rather than stretching
+  the phone crop across a desktop.
+- **The scrim is tuned against the film, not a frame.** The composite was
+  sampled at nine points across the orbit; worst-case contrast for the headline
+  is 10.3:1 on desktop and 7.8:1 on mobile, and for the nav 9.9:1 / 9.2:1.
+  Re-run that check if you change the footage — the clip opens on blown-out
+  daylight sky, which is what the heavy top of the gradient answers to.
 
-Swapping the photograph: regenerate both crops from the new frame at the same
-dimensions, and re-check the lockup separation and the portrait crop's right
-edge. Nothing else needs to change — there is no blur placeholder and no
-`content/` entry for it.
+`components/HeroMotionGuard.tsx` honours `prefers-reduced-motion` by stopping
+the film and aborting the transfer. It is deliberately a client effect and not
+part of the start path: it can only ever take the film away, never start it, so
+if it fails the film still plays. It cannot be an inline script — one runs
+before hydration and React reconciles the `<source>` children straight back in.
+
+Cost, measured against the same page without the film: FCP and LCP are
+unchanged at ~700 ms (the headline is text and its font is 4.6 KB, so it wins
+the race regardless), CLS stays 0.0000, and the `load` event moves from ~2.6 s
+to ~2.8 s. What a visitor actually pays is the ~2.5 MB of film, which streams
+after first paint behind a poster.
 
 ### Webfonts
 
