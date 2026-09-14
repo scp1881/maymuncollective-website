@@ -6,7 +6,7 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 
 ## Sections (in order)
 
-1. **Hero** — a still of the stage; the LED backdrop in it carries the name
+1. **Hero** — the name bottom-left over a still of the stage
 2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
 4. **Members** — the roster (name / role)
@@ -129,11 +129,15 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 
 ### Hero backdrop
 
-The hero sits over a single still of the stage, `public/images/hero-stage.*`,
-rendered by `components/Hero.tsx` as a hand-rolled `<picture>`: **AVIF 126 KB →
-WebP 158 KB → JPEG 246 KB**, one request, chosen before any script runs and
-found by the preload scanner immediately. Not `next/image`, so the format ladder
-is explicit and the file is static.
+The hero sits over a still of the stage, rendered by `components/Hero.tsx` as a
+hand-rolled `<picture>` — not `next/image`, so the format ladder is explicit,
+the files are static, and the two crops below can be art-directed by media
+query. One request either way, chosen before any script runs.
+
+| File | AVIF / WebP / JPEG | Used by |
+| :--- | :--- | :--- |
+| `hero-stage-wide.*` | 140 / 185 / 273 KB | landscape — the full 1920×1080 frame |
+| `hero-stage-tall.*` | 69 / 96 / 137 KB | portrait — the left 950px of it |
 
 This used to be a looping drone video. It was removed: it did not play reliably
 on real devices, and the still does everything the loop was there for at a
@@ -143,37 +147,42 @@ history is in PRs #28–#30.
 
 Four things about the treatment are deliberate:
 
-- **There is no visible headline, and that is the point.** The stage's LED
-  screen shows the collective's own hand-drawn wordmark, large and dead centre.
-  Setting the same two words underneath it in a grotesque said everything twice,
-  and every attempt to make that work — left-aligned, centred, sized to clear
-  the lettering — was damage control on the repetition. The photograph's lockup
-  is the title now.
-- **The `<h1>` still exists; only its pixels are gone.** It carries `sr-only`.
-  The photograph is decorative (`alt=""`, correctly — it is a backdrop), so
-  without that element a screen reader would meet a page with no name and a
-  search result would have nothing under the title tag. Hiding it is fine;
-  **deleting it is the one change here that would actually break something.**
-- **The lockup must never be cropped**, since it is the only thing naming the
-  collective on that screen. Measured off the frame, the gold spans x 528–1344
-  of 1920 and its midpoint is 48.75%, not 50% — so `object-position` is set to
-  that, and any container down to a 4:5 aspect shows it whole. Landscape fills
-  the section; portrait gets a **6:7 band** across the top, feathered into the
-  page, with the tagline centred below. The band is `116.67vw` tall, which is
-  where the section's portrait `padding-top` comes from — change one and the
-  other has to follow.
-- **The scrim is light** — top around 19%, foot near 86%. It no longer has to
-  bed bone type at 10vw, only keep the nav legible and hand off to the page.
+- **The frame is chosen so the headline has somewhere to go.** The LED wall
+  carries the collective's own hand-drawn wordmark; set the page's headline over
+  a frame where that sits dead centre and the page says the same two words
+  twice, stacked. This frame is shot from the left, so the lockup lives at
+  x 958–1735 of 1920 and the headline takes the left. If you swap the
+  photograph, check that separation first — it is what makes the headline
+  possible at all.
+- **The headline is on `container-page`**, the same measure as every section
+  below it, so its left edge lines up with the Gallery and Members headings
+  rather than floating at a hero-only margin. There is a test for this.
+- **Portrait gets its own crop, not a squeeze.** Covering a 9:16 screen with a
+  16:9 frame shows a middle sliver about a quarter of its width — here that
+  would keep the wall's lettering and throw away the band, and a half-cut
+  wordmark beside the page's own headline looks like a mistake. So
+  `hero-stage-tall` is the left 950px, up to where the gold starts: arch, IMAG
+  screen, band, barrier, no second wordmark. It runs as a **7:8 band** across
+  the top (`114.29vw` tall — the section's portrait `padding-top` is derived
+  from that, so change one and the other must follow) with the type below it.
+- **The scrim is landscape-only.** On landscape the type sits *on* the
+  photograph and needs a bed: a vertical sandwich (0.85 at the foot, 0.72 at the
+  top to put the open sky down, 0.45 across the middle where the wall is) plus a
+  left-to-right wash that deepens only the side the headline is on. On portrait
+  the type sits *under* the band on clean ink and needs none of it, so those
+  layers are hidden there. Leaving them on is what made the first pass at this
+  frame look muddy on a phone.
 
-> **Neither the tagline nor the `<h1>` may fade in.** Chrome will not treat a
-> transparent element as an LCP candidate, so a fade on the largest text on the
-> first screen pushes LCP out by the length of the animation — measured at
-> 672 ms without, ~1150 ms with. The scroll cue keeps its fade; nothing is gated
+> **Nothing in the hero may fade in.** Chrome will not treat a transparent
+> element as an LCP candidate, so a fade on the headline — the largest thing on
+> the first screen — pushes LCP out by the length of the animation. Measured at
+> 680 ms without, ~1150 ms with. The scroll cue keeps its fade; nothing is gated
 > on that.
 
-Swapping the photograph: replace the three files at `public/images/hero-stage.*`
-(same aspect ratio, or re-check the crop clearances above). Nothing else needs
-to change — there is no blur placeholder and no `content/` entry for it.
+Swapping the photograph: regenerate both crops from the new frame at the same
+dimensions, and re-check the lockup separation and the portrait crop's right
+edge. Nothing else needs to change — there is no blur placeholder and no
+`content/` entry for it.
 
 ### Webfonts
 
