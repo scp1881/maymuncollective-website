@@ -136,64 +136,69 @@ The hero sits over the full 16.88s drone orbit of the stage, built into
 ./scripts/build-hero-video.sh /path/to/DJI_source.mov
 ```
 
-The ~27 MB source is **not committed** — nothing at runtime needs it. Keep it
-wherever the raw footage lives and pass its path in.
+The ~27 MB source is **not committed**. Keep it wherever the raw footage lives.
 
-| File | MP4 / WebM | Used by |
+| File | Size | Bitrate |
 | :--- | :--- | :--- |
-| `hero-wide.*` | 2.56 / 2.58 MB | landscape — the whole frame at 1600×900 |
-| `hero-tall.*` | 2.46 / 2.52 MB | portrait — a true 9:16 centre crop, 608×1080 |
-| `hero-poster-*.webp` | 32 / 15 KB | the film's own first frame, painted immediately |
+| `hero-film.mp4` / `.webm` | 2.53 / 2.43 MB | ~1.26 Mbps |
+| `hero-poster-film.webp` | 34 KB | the film's own first frame |
 
-**This is the third attempt at a video here and the first two shipped a frozen
-frame to real visitors.** Both failed the same way, and the notes below are the
-reasons why — please read them before changing any of it.
+> ### Read this before changing anything here
+>
+> This is the **fourth** implementation of a hero video, and the first three all
+> shipped a frozen frame to a real device while passing every test that can be
+> run from this repo. The rules below are what is left after removing, one at a
+> time, everything that could not be verified here. Adding cleverness back is how
+> the previous three broke.
+>
+> 1. **Nothing may sit between the server and the first frame.** The `<source>`
+>    children are in the markup with `autoplay muted loop playsinline`. Versions
+>    1–2 withheld the `src` until `requestIdleCallback` fired and attached it
+>    from an effect; any break in that chain left the poster up forever. There is
+>    a regression test that the film plays with **JavaScript disabled entirely**.
+> 2. **No conditional source selection.** Version 3 used the `media` attribute on
+>    `<source>` to switch between a landscape and a portrait encode. That
+>    attribute is reliable inside `<picture>` but inconsistent inside `<video>`,
+>    and it could only ever be verified here in Chromium — an untested branch
+>    sitting on the exact thing that kept failing. There is now **one** 4:3
+>    master and a flat WebM→MP4 list. A test asserts no `source[media]` exists.
+> 3. **`components/HeroFilmGuard.tsx` may only ever stop or nudge the film,
+>    never start it.** It retries a refused `play()` and honours reduced motion.
+>    If it never runs, the film still plays.
+> 4. **Bitrate is the budget, not file size.** A progressive download the browser
+>    cannot stream in real time makes it buffer a large fraction before starting,
+>    and ten seconds of poster is indistinguishable from broken. Measured on
+>    Slow-4G (1.6 Mbps), time to first frame: **2.51 Mbps → 11.8 s**,
+>    1.62 Mbps → 4.7 s, **1.26 Mbps → 3.5 s**. The CRFs target the budget, not a
+>    quality score.
 
-- **Playback does not depend on JavaScript.** The `<source>` children are in the
-  markup with `autoplay muted loop playsinline`. The previous versions withheld
-  the `src` until `requestIdleCallback` fired and then attached it from an
-  effect, to keep the download off the critical path — so any break in that
-  chain left the poster up forever, which is exactly what happened. There is a
-  regression test asserting the sources are in the markup, and another that the
-  film plays with **JavaScript disabled entirely**. Don't reintroduce a script
-  between the server and the first frame.
-- **Bitrate, not file size, decides whether it looks broken.** A progressive
-  download the browser cannot stream in real time makes it buffer a large
-  fraction of the file before it will start. Measured on Slow-4G (1.6 Mbps),
-  time to the first `playing` event on the landscape cut:
+**4:3 is the shape that survives both crops.** `object-cover` into a landscape
+viewport keeps the full width and trims 135 rows top and bottom (losing sky and
+foreground clutter — an improvement); into a phone it keeps the full height and
+shows the middle ~35%, which lands on the stage, the band and the wordmark.
+Checked across the orbit at t = 2/8/14s.
 
-  | encode | time to first frame |
-  | :--- | ---: |
-  | 2.51 Mbps (5.3 MB) | 11.8 s |
-  | 1.62 Mbps (3.3 MB) | 4.7 s |
-  | **1.28 Mbps (2.6 MB)** | **3.5 s** |
+The scrim is tuned against the film rather than one frame — sampled at nine
+points across the orbit, worst-case contrast is 10.4:1 for the headline on
+desktop and 8.0:1 on mobile, 9.8:1 / 8.6:1 for the nav. Re-run that check if the
+footage changes: the clip opens on blown-out daylight sky, which is what the
+heavy top of the gradient answers to.
 
-  So the CRFs in the build script are chosen to land under ~1.3 Mbps, not to hit
-  a quality target. Within that budget resolution beats compression: 1600×900 at
-  CRF 45 is both smaller and visibly sharper than 1280×720 at CRF 40.
-- **Two framings, because one cannot serve both orientations.** A 16:9 film
-  `object-cover`-ed into a 9:16 phone shows about a quarter of its width. The
-  `media` attribute on `<source>` switches between them; the wide pair is listed
-  **first** and is itself media-qualified, so a browser that ignores `media` on
-  media elements falls back to the wide film everywhere rather than stretching
-  the phone crop across a desktop.
-- **The scrim is tuned against the film, not a frame.** The composite was
-  sampled at nine points across the orbit; worst-case contrast for the headline
-  is 10.3:1 on desktop and 7.8:1 on mobile, and for the nav 9.9:1 / 9.2:1.
-  Re-run that check if you change the footage — the clip opens on blown-out
-  daylight sky, which is what the heavy top of the gradient answers to.
+Cost: FCP and LCP are unchanged at ~700 ms (the headline is text and its font is
+4.6 KB, so it wins the race regardless), CLS stays 0.0000, and the `load` event
+moves from ~2.6 s to ~2.8 s. A visitor pays ~2.5 MB of film, streamed after
+first paint behind the poster.
 
-`components/HeroMotionGuard.tsx` honours `prefers-reduced-motion` by stopping
-the film and aborting the transfer. It is deliberately a client effect and not
-part of the start path: it can only ever take the film away, never start it, so
-if it fails the film still plays. It cannot be an inline script — one runs
-before hydration and React reconciles the `<source>` children straight back in.
+### `/video-check`
 
-Cost, measured against the same page without the film: FCP and LCP are
-unchanged at ~700 ms (the headline is text and its font is 4.6 KB, so it wins
-the race regardless), CLS stays 0.0000, and the `load` event moves from ~2.6 s
-to ~2.8 s. What a visitor actually pays is the ~2.5 MB of film, which streams
-after first paint behind a poster.
+An unlinked, `noindex` diagnostic at [`app/video-check`](./app/video-check). It
+runs the same checks on the device where the film fails — reduced motion, codec
+support per format, whether the files are actually served, autoplay permission,
+which source was chosen, whether frames advance, and the build commit — and
+prints a plain verdict.
+
+It exists because four rounds were lost to guessing at a failure that could not
+be reproduced here. **Delete the route once the film is confirmed working.**
 
 ### Webfonts
 

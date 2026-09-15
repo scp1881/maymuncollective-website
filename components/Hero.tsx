@@ -1,4 +1,4 @@
-import HeroMotionGuard from "@/components/HeroMotionGuard";
+import HeroFilmGuard from "@/components/HeroFilmGuard";
 import { hero } from "@/content/site";
 
 /**
@@ -8,24 +8,27 @@ import { hero } from "@/content/site";
  * want people to have to clear their cache to escape. It is also what lets
  * next.config.mjs pin /video as immutable for a year.
  */
-const CUT = "3";
+const CUT = "4";
 
 /**
  * Hero: the name set bottom-left over the drone film of the stage.
  *
  * ── Playback needs no JavaScript ────────────────────────────────────────────
- * This is the third attempt at a video here, and the first two failed in the
- * same way: they were clever. The source was withheld until `requestIdleCallback`
- * fired and then attached by an effect, to keep the download off the critical
- * path — which meant that if anything went wrong in that chain, visitors got a
- * still frame forever, and that is exactly what happened.
+ * This is the fourth attempt at a video here. The first two withheld the `src`
+ * until `requestIdleCallback` fired and then attached it from an effect, so any
+ * break in that chain left the poster up forever. The third fixed that but
+ * still branched on the `media` attribute inside <video>, which could only be
+ * verified in one engine. Every version of this has failed on a device I cannot
+ * reach, so the rule now is: no cleverness anywhere near the start path, and
+ * nothing in it that has not been verified here.
  *
  * So the element is now plain HTML: `<source>` children in the markup,
  * `autoplay muted loop playsinline`. No effect, no `src` assignment, nothing
  * between the server and the first frame. A browser with JavaScript disabled
- * entirely still plays it. (There is one client component here — the
- * reduced-motion guard — but it can only ever STOP the film, never start it,
- * so a failure there leaves playback untouched.) The cost
+ * entirely still plays it. (There is one client component here — HeroFilmGuard
+ * — but it only ever retries a refused play() or stops the film for reduced
+ * motion; it is never what starts it, so a failure there leaves playback
+ * untouched.) The cost
  * is that the film now competes for bandwidth from the start rather than
  * waiting its turn; the measured effect on FCP/LCP is in the README, and it is
  * smaller than it sounds because the headline is text and its font is 4.6 KB.
@@ -35,21 +38,18 @@ const CUT = "3";
  * which is a fine result and the reason the poster is the film's own first
  * frame rather than a designed still.
  *
- * ── Two framings ────────────────────────────────────────────────────────────
- * A 16:9 film `object-cover`-ed into a 9:16 phone shows about a quarter of its
- * width — here, a sliver of stage floor with the band and the backdrop both cut
- * away, upscaled 2.8x. So phones get a true 9:16 centre crop of the same
- * footage, full length, at native height.
+ * ── One film, no conditional source selection ───────────────────────────────
+ * There used to be two encodes — landscape and portrait — switched by the
+ * `media` attribute on <source>. That attribute is solid inside <picture>, but
+ * inside <video> support is inconsistent across engines, and it could only ever
+ * be verified here in Chromium. That put an untested branch directly on the one
+ * thing that had already failed three times, so it is gone.
  *
- * The `media` attribute on `<source>` does the switching, which works in
- * Chromium and Safari. The wide pair is listed FIRST and is itself
- * media-qualified, so a browser that ignores `media` on media elements falls
- * back to the wide film everywhere rather than stretching the phone crop across
- * a desktop — the safe direction to fail in.
- *
- * The poster is a <picture> behind the video rather than the `poster`
- * attribute, because `poster` takes one URL and cannot be art-directed; this
- * way each orientation gets a first frame that matches its own crop.
+ * There is now a single 4:3 master and a flat source list: WebM, then MP4.
+ * Every engine walks that list the same way. 4:3 is the shape that survives
+ * both crops — `object-cover` into a desktop viewport keeps the full width and
+ * trims sky and foreground; into a phone it keeps the full height and lands on
+ * the stage, the band and the wordmark.
  *
  * ── Why the headline works over this footage ────────────────────────────────
  * The film is a drone orbit, and the LED wall carries the collective's own
@@ -70,13 +70,8 @@ export default function Hero() {
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <picture>
-          <source
-            media="(max-aspect-ratio: 1/1)"
-            srcSet={`/video/hero-poster-tall.webp?v=${CUT}`}
-            type="image/webp"
-          />
           <img
-            src={`/video/hero-poster-wide.webp?v=${CUT}`}
+            src={`/video/hero-poster-film.webp?v=${CUT}`}
             alt=""
             fetchPriority="high"
             decoding="async"
@@ -94,30 +89,12 @@ export default function Hero() {
           tabIndex={-1}
           className="absolute inset-0 h-full w-full object-cover"
         >
-          <source
-            media="(min-aspect-ratio: 1/1)"
-            src={`/video/hero-wide.webm?v=${CUT}`}
-            type="video/webm"
-          />
-          <source
-            media="(min-aspect-ratio: 1/1)"
-            src={`/video/hero-wide.mp4?v=${CUT}`}
-            type="video/mp4"
-          />
-          <source
-            media="(max-aspect-ratio: 1/1)"
-            src={`/video/hero-tall.webm?v=${CUT}`}
-            type="video/webm"
-          />
-          <source
-            media="(max-aspect-ratio: 1/1)"
-            src={`/video/hero-tall.mp4?v=${CUT}`}
-            type="video/mp4"
-          />
+          <source src={`/video/hero-film.webm?v=${CUT}`} type="video/webm" />
+          <source src={`/video/hero-film.mp4?v=${CUT}`} type="video/mp4" />
         </video>
-        {/* Reduced motion, as a pure enhancement — it only ever stops the film,
-            never starts it. See components/HeroMotionGuard. */}
-        <HeroMotionGuard />
+        {/* Retries play() if a policy refused it, and honours reduced motion.
+            Never what starts the film. See components/HeroFilmGuard. */}
+        <HeroFilmGuard />
       </div>
 
       {/* Scrim. Darkness at any point is 1 − Π(1−layer).
