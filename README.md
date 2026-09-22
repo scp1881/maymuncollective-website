@@ -6,7 +6,7 @@ Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
 
 ## Sections (in order)
 
-1. **Hero** — the name bottom-left over the drone film of the stage
+1. **Hero** — the name set large on the page's own ink, no backdrop
 2. **Gallery** — a curated three-photo selection
 3. **Music** — Spotify artist embed
 4. **Members** — the roster (name / role)
@@ -127,78 +127,33 @@ the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
 > Don't "simplify" this back to a bare iframe without re-checking that
 > `open.spotify.com` is not requested on initial load.
 
-### Hero backdrop
+### Hero
 
-The hero sits over the full 16.88s drone orbit of the stage, built into
-`public/video/` by [`scripts/build-hero-video.sh`](./scripts/build-hero-video.sh):
+The hero is one block of type on the flat page colour. No image, no film, no
+scrim — it is anchored bottom-left on `container-page`, the same measure as
+every section below it, so it reads as the first item in the page's rhythm
+rather than a slab with its own rules.
 
-```bash
-./scripts/build-hero-video.sh /path/to/DJI_source.mov
-```
-
-The ~27 MB source is **not committed**. Keep it wherever the raw footage lives.
-
-| File | Size | Bitrate |
-| :--- | :--- | :--- |
-| `hero-film.mp4` / `.webm` | 2.53 / 2.43 MB | ~1.26 Mbps |
-| `hero-poster-film.webp` | 34 KB | the film's own first frame |
-
-> ### Read this before changing anything here
+> **There have been four background treatments here and all four were removed.**
+> A still, then three videos. The videos are the cautionary tale: each one
+> passed every test runnable from this repo — playback, codecs, autoplay policy,
+> bitrate against a throttled connection, playback with JavaScript disabled —
+> and still showed a frozen frame on a device that could not be reached from
+> here. The history is in PRs #28, #29, #33, #35 and #36 if anyone needs it.
 >
-> This is the **fourth** implementation of a hero video, and the first three all
-> shipped a frozen frame to a real device while passing every test that can be
-> run from this repo. The rules below are what is left after removing, one at a
-> time, everything that could not be verified here. Adding cleverness back is how
-> the previous three broke.
->
-> 1. **Nothing may sit between the server and the first frame.** The `<source>`
->    children are in the markup with `autoplay muted loop playsinline`. Versions
->    1–2 withheld the `src` until `requestIdleCallback` fired and attached it
->    from an effect; any break in that chain left the poster up forever. There is
->    a regression test that the film plays with **JavaScript disabled entirely**.
-> 2. **No conditional source selection.** Version 3 used the `media` attribute on
->    `<source>` to switch between a landscape and a portrait encode. That
->    attribute is reliable inside `<picture>` but inconsistent inside `<video>`,
->    and it could only ever be verified here in Chromium — an untested branch
->    sitting on the exact thing that kept failing. There is now **one** 4:3
->    master and a flat WebM→MP4 list. A test asserts no `source[media]` exists.
-> 3. **`components/HeroFilmGuard.tsx` may only ever stop or nudge the film,
->    never start it.** It retries a refused `play()` and honours reduced motion.
->    If it never runs, the film still plays.
-> 4. **Bitrate is the budget, not file size.** A progressive download the browser
->    cannot stream in real time makes it buffer a large fraction before starting,
->    and ten seconds of poster is indistinguishable from broken. Measured on
->    Slow-4G (1.6 Mbps), time to first frame: **2.51 Mbps → 11.8 s**,
->    1.62 Mbps → 4.7 s, **1.26 Mbps → 3.5 s**. The CRFs target the budget, not a
->    quality score.
+> If a background goes back in, two things are worth knowing up front. **Bitrate,
+> not file size, is what decides whether a video looks broken**: a progressive
+> download the browser cannot stream in real time buffers a large fraction of
+> the file before starting, and on Slow-4G that was 11.8 s at 2.51 Mbps versus
+> 3.5 s at 1.26 Mbps. And **nothing clever may sit between the server and the
+> first frame** — every version that attached the source from a script is one of
+> the versions that failed.
 
-**4:3 is the shape that survives both crops.** `object-cover` into a landscape
-viewport keeps the full width and trims 135 rows top and bottom (losing sky and
-foreground clutter — an improvement); into a phone it keeps the full height and
-shows the middle ~35%, which lands on the stage, the band and the wordmark.
-Checked across the orbit at t = 2/8/14s.
-
-The scrim is tuned against the film rather than one frame — sampled at nine
-points across the orbit, worst-case contrast is 10.4:1 for the headline on
-desktop and 8.0:1 on mobile, 9.8:1 / 8.6:1 for the nav. Re-run that check if the
-footage changes: the clip opens on blown-out daylight sky, which is what the
-heavy top of the gradient answers to.
-
-Cost: FCP and LCP are unchanged at ~700 ms (the headline is text and its font is
-4.6 KB, so it wins the race regardless), CLS stays 0.0000, and the `load` event
-moves from ~2.6 s to ~2.8 s. A visitor pays ~2.5 MB of film, streamed after
-first paint behind the poster.
-
-### `/video-check`
-
-An unlinked, `noindex` diagnostic at [`app/video-check`](./app/video-check). It
-runs the same checks on the device where the film fails — reduced motion, codec
-support per format, whether the files are actually served, autoplay permission,
-which source was chosen, whether frames advance, and the build commit — and
-prints a plain verdict.
-
-It exists because four rounds were lost to guessing at a failure that could not
-be reproduced here. **Delete the route once the film is confirmed working.**
+The headline does not fade in, and shouldn't: Chrome will not treat a
+transparent element as an LCP candidate, so a fade on the largest text on the
+first screen pushes LCP out by the length of the animation (measured at +480 ms
+when the tagline briefly carried one). The scroll cue keeps its fade; nothing is
+gated on that.
 
 ### Webfonts
 
