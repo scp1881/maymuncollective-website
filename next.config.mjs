@@ -35,15 +35,6 @@ const nextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
-        // The hero film: ~5 MB for whichever orientation a visitor gets, so
-        // revalidating it on every navigation (the default for /public) is not
-        // an option. Its filenames are stable, so components/Hero appends
-        // `?v=<CUT>` to every one of these URLs and bumps it when the encodes
-        // change; nothing links here unversioned.
-        source: "/video/:file*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
         // Same reasoning, but a shorter window: the wordmark has a stable
         // filename, so a year of immutability would make replacing it awkward.
         source: "/logo-wordmark.svg",
