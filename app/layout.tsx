@@ -56,7 +56,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    // The inline script below deliberately adds `reveal-js` to <html> before
+    // React ever sees the document, so the server markup and the client DOM
+    // differ on this one attribute by design. Without this, dev builds log
+    // "Extra attributes from the server: class" on every page load, which buries
+    // real hydration mismatches. Scoped to <html>'s own attributes — it does not
+    // silence anything inside the tree.
+    <html lang="en" suppressHydrationWarning>
       <meta name="build-commit" content={BUILD_COMMIT} />
       {/* Only what the first screen actually draws is preloaded: the
           headline-only cut of the display face (the H1 is the LCP element) and
