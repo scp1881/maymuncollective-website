@@ -10,6 +10,12 @@ import { nav } from "@/content/site";
  * Minimal fixed header. Transparent over the hero, then gains a subtle
  * backdrop once the user scrolls. Includes a compact mobile menu.
  *
+ * On .container-rail, not .container-page: the header and the hero are what a
+ * visitor sees first, and with the name set full-bleed a centred max-w-6xl bar
+ * put the wordmark 120px to the right of the H in MAYMUN, which read as a
+ * mistake. Below the fold the bar has its own border and blur and no longer
+ * needs to line up with the narrower body measure.
+ *
  * Used on every page, so it is path-aware. The section links are bare hashes
  * (`#gallery`) which only resolve on the homepage — from anywhere else they are
  * prefixed to `/#gallery` so they navigate home *and* land on the section.
@@ -58,7 +64,7 @@ export default function Nav() {
       }`}
     >
       <nav
-        className="container-page flex h-16 items-center justify-between"
+        className="container-rail flex h-16 items-center justify-between"
         aria-label="Primary"
       >
         {/* No hover treatment: the wordmark is the one thing in the bar that is
@@ -126,7 +132,7 @@ export default function Nav() {
           open ? "block" : "hidden"
         }`}
       >
-        <ul className="container-page flex flex-col gap-1 py-4">
+        <ul className="container-rail flex flex-col gap-1 py-4">
           {nav.map((item) => (
             <li key={item.href}>
               <a

@@ -36,7 +36,12 @@ export default function Contact() {
 
             <a
               href={`mailto:${contact.email}`}
-              className="mt-8 inline-block font-display text-2xl font-medium tracking-tight text-bone underline decoration-accent decoration-2 underline-offset-8 transition-colors hover:text-accent sm:text-3xl"
+              // `overflow-wrap: anywhere` rather than `break-words`: only
+              // `anywhere` also shrinks the element's min-content width, and it
+              // is that width — the unbreakable address at 24px — that was
+              // propping the grid column open and giving the whole page a
+              // horizontal scrollbar at 320px.
+              className="mt-8 inline-block font-display text-2xl font-medium tracking-tight text-bone underline decoration-accent decoration-2 underline-offset-8 transition-colors [overflow-wrap:anywhere] hover:text-accent sm:text-3xl"
             >
               {contact.email}
             </a>
