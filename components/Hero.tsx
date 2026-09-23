@@ -7,8 +7,10 @@ import { hero } from "@/content/site";
  * README for the history, which is worth reading before anyone puts a
  * background back. What is left is deliberately plain: one block of type on the
  * flat page colour, set flush left against the page's own edge padding and
- * centred in the viewport, with the scroll cue on the same left rail so the
- * whole screen reads off a single vertical line.
+ * centred in the viewport: name, then a rule the width of the name, then the
+ * tagline, each starting again from the same left rail. The scroll cue is the
+ * one thing centred on the screen — it belongs to the viewport rather than to
+ * the lockup, and it is the only element a visitor is meant to aim at.
  *
  * This is the one place on the site that is deliberately NOT on the max-w-6xl
  * measure the sections use. The name is the largest thing on the page and it is
@@ -66,25 +68,29 @@ export default function Hero() {
           ))}
         </h1>
 
-        {/* Tagline on a rule that runs out to the right margin. The headline
-            already draws a hard left edge and a ragged right one; this single
-            hairline closes the block off and gives the empty half of the screen
-            something to be, without adding another thing to read. */}
-        <div className="mt-7 flex items-center gap-5 sm:mt-9 sm:gap-8">
-          <p className="shrink-0 text-xs uppercase tracking-[0.32em] text-bone/65 sm:text-sm">
-            {hero.tagline}
-          </p>
-          {/* Hidden on phones, where the tagline nearly fills the measure and
-              what is left of the rule reads as a stray dash. */}
-          <span aria-hidden="true" className="hidden h-px flex-1 bg-bone/15 sm:block" />
-        </div>
+        {/* A rule the full width of the headline, then the tagline beneath it.
+            The rule runs the whole measure rather than filling the gap beside
+            the tagline, so it reads as the underline of the name — it closes
+            the lockup off at the same width the type sets, and the line below
+            it starts again from the left rail.
+
+            Decorative, so a <span> rather than an <hr>: an <hr> is a semantic
+            break between sections of content, which this is not, and it would
+            announce itself to a screen reader in the middle of the name. */}
+        <span
+          aria-hidden="true"
+          className="mt-7 block h-px w-full bg-bone/20 sm:mt-9"
+        />
+
+        <p className="mt-5 text-xs uppercase tracking-[0.32em] text-bone/65 sm:mt-6 sm:text-sm">
+          {hero.tagline}
+        </p>
       </div>
 
-      {/* Scroll cue, on the same left rail as the type rather than centred, so
-          the hero has exactly one vertical alignment. */}
+      {/* Scroll cue, centred on the screen — label and stroke both. */}
       <a
         href="#gallery"
-        className="group absolute bottom-7 left-6 z-10 flex w-fit animate-fade-up flex-col items-start gap-2 text-bone/50 opacity-0 [animation-delay:140ms] sm:left-8 lg:left-16"
+        className="group absolute inset-x-0 bottom-7 z-10 mx-auto flex w-fit animate-fade-up flex-col items-center gap-2 text-bone/50 opacity-0 [animation-delay:140ms]"
         aria-label={`${hero.scrollCue} to gallery`}
       >
         <span className="text-[0.65rem] uppercase tracking-[0.25em] transition-colors group-hover:text-bone">
