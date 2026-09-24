@@ -26,11 +26,13 @@ export default function Contact() {
       <div className="container-page">
         <div className="grid gap-12 md:grid-cols-2 md:gap-8">
           <Reveal>
-            <p className="eyebrow mb-4">04 — Contact</p>
-            <h2 className="font-display text-4xl font-semibold tracking-tightest sm:text-5xl">
+            {/* Not <SectionHeading> only because this one sits in a two-column
+                grid and needs its own subheading measure; the type is the same
+                as every other section heading and should stay in step with it. */}
+            <h2 className="text-balance font-display text-[clamp(2.5rem,7vw,4.5rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.035em]">
               {contact.heading}
             </h2>
-            <p className="mt-4 max-w-md text-lg text-muted">
+            <p className="mt-5 max-w-md text-lg text-muted sm:mt-6">
               {contact.subheading}
             </p>
 

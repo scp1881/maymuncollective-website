@@ -12,7 +12,6 @@ export default function Music() {
     <section id="music" className="scroll-mt-20 border-t border-line py-24 sm:py-32">
       <div className="container-page">
         <SectionHeading
-          eyebrow="02 — Music"
           heading={music.heading}
           subheading={music.subheading}
         />

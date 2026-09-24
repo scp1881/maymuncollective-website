@@ -7,7 +7,6 @@ export default function Members() {
     <section id="members" className="scroll-mt-20 border-t border-line py-24 sm:py-32">
       <div className="container-page">
         <SectionHeading
-          eyebrow="03 — Members"
           heading={members.heading}
           subheading={members.subheading}
         />

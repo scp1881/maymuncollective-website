@@ -38,7 +38,9 @@ export default function GalleryPage() {
         <div className="relative flex flex-col items-center">
           <p className="eyebrow mb-5">{galleryPage.eyebrow}</p>
 
-          <h1 className="font-display text-[clamp(2.75rem,9vw,5.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em]">
+          {/* Same weight and tracking as the hero name and the section
+              headings — one display system across the whole site. */}
+          <h1 className="font-display text-[clamp(2.75rem,9vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.035em]">
             {galleryPage.heading}
           </h1>
 

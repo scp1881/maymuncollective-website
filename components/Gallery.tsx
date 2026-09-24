@@ -24,7 +24,6 @@ export default function Gallery() {
     <section id="gallery" className="scroll-mt-20 py-24 sm:py-32">
       <div className="container-page">
         <SectionHeading
-          eyebrow="01 — Gallery"
           heading={gallery.heading}
           subheading={gallery.subheading}
         />

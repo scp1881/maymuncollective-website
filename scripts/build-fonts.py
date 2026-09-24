@@ -47,9 +47,10 @@ FAMILIES = ("bricolage", "inter")
 # the body face and a future weight change should not need a rebuild here.
 AXIS_LIMITS = {"bricolage": "wght=500:800"}
 
-# A second, tiny cut of the display face carrying only the characters the two
-# H1s can render ("MAYMUN COLLECTIVE" and "COMING SOON"), plus the punctuation
-# and accented capitals a future headline might reach for.
+# A second, tiny cut of the display face carrying every capital, plus the
+# punctuation and accented capitals a headline might reach for. Capitals are
+# all it needs: everything drawn from this cut — the hero name, the section
+# headings, the /gallery holding page — is set in uppercase.
 #
 # Why it exists: the hero headline is the LCP element, and it only becomes an
 # LCP candidate once its fade-up finishes AND the real face has swapped in.
@@ -61,7 +62,11 @@ AXIS_LIMITS = {"bricolage": "wght=500:800"}
 # same family, same weight, visually identical. Changing the headline copy
 # cannot break rendering — at worst it costs one more font request.
 DISPLAY_NAME = "bricolage-display"
-DISPLAY_CHARS = "ACEGILMNOSTUVY .,'-&ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ"
+# The whole alphabet rather than just the letters in today's copy: the section
+# headings are editable content, and a cut that only carried the current
+# wording would quietly start pulling the 33 KB face the first time someone
+# renamed a section. The extra 13 capitals cost about a kilobyte.
+DISPLAY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ .,'-&ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ"
 
 # The characters the site can render. Deliberately wider than what it renders
 # today: the whole of Latin-1 and Latin Extended-A costs little and means a new
