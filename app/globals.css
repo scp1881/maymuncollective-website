@@ -16,10 +16,11 @@
    pin Arial's metrics to each webfont's so the swap from fallback to real face
    does not move any text. Losing them would trade a font saving for layout
    shift, which is a bad deal — measured CLS is 0.0000 and should stay there. */
-/* The headline-only cut of the display face — see scripts/build-fonts.py.
-   4.6 KB against the full latin cut's 33 KB, so the hero's H1 (the LCP element)
-   stops waiting on a font that carries 400 glyphs it never draws. It is first
-   in the `display` stack; anything outside this range falls through to the full
+/* The capitals-only cut of the display face — see scripts/build-fonts.py.
+   6.4 KB against the full latin cut's 33 KB, so the hero's H1 (the LCP element)
+   stops waiting on a font that carries 400 glyphs it never draws. Every headline
+   on the site is uppercase, so this one file draws all of them. It is first in
+   the `display` stack; anything outside this range falls through to the full
    face below, same family, same weight, identical pixels. */
 @font-face {
   font-family: "Bricolage Display";
@@ -27,7 +28,7 @@
   font-weight: 500 800;
   font-display: swap;
   src: url("/fonts/bricolage-display.woff2") format("woff2");
-  unicode-range: u+0020,u+0026,u+0027,u+002c,u+002d,u+002e,u+0041,u+0043,u+0045,u+0047,u+0049,u+004c,u+004d,u+004e,u+004f,u+0053,u+0054,u+0055,u+0056,u+0059,u+00c0-00c5,u+00c7-00cf,u+00d1-00d6,u+00d9-00dd;
+  unicode-range: u+0020,u+0026,u+0027,u+002c,u+002d,u+002e,u+0041-005a,u+00c0-00c5,u+00c7-00cf,u+00d1-00d6,u+00d9-00dd;
 }
 
 @font-face {
