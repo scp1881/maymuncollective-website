@@ -15,9 +15,10 @@ type SectionHeadingProps = {
  * to type alone, that was a second, quieter typographic system running down the
  * page, and the number was labelling sections a visitor can already count.
  *
- * `text-balance` matters here for the one multi-word heading ("Get in touch"),
- * which at this size wraps on a phone; without it the second line can be left
- * carrying a single short word.
+ * Every heading is a single word today, so nothing wraps and `text-balance`
+ * does nothing. It stays because these are editable copy: at this size a
+ * two-word heading wraps on a phone, and without it the second line can be
+ * left carrying one short word.
  */
 export default function SectionHeading({
   heading,
