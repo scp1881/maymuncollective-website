@@ -118,7 +118,7 @@ export const galleryPage = {
 /* --------------------------------------------------------------- CONTACT */
 // Social links. Set `href` to "" to hide a given platform.
 export const contact = {
-  heading: "Get in touch",
+  heading: "Contact",
   subheading:
     "Bookings, collaborations, press. Reach us directly or find us online.",
   email: site.email,
