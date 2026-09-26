@@ -185,13 +185,6 @@
   .note {
     @apply text-sm leading-snug text-muted;
   }
-
-  /* Small uppercase label. Now used only by the /gallery holding page, where
-     it names which page you are on above a heading that otherwise would not
-     say. That is a job; decorating a section heading was not. */
-  .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.2em] text-muted;
-  }
 }
 
 /* Respect users who prefer reduced motion: no smooth scroll, and the hero's

@@ -62,11 +62,32 @@ import { hero } from "@/content/site";
  * briefly carried one. The scroll cue keeps its fade; nothing is gated on that.
  */
 
-// (100vw − both gutters) ÷ 5.75, capped so it cannot outgrow a short viewport.
-// Must stay in step with .container-rail's gutters in globals.css: 24px, 32px,
-// then 64px. The subtracted value is both gutters together.
-const HEADLINE_SIZE =
-  "text-[min(calc((100vw-3rem)/5.75),30vh)] sm:text-[min(calc((100vw-4rem)/5.75),30vh)] lg:text-[min(calc((100vw-8rem)/5.75),30vh)]";
+/* ── The lockup ────────────────────────────────────────────────────────────
+ * Both lines are justified to the same measure, and they get there at
+ * different weights rather than at the same one. Measured at 200px with this
+ * tracking, a capital MAYMUN is 4.511x its font-size wide at weight 800 and
+ * 4.266x at 500; COLLECTIVE is 5.581x at 800 and 5.388x at 500. Setting the
+ * name at 800 and the qualifier at 500, each divided by its own factor, fills
+ * the measure twice over and makes the heavier word the larger one — 291px
+ * against 244px at a 1440 viewport. Two lines of identical weight and size was
+ * the type acting as a delivery vehicle; this is the type doing the work.
+ *
+ * The divisors carry ~2% slack over the measured factors, which absorbs the
+ * scrollbar that 100vw counts and the content box does not.
+ *
+ * The vh ceilings are in the same 4.60 : 5.49 proportion as the divisors, so
+ * on a short, wide viewport the two lines shrink together and stay flush
+ * instead of one of them clipping first. 37vh rather than 30: at 30 the cap bound at
+ * both 1440x900 and 1920x1080 — the two most ordinary laptop sizes — and the
+ * lockup stopped 94px short of the right gutter while sitting 64px from the
+ * left, which reads as a mistake rather than as a margin. At 37 the width term
+ * governs at every ordinary ratio and the cap only engages on genuinely short
+ * viewports, which is what it is for.
+ */
+const NAME_SIZE =
+  "text-[min(calc((100vw-3rem)/4.60),37vh)] sm:text-[min(calc((100vw-4rem)/4.60),37vh)] lg:text-[min(calc((100vw-8rem)/4.60),37vh)]";
+const QUALIFIER_SIZE =
+  "text-[min(calc((100vw-3rem)/5.49),31vh)] sm:text-[min(calc((100vw-4rem)/5.49),31vh)] lg:text-[min(calc((100vw-8rem)/5.49),31vh)]";
 
 export default function Hero() {
   return (
@@ -80,31 +101,35 @@ export default function Hero() {
       className="relative flex min-h-svh flex-col justify-end overflow-hidden bg-ink pb-40 sm:justify-center sm:pt-16 sm:pb-[calc(7svh+4rem)]"
     >
       <div className="container-rail relative z-10">
-        <h1
-          className={`font-display ${HEADLINE_SIZE} font-extrabold uppercase leading-[0.84] tracking-[-0.035em]`}
-        >
-          {hero.titleLines.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
+        {/* Tracking is set per line, not on the h1. `letter-spacing` in `em`
+            resolves against the element's own font-size and then inherits as
+            that computed pixel value, so one declaration on the parent would
+            give both lines the same px tracking despite their different sizes
+            — which is what made an earlier version of this lockup overflow. */}
+        <h1 className="font-display uppercase leading-[0.84]">
+          <span
+            className={`block ${NAME_SIZE} font-extrabold tracking-[-0.035em]`}
+          >
+            {hero.titleLines[0]}
+          </span>
+          <span
+            className={`block ${QUALIFIER_SIZE} font-medium tracking-[-0.035em]`}
+          >
+            {hero.titleLines[1]}
+          </span>
         </h1>
 
-        {/* A rule the full width of the headline, then the tagline beneath it.
-            The rule runs the whole measure rather than filling the gap beside
-            the tagline, so it reads as the underline of the name — it closes
-            the lockup off at the same width the type sets, and the line below
-            it starts again from the left rail.
+        {/* The line the collective actually leads with, in the three languages
+            it works in. It was set at 11px in tracked-out capitals, which is
+            the one piece of template chrome left on the site and made the most
+            characteristic thing the brand says the smallest thing on screen.
+            Sentence case, at a size you read rather than scan, in the body face
+            so it reads as a voice under the logotype rather than as part of it.
 
-            Decorative, so a <span> rather than an <hr>: an <hr> is a semantic
-            break between sections of content, which this is not, and it would
-            announce itself to a screen reader in the middle of the name. */}
-        <span
-          aria-hidden="true"
-          className="mt-7 block h-px w-full bg-bone/20 sm:mt-9"
-        />
-
-        <p className="mt-5 text-xs uppercase tracking-[0.32em] text-bone/65 sm:mt-6 sm:text-sm">
+            The rule that used to sit above it is gone. It encoded nothing — it
+            was a line drawn under the name because the name looked like it
+            wanted one. */}
+        <p className="mt-8 text-lg text-bone/60 sm:mt-10 sm:text-xl lg:text-2xl">
           {hero.tagline}
         </p>
       </div>
@@ -118,7 +143,7 @@ export default function Hero() {
         className="group absolute bottom-7 left-6 right-auto z-10 flex w-fit animate-fade-up flex-col items-start gap-2 text-bone/50 opacity-0 [animation-delay:140ms] sm:inset-x-0 sm:left-0 sm:right-0 sm:mx-auto sm:items-center"
         aria-label={`${hero.scrollCue} to gallery`}
       >
-        <span className="text-[0.65rem] uppercase tracking-[0.25em] transition-colors group-hover:text-bone">
+        <span className="text-sm transition-colors group-hover:text-bone">
           {hero.scrollCue}
         </span>
         <span
