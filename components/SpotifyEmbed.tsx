@@ -56,18 +56,16 @@ export default function SpotifyEmbed() {
         <div
           // The embed string is trusted, operator-authored markup pasted from
           // Spotify's Share > Embed dialog — not user input.
-          className="overflow-hidden rounded-xl [&_iframe]:block [&_iframe]:w-full"
+          className="overflow-hidden [&_iframe]:block [&_iframe]:w-full"
           dangerouslySetInnerHTML={{ __html: music.spotifyEmbed }}
         />
       ) : (
         <div
           aria-hidden="true"
-          className="flex items-center justify-center rounded-xl border border-line bg-surface"
+          className="flex items-center justify-center border border-line bg-surface"
           style={{ height: music.embedHeight }}
         >
-          <span className="text-sm uppercase tracking-[0.2em] text-muted">
-            Loading player…
-          </span>
+          <span className="note">Loading the player…</span>
         </div>
       )}
 
@@ -76,7 +74,7 @@ export default function SpotifyEmbed() {
           href={music.spotifyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-block text-lg text-bone underline decoration-accent decoration-2 underline-offset-4"
+          className="mt-4 inline-block text-lg text-bone underline decoration-stage decoration-2 underline-offset-4"
         >
           Listen on Spotify
         </a>

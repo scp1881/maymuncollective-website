@@ -19,51 +19,40 @@ export const metadata: Metadata = {
  * rewrites its section links to `/#section` when it is not on the homepage) so
  * this never feels like a dead end — every section is one click away.
  *
- * The layout leans on the hero's language rather than inventing a new one: the
- * same eyebrow, the same display face, the same accent rule, centred in the
- * viewport with the same radial glow behind it.
+ * The layout is the homepage's, not a new one: the same left rail, the same
+ * display face at the same weight and tracking, the same single signal colour.
+ * What it does not carry any more is a radial magenta glow behind the heading —
+ * that was decoration standing in for a design, and on a page whose entire
+ * message is "not yet" it was the loudest thing on screen.
  */
 export default function GalleryPage() {
   return (
     <>
       <Nav />
 
-      <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 text-center">
-        {/* Decorative glow, mirrored from the hero so the two pages feel related. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[120px]"
-        />
-
-        <div className="relative flex flex-col items-center">
-          <p className="eyebrow mb-5">{galleryPage.eyebrow}</p>
+      <main className="container-rail flex min-h-svh flex-col justify-center py-32">
+        <div className="max-w-2xl">
+          {/* This label earns its place: the heading says "Coming soon" and
+              nothing else on the page says what is coming. */}
+          <p className="note">{galleryPage.eyebrow}</p>
 
           {/* Same weight and tracking as the hero name and the section
               headings — one display system across the whole site. */}
-          <h1 className="font-display text-[clamp(2.75rem,9vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.035em]">
+          <h1 className="mt-4 font-display text-[clamp(2.75rem,9vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.035em]">
             {galleryPage.heading}
           </h1>
 
-          {/* Short accent rule — the one bit of colour, echoing the underline
-              under the contact email. */}
-          <span aria-hidden="true" className="mt-8 block h-px w-16 bg-accent" />
-
-          <p className="mt-8 max-w-md text-lg text-muted">{galleryPage.subheading}</p>
+          <p className="lede mt-8">{galleryPage.subheading}</p>
 
           <Link
             href="/"
-            className="group mt-10 inline-flex items-center gap-2 border-b border-line pb-1 text-sm font-medium uppercase tracking-[0.15em] text-muted transition-colors hover:border-accent hover:text-bone"
+            className="-my-3 mt-8 inline-block py-3 text-bone underline decoration-line decoration-1 underline-offset-[6px] transition-colors hover:decoration-stage focus-visible:decoration-stage"
           >
-            <span
-              aria-hidden="true"
-              className="transition-transform duration-300 group-hover:-translate-x-1"
-            >
-              ←
-            </span>
             {galleryPage.backLabel}
           </Link>
         </div>
       </main>
+
     </>
   );
 }

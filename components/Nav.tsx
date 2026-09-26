@@ -10,11 +10,9 @@ import { nav } from "@/content/site";
  * Minimal fixed header. Transparent over the hero, then gains a subtle
  * backdrop once the user scrolls. Includes a compact mobile menu.
  *
- * On .container-rail, not .container-page: the header and the hero are what a
- * visitor sees first, and with the name set full-bleed a centred max-w-6xl bar
- * put the wordmark 120px to the right of the H in MAYMUN, which read as a
- * mistake. Below the fold the bar has its own border and blur and no longer
- * needs to line up with the narrower body measure.
+ * On .container-rail, which is now the only measure on the site: the wordmark,
+ * the band's name, every section heading and the footer all start on the same
+ * vertical line from the top of the page to the bottom.
  *
  * Used on every page, so it is path-aware. The section links are bare hashes
  * (`#gallery`) which only resolve on the homepage — from anywhere else they are
@@ -93,7 +91,11 @@ export default function Nav() {
             <li key={item.href}>
               <a
                 href={onHome ? item.href : `/${item.href}`}
-                className="text-sm text-muted transition-colors hover:text-bone"
+                // The padding is the click target. These were 17px tall — the
+                // height of the text and nothing else — which is a small thing
+                // to hit with a mouse and an unreasonable one on a trackpad.
+                // The negative margin on the list keeps the bar its own height.
+                className="-my-3 block py-3 text-sm text-muted transition-colors hover:text-bone"
               >
                 {item.label}
               </a>

@@ -123,7 +123,7 @@ export default function Hero() {
         </span>
         <span
           aria-hidden="true"
-          className="block h-8 w-px animate-pulse bg-gradient-to-b from-bone/50 to-transparent"
+          className="block h-8 w-px bg-gradient-to-b from-bone/50 to-transparent"
         />
       </a>
     </section>

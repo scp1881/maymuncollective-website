@@ -118,66 +118,84 @@
 
   body {
     @apply bg-ink text-bone font-body antialiased;
+    /* `clip`, not `hidden`. The full-bleed photograph is sized in `vw`, which
+       counts the scrollbar the content box does not have, so it ends up about
+       15px wider than the page and would otherwise add a horizontal scrollbar.
+       `overflow-x: clip` trims that sliver without creating a scroll container
+       — which matters, because `overflow: hidden` would create one and silently
+       break every `position: sticky` heading on the page. */
+    overflow-x: clip;
     text-rendering: optimizeLegibility;
+    /* Lining, tabular figures everywhere. The site is full of numbers that sit
+       in columns — years, phone numbers, track times — and proportional digits
+       make those columns wobble. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Running copy only. `pretty` costs a little layout work per paragraph, so it
+     is not worth putting on headings (which get `balance` where they need it)
+     or on single-line labels. It exists to stop a paragraph ending on a
+     one-word line, which is the single most common thing that makes otherwise
+     careful typography look careless. */
+  p {
+    text-wrap: pretty;
   }
 
   /* Consistent, visible focus ring for keyboard users across interactive elements. */
   :focus-visible {
-    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-ink;
+    @apply outline-none ring-2 ring-stage ring-offset-2 ring-offset-ink;
   }
 
   ::selection {
-    @apply bg-accent text-ink;
+    @apply bg-stage text-ink;
   }
-}
-
-/* ── Scroll reveals ──────────────────────────────────────────────────────────
-   Driven by the small inline script in app/layout.tsx, not by React, so the
-   animation is live from DOMContentLoaded instead of waiting on hydration.
-
-   The hidden state is deliberately scoped to `.reveal-js`, a class that script
-   only adds when it knows it can undo it (IntersectionObserver present, motion
-   not reduced). Without it these rules never apply and the content is plainly
-   visible — so a failed or blocked script degrades to "no animation" rather
-   than to an invisible page. */
-[data-reveal] {
-  transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-}
-
-.reveal-js [data-reveal] {
-  opacity: 0;
-  transform: translateY(1rem);
-}
-
-.reveal-js [data-reveal][data-revealed] {
-  opacity: 1;
-  transform: none;
 }
 
 @layer utilities {
-  /* Horizontal page gutters, shared by every section for a consistent grid. */
-  .container-page {
-    @apply mx-auto w-full max-w-6xl px-6 sm:px-8 lg:px-10;
-  }
 
-  /* The full-bleed rail: same gutters as .container-page, no max-width. Used
-     by the hero and the header, which are the two things on the first screen
-     and so have to share one vertical line. Everything below the hero stays on
-     .container-page's narrower measure, which is right for reading. */
+  /* The rail: one set of gutters for the whole site, no max-width. The header,
+     the hero and every section below now share it, so the page has a single
+     spine from the wordmark to the footer and the hairlines can run edge to
+     edge. Reading measure is controlled per element (max-w on the paragraphs
+     that need it) rather than by squeezing the whole page into a column — a
+     centred max-w-6xl container made every section the same shape, which is
+     what made the page below the hero read as a template. */
   .container-rail {
     @apply w-full px-6 sm:px-8 lg:px-16;
   }
 
-  /* Small uppercase label used for section eyebrows. */
+  /* ── Type tiers ─────────────────────────────────────────────────────────
+     Four roles, each with one job. Before this the site had two — display for
+     headings and one grey body size for everything else — so a section's
+     standfirst, an image caption and a member's instrument were all set
+     identically and none of them ranked against the others. */
+
+  /* Standfirst under a section heading. Bone at 70%, not `muted`: muted is a
+     warm grey-brown that reads as disabled at paragraph length. */
+  .lede {
+    @apply max-w-prose text-base leading-relaxed text-bone/70 sm:text-lg;
+  }
+
+  /* The quiet tier — captions, instrument credits, link labels.
+     Deliberately sentence case. A tracked-out uppercase label above every
+     piece of content is the single most recognisable piece of template chrome
+     there is; it announces "this is a designed page" without telling anyone
+     anything. Small, dimmer, and in the same voice as the rest of the writing
+     does the same ranking job and reads like a person wrote it. */
+  .note {
+    @apply text-sm leading-snug text-muted;
+  }
+
+  /* Small uppercase label. Now used only by the /gallery holding page, where
+     it names which page you are on above a heading that otherwise would not
+     say. That is a job; decorating a section heading was not. */
   .eyebrow {
     @apply text-xs font-medium uppercase tracking-[0.2em] text-muted;
   }
 }
 
-/* Respect users who prefer reduced motion: disable smooth scroll + reveals. */
+/* Respect users who prefer reduced motion: no smooth scroll, and the hero's
+   one entrance is reduced to nothing. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

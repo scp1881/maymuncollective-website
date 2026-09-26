@@ -56,13 +56,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // The inline script below deliberately adds `reveal-js` to <html> before
-    // React ever sees the document, so the server markup and the client DOM
-    // differ on this one attribute by design. Without this, dev builds log
-    // "Extra attributes from the server: class" on every page load, which buries
-    // real hydration mismatches. Scoped to <html>'s own attributes — it does not
-    // silence anything inside the tree.
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <meta name="build-commit" content={BUILD_COMMIT} />
       {/* Only what the first screen actually draws is preloaded: the
           headline-only cut of the display face (the H1 is the LCP element) and
@@ -81,25 +75,6 @@ export default function RootLayout({
           much shorter one, without pulling any of the player itself. */}
       <link rel="preconnect" href="https://open.spotify.com" />
       <body>
-        {/* Scroll-reveal enhancement. Deliberately an inline, blocking script
-            as the first thing in <body>: the parser runs it before any
-            [data-reveal] element below exists, so the hidden state is in place
-            before the first paint and nothing flashes in and back out.
-
-            It is ~15 lines rather than a React component because the reveals
-            used to be gated on hydration — a visitor scrolling straight down
-            met a blank page until the bundle finished. This runs at
-            DOMContentLoaded instead, which lands several times sooner, and
-            costs nothing in the JS bundle.
-
-            `.reveal-js` is only added once we know both that the browser has
-            IntersectionObserver and that the visitor has not asked for reduced
-            motion; otherwise the CSS never hides anything in the first place. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var d=document.documentElement;try{if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){return}d.className+=' reveal-js';function s(){var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.setAttribute('data-revealed','');o.unobserve(e.target)}})},{threshold:0.15,rootMargin:'0px 0px -10% 0px'});[].forEach.call(document.querySelectorAll('[data-reveal]'),function(el){o.observe(el)})}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',s)}else{s()}})();`,
-          }}
-        />
         {children}
       </body>
     </html>
