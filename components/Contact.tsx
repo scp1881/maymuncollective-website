@@ -1,4 +1,4 @@
-import Reveal from "@/components/Reveal";
+import Section from "@/components/Section";
 import { contact, footer } from "@/content/site";
 
 /** WhatsApp glyph. Monochrome via currentColor so it picks up the link's
@@ -15,81 +15,91 @@ function WhatsAppIcon() {
   );
 }
 
+/**
+ * Contact — the last thing on the page, and the only one with a job to do
+ * beyond being looked at.
+ *
+ * The email address is the point of the section, so it is the largest thing in
+ * it: set in the display face, at a size that makes it the obvious next move.
+ * The site's one colour appears under it and nowhere else on this screen, which
+ * is what a single signal colour is for — if the magenta were also on the
+ * socials and the phone number it would rank nothing.
+ *
+ * The socials are a plain list of three, on hairlines matching the members
+ * list above, so the page closes on a shape it has already taught you.
+ */
 export default function Contact() {
   const socials = contact.socials.filter((s) => s.href);
 
   return (
-    <section
-      id="contact"
-      className="scroll-mt-20 border-t border-line py-24 sm:py-32"
-    >
-      <div className="container-page">
-        <div className="grid gap-12 md:grid-cols-2 md:gap-8">
-          <Reveal>
-            {/* Not <SectionHeading> only because this one sits in a two-column
-                grid and needs its own subheading measure; the type is the same
-                as every other section heading and should stay in step with it. */}
-            <h2 className="text-balance font-display text-[clamp(2.5rem,7vw,4.5rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.035em]">
-              {contact.heading}
-            </h2>
-            <p className="mt-5 max-w-md text-lg text-muted sm:mt-6">
-              {contact.subheading}
-            </p>
+    <>
+      <Section
+        id="contact"
+        heading={contact.heading}
+        lede={contact.subheading}
+        contentClassName="flex flex-col gap-14"
+      >
+        <div>
+          <a
+            href={`mailto:${contact.email}`}
+            // `overflow-wrap: anywhere` rather than `break-words`: only
+            // `anywhere` also shrinks the element's min-content width, and it
+            // is that width — the unbreakable address — that was propping the
+            // grid open and giving the page a horizontal scrollbar at 320px.
+            className="inline-block font-display text-[clamp(1.5rem,5vw,2.5rem)] font-semibold leading-tight tracking-tight text-bone underline decoration-stage decoration-2 underline-offset-[10px] transition-colors [overflow-wrap:anywhere] hover:text-stage"
+          >
+            {contact.email}
+          </a>
 
+          {contact.whatsapp && (
             <a
-              href={`mailto:${contact.email}`}
-              // `overflow-wrap: anywhere` rather than `break-words`: only
-              // `anywhere` also shrinks the element's min-content width, and it
-              // is that width — the unbreakable address at 24px — that was
-              // propping the grid column open and giving the whole page a
-              // horizontal scrollbar at 320px.
-              className="mt-8 inline-block font-display text-2xl font-medium tracking-tight text-bone underline decoration-accent decoration-2 underline-offset-8 transition-colors [overflow-wrap:anywhere] hover:text-accent sm:text-3xl"
+              href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Message us on WhatsApp at ${contact.whatsapp}`}
+              className="mt-7 flex w-fit items-center gap-2 py-1 text-base text-muted transition-colors hover:text-bone sm:text-lg"
             >
-              {contact.email}
+              <WhatsAppIcon />
+              <span>{contact.whatsapp}</span>
             </a>
-
-            {contact.whatsapp && (
-              <a
-                href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Message us on WhatsApp at ${contact.whatsapp}`}
-                className="mt-5 flex w-fit items-center gap-2 text-base text-muted transition-colors hover:text-accent sm:text-lg"
-              >
-                <WhatsAppIcon />
-                <span>{contact.whatsapp}</span>
-              </a>
-            )}
-          </Reveal>
-
-          <Reveal delay={100} className="md:justify-self-end">
-            <ul className="flex flex-col gap-1">
-              {socials.map((social) => (
-                <li key={social.label}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center justify-between gap-8 border-b border-line py-4 text-lg transition-colors hover:text-accent"
-                  >
-                    <span>{social.label}</span>
-                    <span
-                      aria-hidden="true"
-                      className="text-muted transition-transform duration-300 group-hover:translate-x-1 group-hover:text-accent"
-                    >
-                      ↗
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
+          )}
         </div>
 
-        <footer className="mt-24 border-t border-line pt-8">
-          <p className="text-sm text-muted">{footer.note}</p>
-        </footer>
-      </div>
-    </section>
+        <ul className="border-t border-line">
+          {socials.map((social) => (
+            <li key={social.label}>
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-16 items-center justify-between gap-8 border-b border-line py-4 text-lg text-bone transition-colors hover:text-stage"
+              >
+                <span>{social.label}</span>
+                <span className="note">{hostOf(social.href)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <footer className="container-rail pb-16">
+        <p className="note border-t border-line pt-8">{footer.note}</p>
+      </footer>
+    </>
   );
+}
+
+/**
+ * The bare host of a profile URL, e.g. "instagram.com". Shown opposite each
+ * social name in place of the old "↗" glyph: an arrow tells you the link goes
+ * somewhere, which you already knew from it being a link, whereas the host
+ * tells you where — and it is the same information the browser would show you
+ * in the status bar anyway.
+ */
+function hostOf(href: string) {
+  try {
+    return new URL(href).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
 }

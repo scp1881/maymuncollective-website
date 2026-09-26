@@ -13,13 +13,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Off-black / off-white base + a single vivid signal accent.
-        ink: "#0a0a0a", // near-black background
-        surface: "#141414", // slightly raised panels
-        bone: "#f5f3ef", // warm off-white (primary text)
-        muted: "#8f8b83", // secondary text
-        line: "#262626", // hairline borders
-        accent: "#a855f7", // single accent — swap this one value to re-theme
+        /* Five values, and every one of them is answerable for itself.
+         *
+         * `ink` is true black, not the #0a0a0a it used to be. A near-black
+         * standing in for black is a habit, not a decision — it costs the
+         * deepest value the screen can make and, on the OLED phones this
+         * audience actually uses, it costs the one place a screen can show an
+         * image floating in nothing. The photographs are lit against darkness;
+         * let the page be darkness.
+         *
+         * `stage` is sampled from the band's own photograph of the Blind show
+         * — the magenta wash over the stage reads #8f1773 / #8a1b88, hue
+         * 300–315. Lifted to #e0219c (hue 321) it keeps that hue and reaches
+         * 4.87:1 on black, which passes AA for body text. The previous accent
+         * was #a855f7: Tailwind's purple-500 at hue 271, a default that had
+         * nothing to do with this band.
+         *
+         * `surface` is the backstage lamp's amber taken down to almost
+         * nothing. It is the only warm dark on the page and it exists purely
+         * so an image has something to sit on while it decodes.
+         */
+        ink: "#000000", // the page
+        surface: "#171310", // behind a loading image; derived from the lamp
+        bone: "#f5f3ef", // primary text — 18.95:1 on ink
+        muted: "#8f8b83", // secondary text — 6.19:1 on ink
+        line: "#1f1f1f", // hairlines, used sparingly
+        stage: "#e0219c", // the signal colour, from the stage wash
       },
       fontFamily: {
         // The "… Fallback" entries are the metric-matched Arial faces declared

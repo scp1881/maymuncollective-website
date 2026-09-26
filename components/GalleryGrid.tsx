@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import Reveal from "@/components/Reveal";
 import { blurProps } from "@/content/blur";
 
 /**
@@ -74,14 +73,14 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
           // things that actually gate the first paint.
           const isLcp = i === 0;
           return (
-            <Reveal key={item.id} delay={i * 50} className="mb-3 break-inside-avoid sm:mb-4">
+            <div key={item.id} className="mb-3 break-inside-avoid sm:mb-4">
               <button
                 type="button"
                 onClick={() => setOpenId(item.id)}
                 aria-label={
                   item.type === "video" ? `Play video: ${item.alt}` : `View: ${item.alt}`
                 }
-                className="group relative block w-full overflow-hidden rounded-lg bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+                className="group relative block w-full overflow-hidden rounded-lg bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stage focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
               >
                 <Image
                   src={thumb}
@@ -104,7 +103,7 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
                 />
                 {item.type === "video" && <PlayBadge />}
               </button>
-            </Reveal>
+            </div>
           );
         })}
       </div>
@@ -145,7 +144,7 @@ function Lightbox({ item, onClose }: { item: Item; onClose: () => void }) {
         onClick={onClose}
         autoFocus
         aria-label="Close"
-        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-line text-bone transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-line text-bone transition-colors hover:border-stage hover:text-stage focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stage"
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5 stroke-current" fill="none" strokeWidth="2">
           <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
