@@ -31,7 +31,7 @@ export default function Members() {
         {members.people.map((person) => (
           <li
             key={person.id}
-            className="flex min-h-20 flex-col justify-center gap-1 border-b border-line py-5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
+            className="flex min-h-[4.5rem] flex-col justify-center gap-0.5 border-b border-line py-4 sm:min-h-20 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8 sm:py-5"
           >
             <h3 className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
               {person.name}

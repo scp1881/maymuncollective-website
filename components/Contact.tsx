@@ -37,7 +37,7 @@ export default function Contact() {
         id="contact"
         heading={contact.heading}
         lede={contact.subheading}
-        contentClassName="flex flex-col gap-14"
+        contentClassName="flex flex-col gap-10 sm:gap-14"
       >
         <div>
           <a
@@ -82,7 +82,7 @@ export default function Contact() {
         </ul>
       </Section>
 
-      <footer className="container-rail pb-16">
+      <footer className="container-rail pb-12 sm:pb-16">
         <p className="note border-t border-line pt-8">{footer.note}</p>
       </footer>
     </>

@@ -57,7 +57,7 @@ export default function Gallery() {
   return (
     <>
       <Section id="gallery" heading={gallery.heading} lede={gallery.subheading}>
-        <div className="grid grid-cols-1 gap-x-4 gap-y-12 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-y-12">
           {inGrid.map((img, i) => (
             <figure key={img.id} className={`group ${i === 1 ? "lg:mt-12" : ""}`}>
               {img.src ? (
@@ -88,7 +88,7 @@ export default function Gallery() {
           ))}
         </div>
 
-        <div className="mt-16">
+        <div className="mt-10 sm:mt-16">
           <Link
             href="/gallery"
             // The padding is the tap target — 44px of height on a link whose
@@ -105,7 +105,19 @@ export default function Gallery() {
         (img) =>
           img.src && (
             <figure key={img.id} className="w-full">
-              <div className="relative bg-surface">
+              {/* Recomposed for the device, not resized for it. At 2.45:1 this
+                  photograph is the boldest thing on the desktop page and a
+                  159px-tall strip on a phone — the same asset arriving as the
+                  weakest element in the layout instead of the strongest.
+
+                  3:2 is not a taste call, it is what the frame holds. A centre
+                  crop keeps `target ÷ 2.45` of the width: 4:5 keeps 33% and
+                  cuts the band from four people to two, 5:4 keeps 51% and
+                  still clips the outer two at the shoulder, 3:2 keeps 61% and
+                  holds all four with room around them. That renders 390x260 on
+                  a phone — 31% of the screen against 19% before. From `sm` up
+                  the photograph returns to its own ratio, untouched. */}
+              <div className="relative aspect-[3/2] bg-surface sm:aspect-auto">
                 <Image
                   src={img.src}
                   alt={img.alt}
@@ -115,7 +127,7 @@ export default function Gallery() {
                   loading="lazy"
                   fetchPriority="low"
                   {...blurProps(img.src)}
-                  className="h-auto w-full"
+                  className="h-full w-full object-cover object-center sm:h-auto"
                 />
               </div>
               <figcaption className="container-rail note mt-4">
