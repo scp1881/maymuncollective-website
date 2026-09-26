@@ -57,7 +57,11 @@ export default function Nav() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
         scrolled || open
-          ? "border-b border-line bg-ink/80 backdrop-blur-md"
+          // Solid on phones, translucent from sm up. A blurred 80% bar works
+          // over a desktop page that is mostly black; on a phone the photos
+          // are full-bleed, so the bar spends most of its life over a
+          // photograph and the wordmark was landing on people's faces.
+          ? "border-b border-line bg-ink sm:bg-ink/80 sm:backdrop-blur-md"
           : "border-b border-transparent"
       }`}
     >

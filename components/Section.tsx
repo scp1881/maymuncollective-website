@@ -33,6 +33,12 @@ type SectionProps = {
  *
  * Below `lg` the columns stack: the label above the thing it labels.
  *
+ * The vertical padding is not one value scaled down. 96px above and below a
+ * section is a comfortable breath on a 1440px canvas and a quarter of the
+ * screen on a 390px one — measured, 34% of the phone page was blank before
+ * this, in runs of up to 583px. Phones get 64px, which keeps the sections
+ * separate without making the reader scroll through nothing to find them.
+ *
  * ── What is deliberately NOT here ─────────────────────────────────────────
  * No divider. An earlier draft gave every section a full-bleed hairline above
  * it, which is the broadsheet move — hairline rules, hard corners, dense
@@ -56,7 +62,7 @@ export default function Section({
   return (
     <section id={id} className="scroll-mt-24">
       <div className="container-rail">
-        <div className="grid gap-y-8 py-24 sm:py-28 lg:grid-cols-12 lg:gap-x-10 lg:py-36">
+        <div className="grid gap-y-6 py-16 sm:gap-y-8 sm:py-28 lg:grid-cols-12 lg:gap-x-10 lg:py-36">
           <header className="lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
             <h2 className="text-balance font-display text-[clamp(2.5rem,7vw,4.5rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.035em]">
               {heading}
