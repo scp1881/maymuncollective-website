@@ -32,3 +32,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# UI/UX Pro Max skills — installed per session, not vendored.
+# 193 files / 5.2 MB of third-party design data. To reinstall:
+#   npm install -g ui-ux-pro-max-cli && uipro init --ai claude
+# Also needs (optional, only for the `design` skill's Gemini image generation):
+#   pip install google-genai pillow   and   export GEMINI_API_KEY=...
+# frontend-design is exempt: it is committed and loads automatically.
+/.claude/skills/*
+!/.claude/skills/frontend-design/
