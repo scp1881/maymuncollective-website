@@ -141,6 +141,23 @@
     text-wrap: pretty;
   }
 
+  /* Removes the ~300ms tap delay browsers reserve for double-tap-to-zoom, so a
+     tap on a phone registers immediately. Scoped to controls rather than set on
+     <body>: `manipulation` keeps pinch-zoom but drops double-tap zoom, and
+     there is no reason to take that away from the page's text and photographs
+     just to speed up its links. */
+  a,
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* <main> takes focus from the skip link but is not itself interactive, so it
+     must not draw a ring when clicked into. */
+  main:focus {
+    outline: none;
+  }
+
   /* Consistent, visible focus ring for keyboard users across interactive elements. */
   :focus-visible {
     @apply outline-none ring-2 ring-stage ring-offset-2 ring-offset-ink;
