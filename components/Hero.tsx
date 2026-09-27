@@ -25,7 +25,7 @@ export default function Hero() {
         <div className="lg:col-span-5">
           <Print
             photo={hero.photo}
-            ratio={{ sm: "4 / 5" }}
+            ratio={{ sm: "1 / 1" }}
             sizes="(min-width: 1536px) 620px, (min-width: 1024px) 40vw, 100vw"
             priority
           />

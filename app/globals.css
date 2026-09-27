@@ -343,6 +343,27 @@
   }
 
   @supports (animation-timeline: view()) {
+    /* 1b. Scroll: as the hero leaves, the three voices fold into one
+       condensed width. A second animation on its own timeline that starts
+       only at the hero's exit (no backwards fill), so it never fights the
+       load sweep above, and holds its end state once the hero is gone. */
+    .tongue {
+      animation-name: tongue-in, tongues-fold;
+      animation-duration: var(--dur-sweep), auto;
+      animation-timing-function: var(--ease-out), linear;
+      animation-fill-mode: both, forwards;
+      animation-timeline: auto, --hero;
+      animation-range: normal, exit 0% exit 70%;
+    }
+    #top {
+      view-timeline-name: --hero;
+    }
+    @keyframes tongues-fold {
+      to {
+        font-stretch: 62%;
+      }
+    }
+
     /* 2. Scroll: plates slide into register as a photo arrives and drift out
        again as it leaves. */
     .print-plate {

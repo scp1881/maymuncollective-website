@@ -64,7 +64,8 @@ export const photos: Record<string, Photo> = {
     width: 1708,
     height: 2560,
     label: "Live",
-    position: { sm: "50% 55%", lg: "50% 58%" },
+    // The stage sits at 45–70% of the frame; below the ceiling fans.
+    position: { sm: "50% 75%", lg: "50% 75%" },
   },
   studio: {
     id: "studio",
