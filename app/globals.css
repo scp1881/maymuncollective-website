@@ -2,210 +2,376 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Webfonts ────────────────────────────────────────────────────────────────
-   Self-hosted and subsetted rather than loaded through next/font. The Google
-   files carry several thousand glyphs each; this site renders a few hundred, and
-   these are High-priority requests contending with this very stylesheet, so they
-   land straight on first paint. scripts/build-fonts.py does the subsetting and
-   explains the trade; the sources are vendored in fonts-src/ so it stays
-   re-runnable.
-
-   The unicode-range values are Google's own, kept verbatim, so the browser still
-   fetches the extended file only when a page renders a character from it. The
-   `-Fallback` faces below are also next/font's own output, copied exactly: they
-   pin Arial's metrics to each webfont's so the swap from fallback to real face
-   does not move any text. Losing them would trade a font saving for layout
-   shift, which is a bad deal — measured CLS is 0.0000 and should stay there. */
-/* The capitals-only cut of the display face — see scripts/build-fonts.py.
-   6.4 KB against the full latin cut's 33 KB, so the hero's H1 (the LCP element)
-   stops waiting on a font that carries 400 glyphs it never draws. Every headline
-   on the site is uppercase, so this one file draws all of them. It is first in
-   the `display` stack; anything outside this range falls through to the full
-   face below, same family, same weight, identical pixels. */
+/* ─────────────────────────────────────────────────────────────── fonts ──
+   Archivo, variable (width 62–125, weight 300–900), subset by
+   scripts/build-fonts.mjs. Two files split by unicode-range: the second only
+   loads when a page renders ğ ı ş İ (the member names). */
 @font-face {
-  font-family: "Bricolage Display";
-  font-style: normal;
-  font-weight: 500 800;
+  font-family: "Archivo";
+  src: url("/fonts/archivo-latin.woff2") format("woff2");
+  font-weight: 300 900;
+  font-stretch: 62% 125%;
   font-display: swap;
-  src: url("/fonts/bricolage-display.woff2") format("woff2");
-  unicode-range: u+0020,u+0026,u+0027,u+002c,u+002d,u+002e,u+0041-005a,u+00c0-00c5,u+00c7-00cf,u+00d1-00d6,u+00d9-00dd;
-}
-
-@font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 500 800;
-  font-display: swap;
-  src: url("/fonts/bricolage-latin.woff2") format("woff2");
-  unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc,
-    u+0304, u+0308, u+0329, u+2000-206f, u+20ac, u+2122, u+2191, u+2193, u+2212,
-    u+2215, u+feff, u+fffd;
+  unicode-range: U+0000-00FF, U+2010, U+2013-2014, U+2018-201A, U+201C-201E, U+2022, U+2026, U+2039-203A, U+20AC, U+2122;
 }
 @font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 500 800;
+  font-family: "Archivo";
+  src: url("/fonts/archivo-latin-ext.woff2") format("woff2");
+  font-weight: 300 900;
+  font-stretch: 62% 125%;
   font-display: swap;
-  src: url("/fonts/bricolage-ext.woff2") format("woff2");
-  unicode-range: u+0100-02ba, u+02bd-02c5, u+02c7-02cc, u+02ce-02d7, u+02dd-02ff,
-    u+0304, u+0308, u+0329, u+1d00-1dbf, u+1e00-1e9f, u+1ef2-1eff, u+2020,
-    u+20a0-20ab, u+20ad-20c0, u+2113, u+2c60-2c7f, u+a720-a7ff;
+  unicode-range: U+011E-011F, U+0130-0131, U+0152-0153, U+015E-015F, U+0160-0161, U+0178, U+017D-017E;
 }
+/* Arial resized to Archivo's metrics (Capsize values, as next/font would
+   generate them), so a line drawn before the webfont lands takes the same
+   height and swapping causes no layout shift. */
 @font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("/fonts/inter-latin.woff2") format("woff2");
-  unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc,
-    u+0304, u+0308, u+0329, u+2000-206f, u+20ac, u+2122, u+2191, u+2193, u+2212,
-    u+2215, u+feff, u+fffd;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("/fonts/inter-ext.woff2") format("woff2");
-  unicode-range: u+0100-02ba, u+02bd-02c5, u+02c7-02cc, u+02ce-02d7, u+02dd-02ff,
-    u+0304, u+0308, u+0329, u+1d00-1dbf, u+1e00-1e9f, u+1ef2-1eff, u+2020,
-    u+20a0-20ab, u+20ad-20c0, u+2113, u+2c60-2c7f, u+a720-a7ff;
-}
-
-/* Metric-matched fallbacks — next/font's generated values, kept verbatim. */
-/* Measured, not derived. The obvious calculation — compare Bricolage's average
-   advance to Arial's — is wrong here, because the face this fallback stands in
-   for is ExtraBold and `local("Arial")` has no bold to match: the browser
-   synthesises one, which comes out WIDER than real Bricolage ExtraBold, not
-   narrower. Setting "COLLECTIVE" at the headline's size and weight in both and
-   comparing rendered widths gives 948.8px against 1074.1px, so the fallback
-   needs scaling down, and size-adjust lands at ~100%.
-
-   This matters beyond tidiness: the hero headline is the LCP element, and it
-   only becomes an LCP candidate once its fade-up finishes. If the real font
-   changes the block's size when it swaps in, that registers as a NEW, later
-   candidate — a mismatched size-adjust here measured +380ms of LCP. The two
-   overrides are Bricolage's own ascent/descent (930/270 per 1000 upm) divided
-   by size-adjust. */
-@font-face {
-  font-family: "Bricolage Grotesque Fallback";
+  font-family: "Archivo Fallback";
   src: local("Arial");
-  ascent-override: 92.84%;
-  descent-override: 26.95%;
+  size-adjust: 98.7%;
+  ascent-override: 88.96%;
+  descent-override: 21.28%;
   line-gap-override: 0%;
-  size-adjust: 100.17%;
-}
-@font-face {
-  font-family: "Inter Fallback";
-  src: local("Arial");
-  ascent-override: 90.49%;
-  descent-override: 22.56%;
-  line-gap-override: 0%;
-  size-adjust: 107.06%;
 }
 
+/* ─────────────────────────────────────────────────────────────── tokens ──
+   Mirrors tailwind.config.ts; documented in DESIGN.md. */
+:root {
+  --stock: #0d0f1c;
+  --raised: #161a30;
+  --ink: #e6e9f5;
+  --ink-soft: #a9b0cd;
+  --violet: #9b5cff;
+  --violet-soft: #c4a5ff;
+
+  --gutter: clamp(20px, 4vw, 56px);
+  --section: clamp(96px, 12vw, 160px);
+
+  --dur-press: 120ms;
+  --dur-quick: 240ms;
+  --dur-settle: 600ms;
+  --dur-sweep: 1100ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Where a violet plate sits when nothing is moving it: a few pixels off,
+     the way a second pass through a press actually lands. */
+  --plate-x: 5px;
+  --plate-y: -4px;
+
+  color-scheme: dark;
+}
+
+/* ───────────────────────────────────────────────────────────────── base ── */
 @layer base {
-  :root {
-    color-scheme: dark;
+  html {
+    background: var(--stock);
+    color: var(--ink);
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 88px; /* anchors land below the fixed nav */
   }
+  body {
+    @apply font-sans text-[16px] leading-[1.55] sm:text-body;
+    font-stretch: 100%;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Plates sit a few pixels outside their frames on purpose; clip, not
+       hidden, so the page can never scroll sideways and sticky still works. */
+    overflow-x: clip;
+  }
+  a,
+  button {
+    touch-action: manipulation;
+  }
+  ::selection {
+    background: var(--violet);
+    color: var(--stock);
+  }
+  /* One focus style for everything: a violet-soft ring that clears the
+     element, visible on stock, raised and on photographs. */
+  :focus-visible {
+    outline: 2px solid var(--violet-soft);
+    outline-offset: 4px;
+  }
+}
 
+@media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
-    /* Offset anchor targets so section headings aren't hidden under the fixed nav. */
-    scroll-padding-top: 5rem;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    @apply bg-ink text-bone font-body antialiased;
-    /* `clip`, not `hidden`. The full-bleed photograph is sized in `vw`, which
-       counts the scrollbar the content box does not have, so it ends up about
-       15px wider than the page and would otherwise add a horizontal scrollbar.
-       `overflow-x: clip` trims that sliver without creating a scroll container
-       — which matters, because `overflow: hidden` would create one and silently
-       break every `position: sticky` heading on the page. */
-    overflow-x: clip;
-    text-rendering: optimizeLegibility;
-    /* Lining, tabular figures everywhere. The site is full of numbers that sit
-       in columns — years, phone numbers, track times — and proportional digits
-       make those columns wobble. */
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* Running copy only. `pretty` costs a little layout work per paragraph, so it
-     is not worth putting on headings (which get `balance` where they need it)
-     or on single-line labels. It exists to stop a paragraph ending on a
-     one-word line, which is the single most common thing that makes otherwise
-     careful typography look careless. */
-  p {
-    text-wrap: pretty;
-  }
-
-  /* Consistent, visible focus ring for keyboard users across interactive elements. */
-  :focus-visible {
-    @apply outline-none ring-2 ring-stage ring-offset-2 ring-offset-ink;
-  }
-
-  ::selection {
-    @apply bg-stage text-ink;
   }
 }
 
-@layer utilities {
-
-  /* The rail: one set of gutters for the whole site, no max-width. The header,
-     the hero and every section below now share it, so the page has a single
-     spine from the wordmark to the footer and the hairlines can run edge to
-     edge. Reading measure is controlled per element (max-w on the paragraphs
-     that need it) rather than by squeezing the whole page into a column — a
-     centred max-w-6xl container made every section the same shape, which is
-     what made the page below the hero read as a template. */
-  .container-rail {
-    @apply w-full px-6 sm:px-8 lg:px-16;
+/* ─────────────────────────────────────────────────────────── components ── */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-gutter;
   }
 
-  /* ── Type tiers ─────────────────────────────────────────────────────────
-     Four roles, each with one job. Before this the site had two — display for
-     headings and one grey body size for everything else — so a section's
-     standfirst, an image caption and a member's instrument were all set
-     identically and none of them ranked against the others. */
-
-  /* Standfirst under a section heading. Bone at 70%, not `muted`: muted is a
-     warm grey-brown that reads as disabled at paragraph length. */
-  .lede {
-    @apply max-w-prose text-base leading-relaxed text-bone/70 sm:text-lg;
+  /* Section headings: the condensed voice, pressed into width on arrival. */
+  .display {
+    @apply text-display font-[850] tracking-[-0.01em];
+    font-stretch: 62%;
+  }
+  .title {
+    @apply text-title font-[800];
+    font-stretch: 75%;
   }
 
-  /* The quiet tier — captions, instrument credits, link labels.
-     Deliberately sentence case. A tracked-out uppercase label above every
-     piece of content is the single most recognisable piece of template chrome
-     there is; it announces "this is a designed page" without telling anyone
-     anything. Small, dimmer, and in the same voice as the rest of the writing
-     does the same ranking job and reads like a person wrote it. */
-  .note {
-    @apply text-sm leading-snug text-muted;
+  /* A label printed on a violet plate: stock text on violet (4.9:1). */
+  .label-plate {
+    @apply inline-block bg-violet px-2 pb-[5px] pt-[6px] text-[16px] font-bold leading-none text-stock;
   }
 
-  /* Small uppercase label. Now used only by the /gallery holding page, where
-     it names which page you are on above a heading that otherwise would not
-     say. That is a job; decorating a section heading was not. */
-  .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.2em] text-muted;
+  /* Links that underline with a violet plate that sweeps in from the left. */
+  .plate-link {
+    background: linear-gradient(var(--violet), var(--violet)) 0 100% / 0% 0.18em no-repeat;
+    transition: background-size var(--dur-quick) var(--ease-out);
+  }
+  .plate-link:hover,
+  .plate-link:focus-visible,
+  .plate-link[aria-current] {
+    background-size: 100% 0.18em;
   }
 }
 
-/* Respect users who prefer reduced motion: no smooth scroll, and the hero's
-   one entrance is reduced to nothing. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+/* ────────────────────────────────────────────────────────────── tagline ──
+   One family, three widths, one measure. Each line's font-size is the column
+   width divided by that word's measured advance at its own width (em values
+   from scripts/build-fonts.mjs's subset, weight 850). Container-query units
+   mean no JavaScript measures anything and nothing shifts after load. */
+.tongues {
+  container-type: inline-size;
+}
+.tongue {
+  display: block;
+  width: max-content;
+  white-space: nowrap;
+  font-weight: 850;
+  line-height: 0.86;
+  letter-spacing: 0;
+}
+.tongue[data-voice="tr"] {
+  font-stretch: 125%;
+  font-size: calc(99cqi / 4.0758);
+}
+.tongue[data-voice="es"] {
+  font-stretch: 100%;
+  font-size: calc(99cqi / 4.1216);
+}
+.tongue[data-voice="en"] {
+  font-stretch: 62%;
+  font-size: calc(99cqi / 2.3034);
+}
+
+/* ──────────────────────────────────────────────────────────────── print ──
+   A photograph printed in two inks from one file:
+   - the ink plate is the photo in greyscale, screened onto stock, so black
+     becomes the page and white stays paper-white;
+   - the violet plate is the same image multiplied into violet and screened on
+     top, a few pixels out of register.
+   Both <img>s share one URL, so it downloads once.
+   The frame deliberately does NOT isolate: where the violet plate hangs past
+   the frame's edge it must screen against the page itself, so the
+   misregistration reads as violet light rather than a black offset. */
+.print {
+  position: relative;
+  background: var(--stock);
+}
+.print-ink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.12) brightness(0.92);
+  mix-blend-mode: screen;
+}
+.print-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: var(--violet);
+  isolation: isolate;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transform: translate(var(--plate-x), var(--plate-y));
+  transition: translate var(--dur-settle) var(--ease-out);
+}
+.print-plate > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.35) brightness(0.8);
+  mix-blend-mode: multiply;
+}
+/* Hovering or focusing a printed tile knocks the plate further out of
+   register. `translate` is separate from `transform`, so this never fights
+   the scroll-driven animation below. */
+.print-trigger:hover .print-plate,
+.print-trigger:focus-visible .print-plate {
+  translate: 9px -7px;
+  transition-duration: var(--dur-quick);
+}
+
+/* Frame and crop per breakpoint, set by components/Print from the photo's
+   own data: phones get their own composition, not the desktop one shrunk. */
+.print-frame {
+  aspect-ratio: var(--ratio-sm);
+}
+.print-frame img {
+  object-position: var(--pos-sm);
+}
+@media (min-width: 1024px) {
+  .print-frame {
+    aspect-ratio: var(--ratio-lg);
+  }
+  .print-frame img {
+    object-position: var(--pos-lg);
+  }
+}
+
+/* The email address, fitted to its column like the tagline (advance of
+   "info@maymuncollective.com" at width 62, weight 800: 9.8775em), capped so it
+   never outgrows the section headings. */
+.email-fit {
+  container-type: inline-size;
+}
+.email {
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 800;
+  font-stretch: 62%;
+  line-height: 1;
+  font-size: min(calc(99cqi / 9.8775), 120px);
+  padding-bottom: 0.08em;
+}
+
+/* Social links: the whole row is the target; the word takes the plate. */
+.social:hover .plate-link,
+.social:focus-visible .plate-link {
+  background-size: 100% 0.18em;
+}
+
+/* Menu sheet links: the condensed voice at poster size. */
+.sheet-link {
+  font-size: clamp(56px, 17vw, 88px);
+  line-height: 0.95;
+  font-weight: 850;
+  font-stretch: 100%;
+}
+.sheet-link[aria-current] {
+  color: var(--violet-soft);
+}
+
+/* Lightbox controls: square, ink-outlined, 44px targets. */
+.lightbox-btn {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  font-weight: 700;
+  font-size: 16px;
+  transition: background-color var(--dur-press) var(--ease-out), color var(--dur-press) var(--ease-out);
+}
+.lightbox-btn:hover {
+  background: var(--violet);
+  border-color: var(--violet);
+  color: var(--stock);
+}
+
+/* The fold between sections: a heavy ink rule, the way a folded poster
+   breaks. */
+.fold {
+  border-top: 3px solid var(--ink);
+}
+
+/* Member names widen into their natural width under a pointer. Hover-only
+   (never on touch, where it would stick), and not focusable content. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .member .title {
+    transition: font-stretch var(--dur-quick) var(--ease-out);
+  }
+  .member:hover .title {
+    font-stretch: 100%;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────── motion ──
+   Everything below is transform / translate / font-stretch only, runs without
+   JavaScript, and never starts from a hidden state — so it cannot delay LCP
+   or hide content. Reduced motion gets none of it. */
+@media (prefers-reduced-motion: no-preference) {
+  /* 1. Load: each line of the tagline sweeps out to its own width. */
+  .tongue {
+    animation: tongue-in var(--dur-sweep) var(--ease-out) both;
+    animation-delay: calc(80ms + var(--i, 0) * 90ms);
+  }
+  @keyframes tongue-in {
+    from {
+      font-stretch: 62%;
+      font-weight: 500;
+    }
   }
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+  /* 5. Menu: the sheet drops in and its links sweep open one after another. */
+  .sheet {
+    animation: sheet-in var(--dur-quick) var(--ease-out) both;
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateY(-12px);
+      opacity: 0;
+    }
+  }
+  .sheet-link {
+    animation: tongue-in var(--dur-settle) var(--ease-out) both;
+    animation-delay: calc(60ms + var(--i, 0) * 50ms);
+  }
+
+  /* Lightbox: the colour photograph settles in as the print gives way. */
+  .lightbox[open] .lightbox-img {
+    animation: lightbox-in var(--dur-quick) var(--ease-out) both;
+  }
+  @keyframes lightbox-in {
+    from {
+      transform: scale(0.97);
+      opacity: 0.4;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    /* 2. Scroll: plates slide into register as a photo arrives and drift out
+       again as it leaves. */
+    .print-plate {
+      animation: plate-register linear both;
+      animation-timeline: view();
+    }
+    @keyframes plate-register {
+      0% {
+        transform: translate(34px, -26px);
+      }
+      35%,
+      65% {
+        transform: translate(var(--plate-x), var(--plate-y));
+      }
+      100% {
+        transform: translate(-22px, 18px);
+      }
+    }
+
+    /* 3. Scroll: headings press down to their condensed width on arrival. */
+    .display {
+      animation: display-press linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    @keyframes display-press {
+      from {
+        font-stretch: 100%;
+      }
+    }
   }
 }

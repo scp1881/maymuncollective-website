@@ -28,7 +28,7 @@ const nextConfig = {
       {
         // Files in /public are served with `max-age=0` by default, so the
         // self-hosted fonts would be revalidated on every navigation. Their
-        // contents only change when scripts/build-fonts.py is re-run, and that
+        // contents only change when `npm run fonts` is re-run, and that
         // is a deliberate act, so they are safe to pin hard. (Assets under
         // /_next/static already get this automatically via content hashing.)
         source: "/fonts/:file*",
