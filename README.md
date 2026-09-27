@@ -1,20 +1,18 @@
-# Maymun Collective — Website
+# Maymun Collective: website
 
-A single-page scrolling site for **Maymun Collective**, a creative collective.
-Built with **Next.js (App Router)** and **Tailwind CSS**, ready to deploy to
-**Vercel**.
+A single-page scrolling site for **Maymun Collective**, a music collective whose tagline, *müzik, música, music.*, speaks Turkish, Spanish and English at once. It's built with **Next.js (App Router)** and **Tailwind CSS**, and deploys to **Vercel**.
+
+The design is a gig poster printed in two inks on dark stock: one typeface at three widths, and every photograph printed rather than placed. See **[DESIGN.md](./DESIGN.md)** for the tokens, type, motion and rules.
 
 ## Sections (in order)
 
-1. **Hero** — the name set large on the page's own ink, no backdrop
-2. **Gallery** — a curated three-photo selection
-3. **Music** — Spotify artist embed
-4. **Members** — the roster (name / role)
-5. **Contact** — socials + mailto
+1. **Hero:** the wordmark, the tagline at three widths, and the Blind photograph printed beside it.
+2. **Gallery:** a selection of photographs, and a link to the full `/gallery`.
+3. **Music:** the Spotify artist player, loaded only as the section approaches.
+4. **Members:** the roster, on stage and off stage.
+5. **Contact:** email, WhatsApp and socials.
 
-There is also a standalone **`/gallery`** page, linked from the "See more" link
-under the homepage Gallery section. It is currently a **holding page** — the
-full collection is still being put together.
+**`/gallery`** shows every image. Each one opens in a lightbox in its original colour.
 
 ---
 
@@ -23,294 +21,113 @@ full collection is still being put together.
 ```bash
 npm install
 npm run dev      # http://localhost:3000
-```
-
-```bash
 npm run build    # production build
 npm start        # serve the production build
 ```
 
-Requires Node 18.18+ (Node 20+ recommended).
+Requires Node 18.18+ (Node 20+ recommended). No environment variables are needed. Vercel detects Next.js on import.
 
 ---
 
-## Deploying to Vercel
+## Content
 
-1. Push this repo to GitHub.
-2. In [Vercel](https://vercel.com/new), **Import** the repository.
-3. Framework preset is auto-detected as **Next.js** — no extra config needed.
-4. Click **Deploy**.
+**Every word on the site lives in [`content/site.ts`](./content/site.ts).** That covers the copy, member names, contact details, social links, the Spotify embed and the photo catalogue.
 
-No environment variables are required.
+The file must never state something the collective hasn't published itself: no invented dates, venues, releases or quotes.
 
----
+### Photographs
 
-## Where the placeholder content lives
+- Files live in `public/images/gallery/`. Each one has a single entry in `photos` in `content/site.ts`.
+- `width` / `height` must be the file's **real pixel dimensions**. `next/image` reserves the space from them, so a wrong pair means a distorted frame or a layout jump.
+- `position` is the crop focus used on phones (`sm`) and wider screens (`lg`).
+- Mark artwork with `artwork: true`, so it is shown as made: never printed in two inks, never cropped.
+- **Filenames are case-sensitive on Vercel.** Match the extension casing exactly (`04-live.JPG`).
 
-> **Almost everything you need to edit is in one file:
-> [`content/site.ts`](./content/site.ts).**
-> Open it and search for **`REPLACE`** to jump between every item that needs
-> real content. Each block is commented.
+The homepage selection is `gallery.images`, and the `/gallery` order is `galleryPage.images`. The hero photograph is `hero.photo`.
 
-| What to change | Where | Marker to search for |
-| --- | --- | --- |
-| Collective name, tagline, hero intro | `content/site.ts` → `hero` | — |
-| Site title / meta description / OG copy | `content/site.ts` → `site` | — |
-| Live domain URL | `content/site.ts` → `site.url` | — |
-| Contact email (used in nav + Contact) | `content/site.ts` → `site.email` | `REPLACE_WITH_ACTUAL_EMAIL` |
-| Gallery images | `content/site.ts` → `gallery.images` (files in `public/images/gallery/`) | — |
-| Spotify embed | `content/site.ts` → `music.spotifyEmbed` | — |
-| Member names / roles | `content/site.ts` → `members.people` | — |
-| Gallery holding-page copy | `content/site.ts` → `galleryPage` | — |
-| Social links | `content/site.ts` → `contact.socials` | — |
-| Social share image | `public/og-placeholder.svg` | (replace the file) |
-| Site icon + nav wordmark | `Favicon.svg` → run `scripts/build-icons.mjs` | — |
-
-### Gallery images
-
-Gallery photos live in `public/images/gallery/` and are wired to tiles via the
-`src` field in `gallery.images`. The homepage shows a **curated three**; the
-other files are still on disk, just not listed, so putting one back is only a
-matter of restoring its entry. To swap an image:
-
-1. Drop the new file into `public/images/gallery/`.
-2. In `content/site.ts`, update that tile's `src`, `alt`, and its `width` /
-   `height` — these must be the image's **real pixel dimensions**. The grid uses
-   them to reserve the right space, to keep the natural aspect ratio, and to
-   decide whether the tile shares a row or takes the whole one, so a wrong pair
-   means a distorted tile, a layout jump, or the wrong span.
-3. Optionally add a blur preview for it in [`content/blur.ts`](./content/blur.ts)
-   — that file explains how to generate one in a single command. Without an
-   entry the tile still works; it just fades in from empty rather than from a
-   soft impression of the photo.
-
-> **Filenames are case-sensitive on Vercel.** Match the exact name *and*
-> extension casing (e.g. `04-live.JPG`, not `04-live.jpg`). A tile with `src`
-> set to `""` falls back to a labelled placeholder block, and its `label` field
-> is what shows there.
-
-The section lays out as a two-column grid: images narrower than a 1.5:1 ratio
-share a row, anything wider takes the whole row. That is read off the photo's
-own `width`/`height`, so swapping a portrait for a landscape re-flows on its
-own — no per-tile layout flags to keep in sync.
-
-> This used to be a CSS multi-column masonry, and images were forced to load
-> **eagerly** to work around Chromium failing to load images stranded in a
-> multi-column container's trailing column (it silently cost the grid two of
-> six photos on desktop). The grid is not affected, so lazy loading is back.
-> If you ever return this section to `columns-*`, re-check that every tile
-> actually loads at the widest breakpoint.
-
-> If you point a `src` at an image on **another domain**, add its hostname to
-> `next.config.mjs` under `images.remotePatterns` (required by `next/image`).
-> Images placed in `/public` need no config.
+**How printing works:** photographs are printed in CSS from the original file (`components/Print.tsx`, and `.print` in `app/globals.css`). A greyscale ink plate is screened onto the page, and the *same* image is multiplied into violet and set a few pixels out of register on top. It's one download and no pre-processing, and the lightbox shows the untouched original.
 
 ### Music (Spotify embed)
 
-The Music section renders a single **Spotify artist embed**. To change it, open
-the artist page in Spotify, click **⋯ → Share → Embed**, copy the full
-`<iframe …>` snippet, and paste it into `music.spotifyEmbed` in
-`content/site.ts`. Also update `music.spotifyUrl` (the no-JS fallback link) and
-`music.embedHeight` if the embed's height changes.
+To change the player, open the artist page in Spotify and choose **⋯ → Share → Embed**. Paste the `<iframe>` into `music.spotifyEmbed`, and update `music.spotifyUrl` and `music.embedHeight` if they change.
 
-> **The player is deliberately deferred.** `loading="lazy"` was not enough: it
-> is only a hint about viewport distance, and on a page this short Chromium
-> decided the Music section was close enough to fetch immediately — measured
-> going out at +751ms on *every* cold load, at VeryHigh priority, before any
-> scrolling. So each first visit pulled the whole Spotify player (a
-> megabyte-plus of third-party JS, plus its main-thread cost) alongside the
-> hero, whether or not the visitor ever scrolled that far.
+> **The player is deliberately deferred.** An iframe's `loading="lazy"` is only a hint, and on this page Chromium fetched the whole player on every cold load, measured at +751 ms at VeryHigh priority. That's a megabyte-plus of third-party JS competing with the first paint.
 >
-> [`components/SpotifyEmbed.tsx`](./components/SpotifyEmbed.tsx) now injects the
-> iframe from an IntersectionObserver with a 400px margin, so it starts loading
-> just before the section appears. Nothing changes for someone scrolling down.
-> Don't "simplify" this back to a bare iframe without re-checking that
-> `open.spotify.com` is not requested on initial load.
-
-### Hero
-
-The hero is one block of type on the flat page colour. No image, no film, no
-scrim — it is anchored bottom-left on `container-page`, the same measure as
-every section below it, so it reads as the first item in the page's rhythm
-rather than a slab with its own rules.
-
-> **There have been four background treatments here and all four were removed.**
-> A still, then three videos. The videos are the cautionary tale: each one
-> passed every test runnable from this repo — playback, codecs, autoplay policy,
-> bitrate against a throttled connection, playback with JavaScript disabled —
-> and still showed a frozen frame on a device that could not be reached from
-> here. The history is in PRs #28, #29, #33, #35 and #36 if anyone needs it.
+> [`components/SpotifyEmbed.tsx`](./components/SpotifyEmbed.tsx) injects it from an IntersectionObserver with a 400px margin instead. The section's lede is a plain link to the same artist, which is the visible fallback.
 >
-> If a background goes back in, two things are worth knowing up front. **Bitrate,
-> not file size, is what decides whether a video looks broken**: a progressive
-> download the browser cannot stream in real time buffers a large fraction of
-> the file before starting, and on Slow-4G that was 11.8 s at 2.51 Mbps versus
-> 3.5 s at 1.26 Mbps. And **nothing clever may sit between the server and the
-> first frame** — every version that attached the source from a script is one of
-> the versions that failed.
-
-The headline does not fade in, and shouldn't: Chrome will not treat a
-transparent element as an LCP candidate, so a fade on the largest text on the
-first screen pushes LCP out by the length of the animation (measured at +480 ms
-when the tagline briefly carried one). The scroll cue keeps its fade; nothing is
-gated on that.
-
-### Webfonts
-
-Both families — **Bricolage Grotesque** (display) and **Inter** (body) — are
-self-hosted from `public/fonts/` and subsetted, not loaded through `next/font`.
-
-Bricolage replaced Space Grotesk when the hero was redesigned: its slightly
-humanist, rounded capitals sit with the hand-drawn MAYMUN COLLECTIVE lockup
-instead of ignoring it, and it holds the width of a full-bleed headline, which
-Space Grotesk did not.
-
-Google splits these fonts by `unicode-range`, and the ranges this site renders
-came to ~88 KB across three files. Those are High-priority requests competing
-with the render-blocking stylesheet, so they sit directly on first paint — and
-the site needs a few hundred glyphs, not the several thousand they carry.
-Subsetting takes the loaded total to ~65 KB.
-
-| Piece | Where |
-| :--- | :--- |
-| Served, subsetted fonts | `public/fonts/*.woff2` |
-| Unsubsetted originals (not served) | `fonts-src/*.woff2` |
-| `@font-face` + metric-matched fallbacks | `app/globals.css` |
-| Preloads for the two above-the-fold faces | `app/layout.tsx` |
-| Subsetting script | [`scripts/build-fonts.py`](./scripts/build-fonts.py) |
-
-```bash
-pip install fonttools brotli && python3 scripts/build-fonts.py
-```
-
-Things worth knowing before changing any of this:
-
-- **The originals are vendored on purpose.** `next/font` no longer manages these,
-  so without `fonts-src/` there would be nothing left to subset from and the
-  pipeline would be a one-way door.
-- **The glyph set is deliberately wider than today's copy** — all of Latin-1 and
-  Latin Extended-A. A new member name or a line of Turkish, Spanish, Polish or
-  Czech copy therefore cannot end up silently rendering one letter in Arial.
-  Adding a character outside that range means re-running the script.
-- **`bricolage-display.woff2` is the hero's font, and it is 4.6 KB.** It carries
-  only the capitals the two `<h1>`s can draw and sits first in the `display`
-  stack, with the full 33 KB face right behind it; any character it lacks falls
-  through to that, same family, same weight, identical pixels. It exists because
-  the hero headline is the LCP element — waiting on the full face put LCP at
-  1176 ms on Slow-4G. Changing the headline copy cannot break rendering; at
-  worst it costs one more font request. Only this cut and Inter's latin cut are
-  preloaded.
-- **The hero headline does not fade in, deliberately.** Chrome will not treat a
-  transparent element as an LCP candidate, so any fade on it pushes LCP out by
-  the length of the animation — far enough, on this page, that the 20px tagline
-  became the largest *eligible* element and LCP ended up gated on Inter. Painting
-  it immediately puts LCP at 672 ms, level with FCP.
-- **Inter's `… Fallback` face is `next/font`'s own generated output, copied
-  verbatim.** Bricolage's is measured rather than derived: the face it stands in
-  for is ExtraBold, `local("Arial")` has no bold, and the synthesised one comes
-  out *wider* than real Bricolage ExtraBold — so the usual average-advance
-  calculation gets the direction wrong. See the note in `app/globals.css`.
-  Measured CLS is `0.0000`.
-- **`unicode-range` values are Google's, unchanged**, so the extended file is
-  still only fetched when a page actually renders a character from it. On the
-  homepage that means three files load, not four — the Turkish letters in the
-  member names are set in the display face, so Inter's extended file is never
-  requested.
-- The fonts get a one-year immutable `Cache-Control` via `next.config.mjs`;
-  files in `/public` are otherwise served with `max-age=0`.
+> Don't "simplify" this back to a bare iframe without checking that `open.spotify.com` isn't requested on initial load.
 
 ### Members
 
-A simple roster. Add or remove entries in `members.people`; each needs only a
-`name` and a `role`. Contact details are deliberately not shown here — all
-enquiries go through the email and WhatsApp number in the Contact section.
+These are the two groups in `members.groups` (**On stage**, **Off stage**), each a list of `{ name, role }`. Names are set in the display face, so a letter outside the font's subset would fall back to the system face. See **Fonts** below before adding one.
 
-### Gallery page (`/gallery`)
+---
 
-A **holding page**: an eyebrow, a heading, a line of copy and a way back, all
-editable via `galleryPage` in `content/site.ts`. It carries the site's own
-`<Nav />`, which rewrites its section links to `/#section` when it is not on
-the homepage, so every section stays one click away. It is also `noindex`
-(`follow` stays on) so a "Coming soon" result cannot surface under the site's
-name in search.
+## Fonts
 
-The grid it replaced has **not** been deleted.
-[`components/GalleryGrid.tsx`](./components/GalleryGrid.tsx) still implements
-the full masonry plus image/video lightbox and still compiles; it just isn't
-mounted. It takes an `items` array whose shape is documented as `GalleryItem`
-at the top of that file, so bringing the real gallery back is a matter of
-supplying items and rendering `<GalleryGrid items={…} />` again.
+There's one family: **Archivo**, variable (width 62–125, weight 300–900). The width axis is the design, since each language of the tagline is set at its own width. It's self-hosted from `public/fonts/` and subset by [`scripts/build-fonts.mjs`](./scripts/build-fonts.mjs), with the source files coming from `@fontsource-variable/archivo` (SIL OFL 1.1):
 
-### Brand assets (site icon + nav wordmark)
+```bash
+npm run fonts
+```
 
-Four files are generated from a single design source. The three in `app/` are
-picked up by Next automatically, by filename — no config, no `<link>` tags:
+| File | Size | Covers |
+| :--- | ---: | :--- |
+| `archivo-latin.woff2` | 77 KB | Basic Latin, Latin-1 (all of Spanish, plus Turkish ç ö ü), typographic punctuation. Preloaded. |
+| `archivo-latin-ext.woff2` | 9 KB | ğ Ğ ı İ ş Ş and Œ œ Š š Ÿ Ž ž. It loads only when a page renders one (unicode-range). |
 
-| File | Size | Used by |
-| :--- | :--- | :--- |
-| `app/icon.svg` | vector | Modern browsers — stays crisp at any size |
-| `app/favicon.ico` | 16 / 32 / 48 | Older browsers, Windows, Google Search |
-| `app/apple-icon.png` | 180×180 | iOS home screen |
-| `public/logo-wordmark.svg` | vector | The header wordmark, via `components/Wordmark.tsx` |
+**Adding a character outside those ranges** (a Polish or Czech name, say) means adding it to `TURKISH_PLUS` in the script and re-running it. Otherwise that one letter renders in Arial.
 
-All four are **generated**, not hand-drawn. The design source is
-[`Favicon.svg`](./Favicon.svg) at the repo root; to change the icon, replace
-that file and regenerate:
+`app/globals.css` also declares **"Archivo Fallback"**: Arial resized to Archivo's metrics, so text drawn before the webfont arrives takes the same space and the swap causes no layout shift.
+
+**The tagline is fitted in CSS, not JavaScript.** Each line's `font-size` is the column width in container-query units divided by that word's measured advance at its width. If the tagline copy ever changes, re-measure (the values are in `.tongue` in `globals.css`), or the lines won't fill the column.
+
+**The first screen never starts transparent.** Chrome won't count an invisible element as the LCP candidate, so any fade on the hero pushes LCP out by the length of the animation. The tagline's load sweep animates width only, which is why it can be loud without costing LCP.
+
+---
+
+## Hero history
+
+The hero has carried four background treatments (a still, then three drone films), and all four were removed; see PRs #28, #29, #33, #35 and #36. Each video passed every test runnable from the repo and still showed a frozen frame on a device that couldn't be reached from here.
+
+The current hero has no background media. The photograph is an ordinary `next/image` with `priority`.
+
+If a film ever goes back in:
+- **Bitrate, not file size,** decides whether it looks broken. On Slow-4G it took 11.8 s at 2.51 Mbps against 3.5 s at 1.26 Mbps.
+- **Nothing clever may sit between the server and the first frame.** Every version that attached the source from a script failed.
+
+---
+
+## Share image
+
+`public/og.png` (1200×630) is rendered from the design itself by [`scripts/build-og.mjs`](./scripts/build-og.mjs): the same fonts, wordmark and print recipe as the site. Regenerate it after changing the tagline, the palette or the hero photograph:
+
+```bash
+npm i --no-save puppeteer-core && npm run og
+```
+
+It uses the installed Google Chrome (set `CHROME_PATH` if it isn't in the default macOS location).
+
+---
+
+## Brand assets (site icon + wordmark)
+
+These are generated from one design source, [`Favicon.svg`](./Favicon.svg), by [`scripts/build-icons.mjs`](./scripts/build-icons.mjs):
 
 ```bash
 npm i --no-save sharp potrace && node scripts/build-icons.mjs
 ```
 
-The icon is the **spiral** — the mark at the centre of the MAYMUN COLLECTIVE
-lockup. It was the M until it was changed; the spiral is more distinctive at tab
-size and does not restate the wordmark sitting beside it in the nav.
+| File | Size | Used by |
+| :--- | :--- | :--- |
+| `app/icon.svg` | vector | Modern browsers |
+| `app/favicon.ico` | 16 / 32 / 48 | Older browsers, Windows, Google Search (which wants a multiple of 48px) |
+| `app/apple-icon.png` | 180×180 | iOS home screen |
+| `public/logo-wordmark.svg` | vector | The wordmark in the hero, header and footer (`components/Wordmark.tsx`) |
 
-The script does more than resize, because the source is auto-traced art that
-does not survive being shrunk. It measures the badge, lifts the spiral out of it
-by connected-component analysis (it is the second-largest ink region, after the
-M — there is an assertion on its aspect ratio in case that ever stops being
-true), discards the gloss and three stray trace artifacts, and recomposes the
-mark centred on a true circle in the badge's own sampled colour.
-[`scripts/build-icons.mjs`](./scripts/build-icons.mjs) explains each decision
-inline, including why the spiral is sized at 78% of the disc — a thinner gauge
-than the M, so it needs more room before its turns merge at small sizes.
-
-It stays dark-on-bone rather than the bone-on-transparent the mark is drawn as
-in the wordmark: a pale spiral is invisible against a light tab strip.
-
-> Google requires a favicon that is square and a **multiple of 48px** — the
-> `.ico` carries a 48×48 for exactly this, and the SVG has no size requirement.
-> If you swap these files by hand, keep that in mind.
-
-The **wordmark** is the arched "MAYMUN COLLECTIVE" lockup. It is not drawn in
-the badge art — it is the luminance mask the badge is built from, embedded in
-`Favicon.svg`, and it trims to only 294×168, which is too soft for a retina
-header. So it is traced to vector too.
-
-Its fill is **baked** to the palette's `bone` value rather than left as
-`currentColor`: it loads through an `<img>`, and an SVG in an `<img>` is an
-isolated document where `currentColor` resolves to its own default black — the
-wordmark would vanish against the dark header. If you change `bone` in
-`tailwind.config.ts`, update `BONE` in the script and regenerate.
-
-Size it with a height class — `<Wordmark className="h-8 sm:h-9" />`. The width
-follows from the file's intrinsic 1.75 ratio, so the header reserves the right
-box and does not shift while it loads.
-
----
-
-## Design system
-
-Defined once in [`tailwind.config.ts`](./tailwind.config.ts) — edit these tokens
-to rebrand:
-
-- **Palette:** off-black (`ink`) / warm off-white (`bone`) with a single vivid
-  signal **accent** (`#a855f7`). Change the one `accent` value to re-theme the
-  whole site.
-- **Type:** `Space Grotesk` (display / headings) + `Inter` (body), self-hosted
-  and subsetted — see [Webfonts](#webfonts).
-- **Motion:** subtle scroll-triggered fade-ups via the `Reveal` component; all
-  motion respects `prefers-reduced-motion`.
+- **The icon** is the spiral from the centre of the lockup. The script lifts it out of the auto-traced badge and recomposes it on a true circle; the reasoning is inline in the script.
+- **The wordmark's** fill is **baked** to the palette's `ink` (`#e6e9f5`) rather than `currentColor`. An SVG loaded through `<img>` is an isolated document, so `currentColor` would resolve to black and vanish on the dark page. If `ink` changes, update `INK` in the script and regenerate.
+- **Size the wordmark** with a height class (`<Wordmark className="h-10" />`). The width follows from its 1.75 ratio, so nothing shifts while it loads.
 
 ---
 
@@ -318,50 +135,36 @@ to rebrand:
 
 ```
 app/
-  layout.tsx        # <html>, fonts, SEO metadata (title / description / OG)
-  page.tsx          # homepage — section order for the single-page scroll
-  gallery/page.tsx  # /gallery holding page (Nav + "Coming soon")
-  globals.css       # base styles, focus rings, reduced-motion handling
-  icon.svg          # favicon, vector    ┐ all three generated by
-  favicon.ico       # favicon, 16/32/48  │ scripts/build-icons.mjs
-  apple-icon.png    # iOS icon, 180×180  ┘ from Favicon.svg
+  layout.tsx          # <html>, metadata (title, description, Open Graph), font preload, skip link
+  page.tsx            # homepage: section order
+  gallery/page.tsx    # /gallery: every image + lightbox
+  robots.ts           # /robots.txt
+  sitemap.ts          # /sitemap.xml
+  globals.css         # fonts, tokens, print effect, all motion
 components/
-  Nav.tsx           # fixed header + mobile menu
-  Hero.tsx          # section 1
-  Gallery.tsx       # section 2 (+ "See more" link to /gallery)
-  Music.tsx         # section 3
-  Members.tsx       # section 4 — contact list
-  Contact.tsx       # section 5 + footer
-  GalleryGrid.tsx   # masonry + lightbox — kept for the real gallery, unmounted
-  SectionHeading.tsx# shared heading block
-  Wordmark.tsx      # header logo lockup (homepage nav + /gallery header)
-  SpotifyEmbed.tsx  # defers the player until the Music section nears the viewport
-  Reveal.tsx        # scroll reveal marker (animation driven from layout.tsx)
-content/
-  site.ts           # ★ ALL editable copy & placeholders
-  blur.ts           # tiny inlined blur previews for the gallery images
+  Nav.tsx             # fixed header, section tracking, phone menu sheet
+  Hero.tsx  Tagline.tsx  Print.tsx
+  Section.tsx         # heading + lede + content, with the fold rule
+  Gallery.tsx  Music.tsx  SpotifyEmbed.tsx  Members.tsx  Contact.tsx  Footer.tsx
+  GalleryWall.tsx     # /gallery grid + <dialog> lightbox
+  SkipLink.tsx  Wordmark.tsx
+content/site.ts       # ★ all copy and the photo catalogue
 scripts/
-  build-icons.mjs   # regenerates the app/ icons from Favicon.svg
-  build-fonts.py    # subsets the webfonts from fonts-src/ into public/fonts/
-fonts-src/          # unsubsetted font originals (not served)
+  build-fonts.mjs     # subsets Archivo into public/fonts/
+  build-og.mjs        # renders public/og.png
+  build-icons.mjs     # regenerates icons + wordmark from Favicon.svg
 public/
-  fonts/            # subsetted webfonts (generated — see Webfonts)
-  video/            # hero background film + posters (generated)
-  logo-wordmark.svg # header wordmark (generated — see Brand assets)
-  og-placeholder.svg# social share image (replaceable)
-tailwind.config.ts  # design tokens (colors, fonts)
+  fonts/  images/gallery/  logo-wordmark.svg  og.png
+DESIGN.md             # the design system
 ```
 
 ---
 
-## Accessibility & SEO notes
+## Accessibility & SEO
 
-- Single `<h1>` (hero), sequential `<h2>`/`<h3>` hierarchy, semantic
-  `<section>` / `<nav>` / `<footer>` landmarks.
-- Visible keyboard focus rings; mobile menu is `aria-expanded` controlled.
-- All images carry descriptive `alt` text (edit it alongside each `src` in
-  `content/site.ts`).
-- `title`, `description`, and Open Graph / Twitter Card tags are set in
-  `app/layout.tsx` from `content/site.ts`.
-- Replace `public/og-placeholder.svg` with a real **1200×630** image
-  (PNG/JPG recommended for broadest social-platform support).
+- **Headings and landmarks:** one `<h1>` per page (the wordmark on `/`, "Gallery" on `/gallery`), then `<h2>` per section and `<h3>` for the member groups. Semantic `<header>`, `<nav>`, `<main>`, `<section>` and `<footer>`, plus a skip link.
+- **Contrast:** every text pair passes WCAG AA (see DESIGN.md). Text on the violet plate is dark (`stock`), not light.
+- **Keyboard:** one visible focus style everywhere. The phone menu traps focus, closes on Escape and returns focus. The lightbox is a native `<dialog>`, with arrow keys between photographs.
+- **Motion:** `prefers-reduced-motion: reduce` turns off all of it (plates rest, widths are static).
+- **Language:** each word of the tagline carries its own `lang`, so screen readers pronounce it correctly.
+- **SEO:** title, description, canonical, Open Graph and Twitter tags are set from `content/site.ts`. `robots.txt` and `sitemap.xml` are generated.
