@@ -7,22 +7,18 @@ import { music } from "@/content/site";
  * Loads the Spotify player only once the Music section is actually approaching
  * the viewport.
  *
- * Why this exists: the embed carried `loading="lazy"`, but that is a *hint*
- * about viewport distance, and on a page this short Chromium decided the Music
- * section was near enough to fetch immediately — measured going out at +751ms
- * on first load, at VeryHigh priority, before any scrolling. So on every cold
- * visit the browser pulled the entire Spotify player (a megabyte-plus of
- * third-party JS, plus its own main-thread work) in parallel with the hero's
- * fonts and images, whether or not the visitor ever reached the Music section.
+ * Why this exists: an iframe's `loading="lazy"` is only a hint about viewport
+ * distance, and on this page Chromium decided the Music section was near
+ * enough to fetch immediately — measured at +751ms on every cold load, at
+ * VeryHigh priority, before any scrolling. So each first visit pulled the
+ * whole player (a megabyte-plus of third-party JS, plus its main-thread cost)
+ * alongside the hero, whether or not the visitor ever scrolled that far.
  *
- * An IntersectionObserver makes the decision ours rather than the browser's.
- * Nothing about the experience changes for someone who scrolls down — the
- * 400px rootMargin starts the load before the section is on screen — but a
- * first paint no longer competes with it.
- *
- * The placeholder reserves the player's exact height, so there is no layout
- * shift when the iframe replaces it, and a <noscript> copy keeps the section
- * useful with JS disabled.
+ * An IntersectionObserver with a 400px margin makes the decision ours: the
+ * player starts loading just before the section appears. The placeholder
+ * reserves the player's exact height, so nothing shifts when it arrives, and
+ * the section's lede is a plain link to the same artist for anyone without
+ * JavaScript or before the player is ready.
  */
 export default function SpotifyEmbed() {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -42,8 +38,6 @@ export default function SpotifyEmbed() {
           io.disconnect();
         }
       },
-      // Start fetching before the section is on screen, so scrolling down
-      // still lands on a player that is already loading.
       { rootMargin: "400px 0px" }
     );
     io.observe(node);
@@ -51,34 +45,19 @@ export default function SpotifyEmbed() {
   }, []);
 
   return (
-    <div ref={ref} style={{ minHeight: music.embedHeight }}>
+    <div ref={ref} className="bg-raised" style={{ minHeight: music.embedHeight }}>
       {load ? (
         <div
           // The embed string is trusted, operator-authored markup pasted from
           // Spotify's Share > Embed dialog — not user input.
-          className="overflow-hidden [&_iframe]:block [&_iframe]:w-full"
+          className="[&_iframe]:block [&_iframe]:w-full"
           dangerouslySetInnerHTML={{ __html: music.spotifyEmbed }}
         />
       ) : (
-        <div
-          aria-hidden="true"
-          className="flex items-center justify-center border border-line bg-surface"
-          style={{ height: music.embedHeight }}
-        >
-          <span className="note">Loading the player…</span>
+        <div aria-hidden="true" className="flex items-center justify-center" style={{ height: music.embedHeight }}>
+          <span className="text-small text-ink-soft">{music.loadingLabel}</span>
         </div>
       )}
-
-      <noscript>
-        <a
-          href={music.spotifyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-block text-lg text-bone underline decoration-stage decoration-2 underline-offset-4"
-        >
-          Listen on Spotify
-        </a>
-      </noscript>
     </div>
   );
 }

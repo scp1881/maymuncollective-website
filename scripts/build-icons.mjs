@@ -244,13 +244,14 @@ const wmPath = await new Promise((res, rej) => {
 // of path data that is more than the entire HTML document currently weighs, on
 // every page — not worth it for a mark that is always this one colour. The
 // value is the palette's `bone` token; keep the two in step.
-const BONE = "#f5f3ef";
+// The palette's `ink` (tailwind.config.ts) — the wordmark prints in the pale ink.
+const INK = "#e6e9f5";
 fs.writeFileSync(
   `${PUB}/logo-wordmark.svg`,
   // width/height on the root as well as the viewBox, so the file has a real
   // intrinsic size instead of falling back to the SVG-in-<img> default of 150px
   // tall with a derived width.
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${BONE}"/></svg>\n`
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${INK}"/></svg>\n`
 );
 console.log(`wrote ${PUB}/logo-wordmark.svg (${wmW}x${wmH}, aspect ${(wmW / wmH).toFixed(3)})`);
 

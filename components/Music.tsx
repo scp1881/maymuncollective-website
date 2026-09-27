@@ -3,21 +3,27 @@ import SpotifyEmbed from "@/components/SpotifyEmbed";
 import { music } from "@/content/site";
 
 /**
- * The Music section. The player itself is deferred until this section nears the
- * viewport — see components/SpotifyEmbed for why.
- *
- * The player is a fixed 352px-tall third-party box with its own rounded corners
- * and its own green, and nothing here can change that. What this section can do
- * is stop it floating: previously it sat alone and centred in an otherwise
- * empty band of page, which made the emptiness look like a mistake. Now it
- * occupies the content column like every other section's substance does, with
- * the heading beside it, so it reads as one item in a page rather than an
- * embed dropped into a gap.
+ * The Spotify artist player, printed like everything else: a violet plate sits
+ * behind it, out of register, so a third-party widget still belongs to the
+ * poster. The lede is the always-visible fallback link to the same artist.
  */
 export default function Music() {
   return (
-    <Section id="music" heading={music.heading} lede={music.subheading}>
-      <SpotifyEmbed />
+    <Section
+      id="music"
+      heading={music.heading}
+      lede={
+        <a href={music.spotifyUrl} target="_blank" rel="noopener noreferrer" className="plate-link text-ink">
+          {music.subheading}
+        </a>
+      }
+    >
+      <div className="relative lg:w-8/12">
+        <div aria-hidden="true" className="absolute inset-0 translate-x-[10px] -translate-y-[8px] bg-violet" />
+        <div className="relative">
+          <SpotifyEmbed />
+        </div>
+      </div>
     </Section>
   );
 }

@@ -1,157 +1,200 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Wordmark from "@/components/Wordmark";
-import { nav } from "@/content/site";
+import { nav, ui } from "@/content/site";
 
 /**
- * Minimal fixed header. Transparent over the hero, then gains a subtle
- * backdrop once the user scrolls. Includes a compact mobile menu.
+ * Fixed header on every page.
  *
- * On .container-rail, which is now the only measure on the site: the wordmark,
- * the band's name, every section heading and the footer all start on the same
- * vertical line from the top of the page to the bottom.
- *
- * Used on every page, so it is path-aware. The section links are bare hashes
- * (`#gallery`) which only resolve on the homepage — from anywhere else they are
- * prefixed to `/#gallery` so they navigate home *and* land on the section.
- * Likewise the wordmark scrolls to the top when already home, and is a plain
- * link home when it isn't.
+ * - On the homepage the header's wordmark stays hidden while the hero's own
+ *   (the <h1>) is on screen, and appears once it has scrolled away — one
+ *   wordmark at a time. `visibility` rather than opacity alone, so a hidden
+ *   logo is never a focusable ghost.
+ * - Section links are bare hashes on the homepage and `/#section` elsewhere,
+ *   so from /gallery they navigate home and land on the section.
+ * - The link for the section currently in view carries aria-current and keeps
+ *   its violet plate (see `.plate-link` in globals.css).
+ * - On phones the links live in a full-screen sheet: focus moves into it,
+ *   Tab is kept inside it, Escape closes it, and focus returns to the button.
  */
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+  const onGallery = pathname === "/gallery";
+  const [pastHero, setPastHero] = useState(!onHome);
+  const [active, setActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const onHome = usePathname() === "/";
+  const menuButton = useRef<HTMLButtonElement | null>(null);
+  const sheet = useRef<HTMLDivElement | null>(null);
 
+  // On the homepage, links are bare hashes. Elsewhere they lead home to the
+  // section — except Gallery on /gallery, which is this page.
+  const href = (h: string) => (onHome ? h : onGallery && h === "#gallery" ? "/gallery" : `/${h}`);
+  const current = (h: string) =>
+    onGallery && h === "#gallery" ? ("page" as const) : active === h ? ("true" as const) : undefined;
+
+  // Header wordmark: shown once the hero's wordmark has left the screen.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    if (!onHome) return;
+    const heading = document.querySelector("#top h1");
+    if (!heading || !("IntersectionObserver" in window)) {
+      setPastHero(true);
+      return;
+    }
+    const io = new IntersectionObserver(([e]) => setPastHero(!e.isIntersecting), { rootMargin: "-72px 0px 0px 0px" });
+    io.observe(heading);
+    return () => io.disconnect();
+  }, [onHome]);
+
+  // Current section: whichever section crosses the middle of the viewport.
+  useEffect(() => {
+    if (!onHome || !("IntersectionObserver" in window)) return;
+    const sections = nav
+      .map((n) => document.querySelector<HTMLElement>(n.href))
+      .filter((s): s is HTMLElement => Boolean(s));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive(`#${e.target.id}`);
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    sections.forEach((s) => io.observe(s));
+    const top = document.getElementById("top");
+    const clearAtTop = new IntersectionObserver(([e]) => e.isIntersecting && setActive(null), {
+      rootMargin: "-45% 0px -50% 0px",
+    });
+    if (top) clearAtTop.observe(top);
+    return () => {
+      io.disconnect();
+      clearAtTop.disconnect();
+    };
+  }, [onHome]);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    menuButton.current?.focus();
   }, []);
 
-  /**
-   * Home / back-to-top. The anchor still points at #top so it works without
-   * JS, but plain `href="#top"` is not quite the behaviour wanted here: it
-   * lands 80px short (globals.css sets `scroll-padding-top: 5rem` so section
-   * anchors clear the fixed nav), leaves `#top` stuck in the address bar, and
-   * does nothing at all if the hash is already `#top`. Scrolling explicitly to
-   * 0 avoids all three.
-   *
-   * `scroll-behavior: smooth` in CSS does not apply to scrollTo(), so the
-   * reduced-motion preference has to be honoured here rather than inherited.
-   */
-  const toTop = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Let modified clicks (new tab/window) behave normally.
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
-    setOpen(false);
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-    history.replaceState(null, "", window.location.pathname + window.location.search);
-  }, []);
+  // Sheet: lock page scroll, move focus in, trap Tab, close on Escape.
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const prev = root.style.overflow;
+    root.style.overflow = "hidden";
+    const node = sheet.current;
+    node?.querySelector<HTMLElement>("nav a[href]")?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+        return;
+      }
+      if (e.key !== "Tab" || !node) return;
+      const items = Array.from(node.querySelectorAll<HTMLElement>("a[href], button"));
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      root.style.overflow = prev;
+    };
+  }, [open, close]);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled || open
-          // Solid on phones, translucent from sm up. A blurred 80% bar works
-          // over a desktop page that is mostly black; on a phone the photos
-          // are full-bleed, so the bar spends most of its life over a
-          // photograph and the wordmark was landing on people's faces.
-          ? "border-b border-line bg-ink sm:bg-ink/80 sm:backdrop-blur-md"
-          : "border-b border-transparent"
-      }`}
-    >
-      <nav
-        className="container-rail flex h-16 items-center justify-between"
-        aria-label="Primary"
-      >
-        {/* No hover treatment: the wordmark is the one thing in the bar that is
-            already unmistakably a link, and dimming it read as a highlight
-            rather than as feedback. The negative margin + padding keeps a
-            comfortable tap target without making the mark itself bigger, and
-            the rounded corner is only there for the keyboard focus ring, which
-            stays (see :focus-visible in globals.css). */}
-        {onHome ? (
-          <a
-            href="#top"
-            onClick={toTop}
-            className="-m-2 flex shrink-0 items-center rounded-md p-2"
-          >
-            <Wordmark className="h-8 sm:h-9" />
-          </a>
-        ) : (
-          <Link href="/" className="-m-2 flex shrink-0 items-center rounded-md p-2">
-            <Wordmark className="h-8 sm:h-9" />
-          </Link>
-        )}
-
-        {/* Desktop links */}
-        <ul className="hidden items-center gap-8 md:flex">
-          {nav.map((item) => (
-            <li key={item.href}>
-              <a
-                href={onHome ? item.href : `/${item.href}`}
-                // The padding is the click target. These were 17px tall — the
-                // height of the text and nothing else — which is a small thing
-                // to hit with a mouse and an unreasonable one on a trackpad.
-                // The negative margin on the list keeps the bar its own height.
-                className="-my-3 block py-3 text-sm text-muted transition-colors hover:text-bone"
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-bone md:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
+    <header className={`fixed inset-x-0 top-0 z-nav bg-stock transition-[border-color] duration-quick ${pastHero ? "border-b border-ink/15" : "border-b border-transparent"}`}>
+      <div className="container-page flex h-[72px] items-center justify-between gap-6">
+        <Link
+          href="/"
+          className={`transition-opacity duration-quick ${pastHero ? "visible opacity-100" : "invisible opacity-0"}`}
         >
-          <span className="relative block h-3 w-5">
-            <span
-              className={`absolute left-0 top-0 h-0.5 w-5 bg-current transition-transform ${
-                open ? "translate-y-1.5 rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`absolute bottom-0 left-0 h-0.5 w-5 bg-current transition-transform ${
-                open ? "-translate-y-1 -rotate-45" : ""
-              }`}
-            />
-          </span>
-        </button>
-      </nav>
+          <Wordmark className="h-10" />
+        </Link>
 
-      {/* Mobile menu */}
-      <div
-        id="mobile-menu"
-        className={`overflow-hidden border-t border-line bg-ink/95 backdrop-blur-md md:hidden ${
-          open ? "block" : "hidden"
-        }`}
-      >
-        <ul className="container-rail flex flex-col gap-1 py-4">
-          {nav.map((item) => (
-            <li key={item.href}>
-              <a
-                href={onHome ? item.href : `/${item.href}`}
-                onClick={() => setOpen(false)}
-                className="block py-2 text-base text-muted transition-colors hover:text-bone"
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <nav aria-label="Primary" className="hidden lg:block">
+          <ul className="flex gap-9 text-[16px] font-semibold">
+            {nav.map((item) => (
+              <li key={item.href}>
+                <a
+                  href={href(item.href)}
+                  className="plate-link inline-flex min-h-[44px] items-center"
+                  aria-current={current(item.href)}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <button
+          ref={menuButton}
+          type="button"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center border-2 border-ink px-4 text-[16px] font-bold lg:hidden"
+          aria-expanded={open}
+          aria-controls="menu-sheet"
+          aria-label={ui.openMenu}
+          onClick={() => setOpen(true)}
+        >
+          {ui.menu}
+        </button>
       </div>
+
+      {open ? (
+        <div
+          id="menu-sheet"
+          ref={sheet}
+          role="dialog"
+          aria-modal="true"
+          aria-label={ui.menu}
+          className="sheet fixed inset-0 z-sheet flex flex-col bg-raised lg:hidden"
+        >
+          <div className="container-page flex h-[72px] items-center justify-between gap-6">
+            <Link href="/" onClick={() => setOpen(false)}>
+              <Wordmark className="h-10" />
+            </Link>
+            <button
+              type="button"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center border-2 border-ink px-4 text-[16px] font-bold"
+              aria-label={ui.closeMenu}
+              onClick={close}
+            >
+              {ui.close}
+            </button>
+          </div>
+          <nav aria-label="Primary" className="container-page mt-8">
+            <ul className="grid gap-1">
+              {nav.map((item, i) => (
+                <li key={item.href}>
+                  <a
+                    href={href(item.href)}
+                    onClick={() => setOpen(false)}
+                    className="sheet-link block py-2"
+                    style={{ "--i": i } as CSSProperties}
+                    aria-current={current(item.href)}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }
