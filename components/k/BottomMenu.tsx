@@ -165,7 +165,6 @@ export default function BottomMenu() {
                 ref={playerBtn}
                 type="button"
                 className="m-item m-player-btn"
-                aria-label={ui.openPlayer}
                 aria-expanded={player}
                 data-cursor="play"
                 onClick={() => {
@@ -174,6 +173,7 @@ export default function BottomMenu() {
                 }}
                 tabIndex={player ? -1 : 0}
               >
+                <span className="sr-only">{ui.openPlayer}</span>
                 <PlayerCubes />
               </button>
             </nav>
@@ -213,9 +213,11 @@ function PlayerCubes() {
     <span className="k-scene" aria-hidden="true">
       <span className="k-cube ticker">
         {faces.map((f) => (
+          // The ticker text is drawn by CSS from data-t, so the button's only
+          // text content is its screen-reader label.
           <span key={f} className={`face ${f}`}>
-            <span>{label}</span>
-            <span>{label}</span>
+            <span data-t={label} />
+            <span data-t={label} />
           </span>
         ))}
       </span>

@@ -80,6 +80,7 @@ export default function Hero() {
               width={front.width}
               height={front.height}
               sizes="(max-width: 768px) 74vw, 33vw"
+              priority
               // The stage sits at 45–70% of this photo; the card's upper half is
               // what shows above the fold, so zoom towards the stage.
               style={{ objectPosition: "50% 70%", scale: "1.45", transformOrigin: "50% 64%" }}

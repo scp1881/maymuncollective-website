@@ -2,15 +2,16 @@
 
 A single-page scrolling site for **Maymun Collective**, a music collective whose tagline, *müzik, música, music.*, speaks Turkish, Spanish and English at once. It's built with **Next.js (App Router)** and **Tailwind CSS**, and deploys to **Vercel**.
 
-The design is a gig poster printed in two inks on dark stock: one typeface at three widths, and every photograph printed rather than placed. See **[DESIGN.md](./DESIGN.md)** for the tokens, type, motion and rules.
+This branch (`redesign/v3-kurate`) is an alternate design adapted from the [Kurate](https://kurate-label.vercel.app/) reference: its structure, smooth scroll, preloader, water-ripple logo, 3D card stack, splitting vinyl, draggable member cards, frosted contact panel and floating menu, set with Maymun's own content. See **[DESIGN.md](./DESIGN.md)** for the tokens and motion, and `_redesign/KURATE_STUDY.md` (not committed) for the study.
 
 ## Sections (in order)
 
-1. **Hero:** the wordmark, the tagline at three widths, and the Blind photograph printed beside it.
-2. **Gallery:** a selection of photographs, and a link to the full `/gallery`.
-3. **Music:** the Spotify artist player, loaded only as the section approaches.
-4. **Members:** the roster, on stage and off stage.
-5. **Contact:** email, WhatsApp and socials.
+1. **Hero:** the wordmark (with a WebGL water ripple under the pointer on desktop), two photo cards and the tilting 3D card stack.
+2. **Gallery:** the gallery line typed in, a drawn line, and the link to the full `/gallery`.
+3. **Statement:** the tagline, one language per line, and the splitting vinyl.
+4. **Members:** "On stage / Off stage" and a draggable row of member cards.
+5. **Music:** the Spotify artist player, loaded only as the section approaches.
+6. **Contact:** email, WhatsApp and socials in a frosted panel over a giant email marquee.
 
 **`/gallery`** shows every image. Each one opens in a lightbox in its original colour.
 
@@ -40,12 +41,12 @@ The file must never state something the collective hasn't published itself: no i
 - Files live in `public/images/gallery/`. Each one has a single entry in `photos` in `content/site.ts`.
 - `width` / `height` must be the file's **real pixel dimensions**. `next/image` reserves the space from them, so a wrong pair means a distorted frame or a layout jump.
 - `position` is the crop focus used on phones (`sm`) and wider screens (`lg`).
-- Mark artwork with `artwork: true`, so it is shown as made: never printed in two inks, never cropped.
+- Mark artwork with `artwork: true`, so it is shown as made: never greyscaled, never cropped.
 - **Filenames are case-sensitive on Vercel.** Match the extension casing exactly (`04-live.JPG`).
 
 The homepage selection is `gallery.images`, and the `/gallery` order is `galleryPage.images`. The hero photograph is `hero.photo`.
 
-**How printing works:** photographs are printed in CSS from the original file (`components/Print.tsx`, and `.print` in `app/globals.css`). A greyscale ink plate is screened onto the page, and the *same* image is multiplied into violet and set a few pixels out of register on top. It's one download and no pre-processing, and the lightbox shows the untouched original.
+**Motion** is driven by `components/k/Experience.tsx` (GSAP ScrollSmoother + ScrollTrigger): sections get `.animated` as they arrive, which releases the CSS reveals in `app/globals.css`. With `prefers-reduced-motion` there is no smooth scroll and every reveal is static; without JavaScript nothing is hidden.
 
 ### Music (Spotify embed)
 
@@ -53,7 +54,7 @@ To change the player, open the artist page in Spotify and choose **⋯ → Share
 
 > **The player is deliberately deferred.** An iframe's `loading="lazy"` is only a hint, and on this page Chromium fetched the whole player on every cold load, measured at +751 ms at VeryHigh priority. That's a megabyte-plus of third-party JS competing with the first paint.
 >
-> [`components/SpotifyEmbed.tsx`](./components/SpotifyEmbed.tsx) injects it from an IntersectionObserver with a 400px margin instead. The section's lede is a plain link to the same artist, which is the visible fallback.
+> [`components/k/SpotifyEmbed.tsx`](./components/k/SpotifyEmbed.tsx) injects it from an IntersectionObserver with a 400px margin instead. The section's lede is a plain link to the same artist, which is the visible fallback.
 >
 > Don't "simplify" this back to a bare iframe without checking that `open.spotify.com` isn't requested on initial load.
 
@@ -123,7 +124,7 @@ npm i --no-save sharp potrace && node scripts/build-icons.mjs
 | `app/icon.svg` | vector | Modern browsers |
 | `app/favicon.ico` | 16 / 32 / 48 | Older browsers, Windows, Google Search (which wants a multiple of 48px) |
 | `app/apple-icon.png` | 180×180 | iOS home screen |
-| `public/logo-wordmark.svg` | vector | The wordmark in the hero, header and footer (`components/Wordmark.tsx`) |
+| `public/logo-wordmark.svg` | vector | The wordmark in the hero, header, preloader and footer |
 
 - **The icon** is the spiral from the centre of the lockup. The script lifts it out of the auto-traced badge and recomposes it on a true circle; the reasoning is inline in the script.
 - **The wordmark's** fill is **baked** to the palette's `ink` (`#e6e9f5`) rather than `currentColor`. An SVG loaded through `<img>` is an isolated document, so `currentColor` would resolve to black and vanish on the dark page. If `ink` changes, update `INK` in the script and regenerate.
@@ -140,14 +141,15 @@ app/
   gallery/page.tsx    # /gallery: every image + lightbox
   robots.ts           # /robots.txt
   sitemap.ts          # /sitemap.xml
-  globals.css         # fonts, tokens, print effect, all motion
-components/
-  Nav.tsx             # fixed header, section tracking, phone menu sheet
-  Hero.tsx  Tagline.tsx  Print.tsx
-  Section.tsx         # heading + lede + content, with the fold rule
-  Gallery.tsx  Music.tsx  SpotifyEmbed.tsx  Members.tsx  Contact.tsx  Footer.tsx
-  GalleryWall.tsx     # /gallery grid + <dialog> lightbox
-  SkipLink.tsx  Wordmark.tsx
+  globals.css         # fonts, tokens, reveal system, every section's styles and motion
+components/k/
+  Experience.tsx      # smooth scroll, section triggers, header/grid state, anchors
+  Preloader.tsx  Chrome.tsx (grid + cursor)  Header.tsx  BottomMenu.tsx
+  Hero.tsx  WaterLogo.tsx  TiltCard.tsx
+  Statement.tsx  About.tsx (+ vinyl)  Members.tsx  DragSlider.tsx
+  Music.tsx  SpotifyEmbed.tsx  Contact.tsx  ContactSteps.tsx  Waves.tsx  Footer.tsx
+  GalleryWall.tsx     # /gallery cards + <dialog> lightbox
+  bits.tsx            # icons, drawn lines, equaliser, letter splitting
 content/site.ts       # ★ all copy and the photo catalogue
 scripts/
   build-fonts.mjs     # subsets Archivo into public/fonts/
@@ -163,8 +165,8 @@ DESIGN.md             # the design system
 ## Accessibility & SEO
 
 - **Headings and landmarks:** one `<h1>` per page (the wordmark on `/`, "Gallery" on `/gallery`), then `<h2>` per section and `<h3>` for the member groups. Semantic `<header>`, `<nav>`, `<main>`, `<section>` and `<footer>`, plus a skip link.
-- **Contrast:** every text pair passes WCAG AA (see DESIGN.md). Text on the violet plate is dark (`stock`), not light.
-- **Keyboard:** one visible focus style everywhere. The phone menu traps focus, closes on Escape and returns focus. The lightbox is a native `<dialog>`, with arrow keys between photographs.
-- **Motion:** `prefers-reduced-motion: reduce` turns off all of it (plates rest, widths are static).
+- **Contrast:** every text pair passes WCAG AA (see DESIGN.md); the reference's 30–50% white small text is lifted to 55–62%.
+- **Keyboard:** one visible focus style everywhere. The menu dropdown and the mini player close on Escape and return focus. The member row is a focusable, labelled region. The lightbox is a native `<dialog>`, with arrow keys between photographs.
+- **Motion:** `prefers-reduced-motion: reduce` turns off all of it: no preloader, smooth scroll, ripple, custom cursor or reveals.
 - **Language:** each word of the tagline carries its own `lang`, so screen readers pronounce it correctly.
 - **SEO:** title, description, canonical, Open Graph and Twitter tags are set from `content/site.ts`. `robots.txt` and `sitemap.xml` are generated.

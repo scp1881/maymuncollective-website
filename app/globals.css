@@ -792,6 +792,9 @@ html[data-header="hidden"] .k-header .logo img {
   flex: 0 0 auto;
   padding-right: 0.4em;
 }
+.k-cube.ticker .face span::before {
+  content: attr(data-t);
+}
 .k-cube .face img {
   width: 100%;
   height: 100%;
@@ -956,9 +959,11 @@ html[data-header="hidden"] .k-header .logo img {
   height: 20vh;
 }
 @media (max-width: 768px) {
+  /* Sized by the shorter of width and height so it clears the photo cards
+     above and the card stack below on phones and portrait tablets alike. */
   .k-hero .hero-logo {
-    width: 76vw;
-    translate: -50% -70%;
+    width: min(76vw, 40vh);
+    translate: -50% -55%;
   }
   .k-hero .card-first {
     left: 10.256vw;
@@ -973,7 +978,7 @@ html[data-header="hidden"] .k-header .logo img {
     height: 10.3vw;
   }
   .k-hero .card-second {
-    top: 16vh;
+    top: 14vh;
     right: var(--pad);
   }
   .k-hero .card-second .img {
