@@ -252,6 +252,13 @@
   padding-bottom: 0.08em;
 }
 
+/* The plate behind the player: rests out of register; DriftPlate adds the
+   pointer's slip, and the transition is what makes it trail. */
+.drift-plate {
+  transform: translate(calc(10px + var(--drift-x, 0px)), calc(-8px + var(--drift-y, 0px)));
+  transition: transform var(--dur-settle) var(--ease-out);
+}
+
 /* Social links: the whole row is the target; the word takes the plate. */
 .social:hover .plate-link,
 .social:focus-visible .plate-link {
@@ -315,10 +322,17 @@
 
 /* Member names widen into their natural width under a pointer. Hover-only
    (never on touch, where it would stick), and not focusable content. */
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .member .title {
+@media (prefers-reduced-motion: no-preference) {
+  .member .title,
+  .social .title {
     transition: font-stretch var(--dur-quick) var(--ease-out);
   }
+  .social:hover .title,
+  .social:focus-visible .title {
+    font-stretch: 100%;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .member:hover .title {
     font-stretch: 100%;
   }
@@ -405,6 +419,22 @@
       }
       100% {
         transform: translate(-12px, 10px);
+      }
+    }
+
+    /* 3b. Scroll: each member's name presses into its width as it arrives,
+       the same gesture as the headings. Backwards fill only, so once it has
+       arrived the hover widening above works untouched. */
+    .member .title {
+      animation: name-press linear backwards;
+      animation-timeline: view();
+      /* A single line's own entry is only ~60px of scroll — a snap. Spread
+         the press over the first quarter of its trip up the screen. */
+      animation-range: entry 0% cover 25%;
+    }
+    @keyframes name-press {
+      from {
+        font-stretch: 100%;
       }
     }
 
