@@ -33,6 +33,14 @@ type SectionProps = {
  *
  * Below `lg` the columns stack: the label above the thing it labels.
  *
+ * On phones the heading is sized off the viewport (13vw) rather than pinned at
+ * the clamp's 40px floor. At 390px the old value made every section open with
+ * the same 40px label above the same grey sentence — five identical
+ * announcements down one column, which is what made the phone page read as the
+ * most monotonous version of the site. Scaling with the screen puts a section
+ * title at 51px against the hero's 74px: the same voice at two volumes instead
+ * of a shout followed by four labels. From `sm` up the clamp is untouched.
+ *
  * The vertical padding is not one value scaled down. 96px above and below a
  * section is a comfortable breath on a 1440px canvas and a quarter of the
  * screen on a 390px one — measured, 34% of the phone page was blank before
@@ -64,7 +72,7 @@ export default function Section({
       <div className="container-rail">
         <div className="grid gap-y-6 py-16 sm:gap-y-8 sm:py-28 lg:grid-cols-12 lg:gap-x-10 lg:py-36">
           <header className="lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
-            <h2 className="text-balance font-display text-[clamp(2.5rem,7vw,4.5rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.035em]">
+            <h2 className="text-balance font-display text-[13vw] sm:text-[clamp(2.5rem,7vw,4.5rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.035em]">
               {heading}
             </h2>
             {lede && <p className="lede mt-5">{lede}</p>}

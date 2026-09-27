@@ -57,33 +57,44 @@ export default function Gallery() {
   return (
     <>
       <Section id="gallery" heading={gallery.heading} lede={gallery.subheading}>
-        <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-y-12">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 sm:gap-y-12">
           {inGrid.map((img, i) => (
             <figure key={img.id} className={`group ${i === 1 ? "lg:mt-12" : ""}`}>
               {img.src ? (
-                <>
-                  <div className="relative -mx-6 overflow-hidden bg-surface sm:mx-0">
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      width={img.width}
-                      height={img.height}
-                      sizes={HALF_SIZES}
-                      loading="lazy"
-                      fetchPriority="low"
-                      {...blurProps(img.src)}
-                      // Brightness, not scale. A photo that grows on hover is
-                      // the gesture every card grid on the web makes; one that
-                      // comes up slightly looks like a light being brought up
-                      // on it, which is at least about this subject.
-                      className="h-auto w-full brightness-[0.88] transition-[filter] duration-500 ease-out group-hover:brightness-100"
-                    />
-                  </div>
-                  <figcaption className="note mt-4">{img.label}</figcaption>
-                </>
+                /* On a phone this is a frame you move through, not a tile you
+                   scroll past: 82svh of a portrait screen, full bleed. A phone
+                   is already a portrait viewport held at arm's length — the one
+                   shape a laptop cannot make — and these are 1708x2560
+                   portraits, so letting them fill it is the whole argument.
+                   From sm up nothing changes: the photograph returns to its own
+                   ratio in the grid.
+
+                   The caption stays off the picture. Setting it over the frame
+                   measured 1.61:1 against the actual pixels behind it — two of
+                   these photographs are pale at the bottom edge — and the scrim
+                   needed to fix that would have darkened the bottom third of
+                   every frame in order to label it "Live". */
+                <div className="relative -mx-6 h-[82svh] overflow-hidden bg-surface sm:mx-0 sm:h-auto">
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    width={img.width}
+                    height={img.height}
+                    sizes={HALF_SIZES}
+                    loading="lazy"
+                    fetchPriority="low"
+                    {...blurProps(img.src)}
+                    // Brightness, not scale. A photo that grows on hover is the
+                    // gesture every card grid on the web makes; one that comes
+                    // up slightly looks like a light being brought up on it,
+                    // which is at least about this subject.
+                    className="h-full w-full object-cover brightness-[0.88] transition-[filter] duration-500 ease-out group-hover:brightness-100 sm:h-auto"
+                  />
+                </div>
               ) : (
                 <Placeholder index={i} label={img.label} />
               )}
+              {img.src && <figcaption className="note mt-3 sm:mt-4">{img.label}</figcaption>}
             </figure>
           ))}
         </div>
