@@ -1,6 +1,6 @@
 # Design system: v3 (adapted from the Kurate reference)
 
-This branch (`redesign/v3-kurate`) adapts the structure, motion and interactions of kurate-label.vercel.app to Maymun Collective's own content. The reference study is `_redesign/KURATE_STUDY.md`. `redesign/v2` (the two-ink poster) is unchanged.
+The live design adapts the structure, motion and interactions of kurate-label.vercel.app to Maymun Collective's own content. The reference study is `_redesign/KURATE_STUDY.md`. The alternate design (the two-ink poster) is kept unchanged on the `alternate-design` branch.
 
 Tokens live as CSS custom properties at the top of `app/globals.css`. Sizes are in vw, like the reference, and clamped where they would fall below legible sizes.
 

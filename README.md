@@ -2,7 +2,9 @@
 
 A single-page scrolling site for **Maymun Collective**, a music collective whose tagline, *müzik, música, music.*, speaks Turkish, Spanish and English at once. It's built with **Next.js (App Router)** and **Tailwind CSS**, and deploys to **Vercel**.
 
-This branch (`redesign/v3-kurate`) is an alternate design adapted from the [Kurate](https://kurate-label.vercel.app/) reference: its structure, smooth scroll, preloader, water-ripple logo, 3D card stack, splitting vinyl, draggable member cards, frosted contact panel and floating menu, set with Maymun's own content. See **[DESIGN.md](./DESIGN.md)** for the tokens and motion, and `_redesign/KURATE_STUDY.md` (not committed) for the study.
+The live design is adapted from the [Kurate](https://kurate-label.vercel.app/) reference: its structure, smooth scroll, preloader, water-ripple logo, 3D card stack, splitting vinyl, draggable member cards, frosted contact panel and floating menu, set with Maymun's own content. See **[DESIGN.md](./DESIGN.md)** for the tokens and motion, and `_redesign/KURATE_STUDY.md` (not committed) for the study.
+
+**Alternate design.** The earlier redesign (the dark two-ink poster) is kept, unchanged and deployable, on the [`alternate-design`](https://github.com/scp1881/maymuncollective-website/tree/alternate-design) branch. To switch back, merge or reset `main` to it.
 
 ## Sections (in order)
 

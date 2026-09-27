@@ -1,8 +1,9 @@
 /**
- * Renders the social share image, public/og.png (1200×630), from the site's
- * own design: the wordmark, the tagline at its three widths, and the Blind
- * photograph printed in the two inks — same fonts, same files, same CSS
- * recipe as the site, so the preview cannot drift from the page.
+ * Renders the social share image, public/og.png (1200×630), in the site's
+ * own design: the white wordmark on the dark grid, the tilted card stack
+ * with the stage photograph in front, and the circular "müzik, música,
+ * music." label — same fonts, same files, same values as the hero, so the
+ * preview cannot drift from the page.
  *
  *   npm i --no-save puppeteer-core && npm run og
  *
@@ -18,34 +19,52 @@ import puppeteer from "puppeteer-core";
 const ROOT = process.cwd();
 const pub = (p) => pathToFileURL(path.join(ROOT, "public", p)).href;
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const TAG = "müzik, música, music.";
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face { font-family: Archivo; src: url("${pub("fonts/archivo-latin.woff2")}") format("woff2"); font-weight: 300 900; font-stretch: 62% 125%; }
 * { margin: 0; box-sizing: border-box; }
-html, body { width: 1200px; height: 630px; background: #0d0f1c; color: #e6e9f5; font-family: Archivo; overflow: hidden; }
-.page { position: relative; width: 1200px; height: 630px; padding: 56px 64px; display: grid; grid-template-columns: 500px 1fr; gap: 64px; align-items: end; }
-.left { container-type: inline-size; }
-.wordmark { height: 72px; display: block; margin-bottom: 28px; }
-.t { display: block; width: max-content; white-space: nowrap; font-weight: 850; line-height: .86; }
-.tr { font-stretch: 125%; font-size: calc(99cqi / 4.0758); }
-.es { font-stretch: 100%; font-size: calc(99cqi / 4.1216); }
-.en { font-stretch: 62%; font-size: calc(99cqi / 2.3034); }
-.print { position: relative; background: #0d0f1c; height: 518px; }
-.print img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 58%; }
-.ink { filter: grayscale(1) contrast(1.12) brightness(.92); mix-blend-mode: screen; }
-.plate { position: absolute; inset: 0; background: #9b5cff; isolation: isolate; mix-blend-mode: screen; transform: translate(7px, -6px); }
-.plate img { filter: grayscale(1) contrast(1.35) brightness(.8); mix-blend-mode: multiply; }
-.rule { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: #9b5cff; }
+html, body { width: 1200px; height: 630px; background: #0e0f0f; color: #fafafa; font-family: Archivo; overflow: hidden; }
+.page { position: relative; width: 1200px; height: 630px; }
+/* The background grid (10% × 20%, as on the site), fading out from the centre-left. */
+.grid { position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, transparent 0, rgba(255,255,255,.14) 1px, transparent 0),
+    linear-gradient(90deg, transparent 0, rgba(255,255,255,.14) 1px, transparent 0);
+  background-size: 10% 20%, 10% 20%;
+  -webkit-mask-image: radial-gradient(ellipse 70% 90% at 40% 50%, #000 20%, transparent 75%);
+          mask-image: radial-gradient(ellipse 70% 90% at 40% 50%, #000 20%, transparent 75%); }
+.wordmark { position: absolute; left: 72px; top: 150px; width: 520px; }
+.tag { position: absolute; left: 76px; top: 478px; font-size: 26px; font-weight: 400; color: rgba(250,250,250,.62); letter-spacing: -.01em; }
+.cards { position: absolute; left: 700px; top: 70px; width: 330px; height: 470px; }
+.card { position: absolute; inset: 0; overflow: hidden; }
+.card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card.b1 { transform: rotate(-6.15deg); }
+.card.b2 { transform: rotate(6.15deg); }
+.card.front { transform: perspective(1000px) rotateY(-4deg) rotateX(2deg); box-shadow: 0 30px 60px rgba(0,0,0,.45); }
+.card.front img { object-position: 50% 70%; scale: 1.45; transform-origin: 50% 64%; }
+.circle { position: absolute; left: 630px; top: 360px; width: 150px; height: 150px; }
+.circle .ring { width: 100%; height: 100%; rotate: -24deg; }
+.circle text { font-family: Archivo; font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase; fill: #fafafa; }
+.arrow { position: absolute; left: 50%; top: 50%; width: 12px; height: 24px; translate: -50% -50%; }
 </style></head><body><div class="page">
-  <div class="left">
-    <img class="wordmark" src="${pub("logo-wordmark.svg")}" alt="">
-    <span class="t tr">müzik,</span><span class="t es">música,</span><span class="t en">music.</span>
+  <div class="grid"></div>
+  <img class="wordmark" src="${pub("logo-wordmark.svg")}" alt="">
+  <p class="tag">(${TAG})</p>
+  <div class="cards">
+    <div class="card b2"><img src="${pub("images/gallery/06-crew.JPG")}" alt=""></div>
+    <div class="card b1"><img src="${pub("images/gallery/04-live.JPG")}" alt=""></div>
+    <div class="card front"><img src="${pub("images/gallery/01-portrait.jpg")}" alt=""></div>
   </div>
-  <div class="print">
-    <img class="ink" src="${pub("images/gallery/01-portrait.jpg")}" alt="">
-    <div class="plate"><img src="${pub("images/gallery/01-portrait.jpg")}" alt=""></div>
+  <div class="circle">
+    <svg class="ring" viewBox="0 0 192 192">
+      <defs><path id="p" d="M96 96m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" /></defs>
+      <circle cx="96" cy="96" r="95" fill="#0e0f0f" fill-opacity=".55" stroke="rgba(255,255,255,.3)" stroke-width=".8" />
+      <circle cx="96" cy="96" r="62" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".8" />
+      <text><textPath href="#p" textLength="486" lengthAdjust="spacing">${TAG} — ${TAG} — </textPath></text>
+    </svg>
+    <svg class="arrow" viewBox="0 0 12 24" fill="none" stroke="#fafafa" stroke-width="1.2"><path d="M6 0v22M1 17l5 5 5-5" /></svg>
   </div>
-  <div class="rule"></div>
 </div></body></html>`;
 
 const tmp = path.join(os.tmpdir(), `maymun-og-${process.pid}.html`);
