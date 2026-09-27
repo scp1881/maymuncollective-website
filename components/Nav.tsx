@@ -126,7 +126,7 @@ export default function Nav() {
         </Link>
 
         <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex gap-9 text-[16px] font-semibold">
+          <ul className="flex gap-8 text-[16px] font-semibold">
             {nav.map((item) => (
               <li key={item.href}>
                 <a

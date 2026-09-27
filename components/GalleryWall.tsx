@@ -42,6 +42,9 @@ export default function GalleryWall({ photos }: { photos: Photo[] }) {
   const dialog = useRef<HTMLDialogElement | null>(null);
   const tiles = useRef<(HTMLButtonElement | null)[]>([]);
   const [index, setIndex] = useState<number | null>(null);
+  // The photograph the pointer or focus is on: its full-size image starts
+  // loading before the click, so the lightbox opens on a loaded picture.
+  const [warm, setWarm] = useState<number | null>(null);
 
   const openAt = (i: number) => {
     setIndex(i);
@@ -77,7 +80,7 @@ export default function GalleryWall({ photos }: { photos: Photo[] }) {
 
   return (
     <>
-      <ul className="grid gap-y-12 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-20">
+      <ul className="grid gap-y-12 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-24">
         {photos.map((photo, i) => {
           const layout = LAYOUT[photo.id] ?? { span: "lg:col-span-6", sizes: "(min-width: 1024px) 50vw, 100vw" };
           return (
@@ -88,6 +91,8 @@ export default function GalleryWall({ photos }: { photos: Photo[] }) {
                 }}
                 type="button"
                 onClick={() => openAt(i)}
+                onPointerEnter={() => setWarm(i)}
+                onFocus={() => setWarm(i)}
                 className="print-trigger block w-full text-left"
                 aria-haspopup="dialog"
               >
@@ -110,6 +115,19 @@ export default function GalleryWall({ photos }: { photos: Photo[] }) {
           );
         })}
       </ul>
+
+      {warm !== null && warm !== index ? (
+        <div hidden>
+          <Image
+            src={photos[warm].src}
+            alt=""
+            width={photos[warm].width}
+            height={photos[warm].height}
+            sizes="100vw"
+            loading="eager"
+          />
+        </div>
+      ) : null}
 
       <dialog
         ref={dialog}

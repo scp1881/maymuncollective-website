@@ -15,18 +15,18 @@ import { hero } from "@/content/site";
 export default function Hero() {
   return (
     <section id="top" aria-label="Maymun Collective" className="container-page pb-section pt-[104px] lg:pt-[128px]">
-      <div className="grid items-end gap-10 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-7">
+      <div className="grid items-end gap-12 md:grid-cols-12 md:gap-10 lg:gap-12">
+        <div className="md:col-span-7">
           <h1>
             <Wordmark className="h-[84px] sm:h-[108px] lg:h-[132px]" />
           </h1>
-          <Tagline className="mt-10 lg:mt-14" />
+          <Tagline className="mt-12 lg:mt-16" />
         </div>
-        <div className="lg:col-span-5">
+        <div className="md:col-span-5">
           <Print
             photo={hero.photo}
             ratio={{ sm: "1 / 1" }}
-            sizes="(min-width: 1536px) 620px, (min-width: 1024px) 40vw, 100vw"
+            sizes="(min-width: 1536px) 620px, (min-width: 768px) 40vw, 100vw"
             priority
           />
         </div>

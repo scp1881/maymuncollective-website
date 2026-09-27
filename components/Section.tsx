@@ -25,7 +25,7 @@ export default function Section({ id, heading, lede, layout = "stack", children,
       <h2 id={headingId} className="display">
         {heading}
       </h2>
-      {lede ? <p className="mt-5 max-w-[34ch] text-lede text-ink-soft lg:mt-7">{lede}</p> : null}
+      {lede ? <p className="mt-6 max-w-[34ch] text-lede text-ink-soft lg:mt-8">{lede}</p> : null}
     </header>
   );
 
@@ -40,7 +40,7 @@ export default function Section({ id, heading, lede, layout = "stack", children,
         ) : (
           <>
             {header}
-            <div className="mt-10 lg:mt-20">{children}</div>
+            <div className="mt-12 lg:mt-24">{children}</div>
           </>
         )}
       </div>

@@ -29,7 +29,7 @@ export default function Contact() {
   const wa = contact.whatsapp.replace(/\D/g, "");
   return (
     <Section id="contact" heading={contact.heading} lede={contact.subheading}>
-        <div className="grid gap-14 lg:grid-cols-12 lg:gap-12">
+        <div className="grid gap-16 lg:grid-cols-12 lg:gap-12">
           <div className="email-fit lg:col-span-7">
             <a href={`mailto:${contact.email}`} className="email plate-link">
               {contact.email}

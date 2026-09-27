@@ -23,10 +23,10 @@ export default function GalleryPage() {
       <main id="content" tabIndex={-1} className="outline-none">
         <div className="container-page pb-section pt-[120px] lg:pt-[160px]">
           <h1 className="display">{galleryPage.heading}</h1>
-          <div className="mt-12 lg:mt-20">
+          <div className="mt-12 lg:mt-24">
             <GalleryWall photos={galleryPage.images} />
           </div>
-          <p className="mt-20 lg:mt-28">
+          <p className="mt-24 lg:mt-32">
             <Link href="/" className="title plate-link">
               {galleryPage.backLabel}
             </Link>

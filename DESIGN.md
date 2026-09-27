@@ -39,7 +39,10 @@ The scale steps are 15, 17, 21, 28, 36, 44, then the display sizes: a classic ty
 
 ## Space
 
-Base unit 4px. Steps: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160.
+Base unit 4px. Steps: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160. Every margin, padding and gap in the components uses one of these. There are two deliberate exceptions:
+
+- **Page-top offsets** are the 72px nav plus a step (104 = 72 + 32, 120 = 72 + 48).
+- **The label plate's** 6/5px padding is optical centring of text on a solid block.
 
 - **Gutter:** `clamp(20px, 4vw, 56px)`.
 - **Section padding:** `clamp(64px, 11vw, 160px)`. That's 64px on phones, where a screen is one section tall and desktop spacing reads as a gap.

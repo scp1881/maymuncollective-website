@@ -5,7 +5,7 @@ export default function SkipLink() {
   return (
     <a
       href="#content"
-      className="sr-only fixed left-4 top-4 z-skip bg-violet px-4 py-3 font-bold text-stock focus:not-sr-only"
+      className="sr-only z-skip bg-violet px-4 py-3 font-bold text-stock focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
     >
       {ui.skipLink}
     </a>
