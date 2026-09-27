@@ -45,7 +45,9 @@
   --violet-soft: #c4a5ff;
 
   --gutter: clamp(20px, 4vw, 56px);
-  --section: clamp(96px, 12vw, 160px);
+  /* 64px on phones, rising to 160px: a phone screen is one section tall,
+     so desktop air on it reads as a gap, not a pause. */
+  --section: clamp(64px, 11vw, 160px);
 
   --dur-press: 120ms;
   --dur-quick: 240ms;

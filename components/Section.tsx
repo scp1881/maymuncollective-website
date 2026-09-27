@@ -40,7 +40,7 @@ export default function Section({ id, heading, lede, layout = "stack", children,
         ) : (
           <>
             {header}
-            <div className="mt-12 lg:mt-20">{children}</div>
+            <div className="mt-10 lg:mt-20">{children}</div>
           </>
         )}
       </div>

@@ -42,7 +42,7 @@ The scale steps are 15, 17, 21, 28, 36, 44, then the display sizes: a classic ty
 Base unit 4px. Steps: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160.
 
 - **Gutter:** `clamp(20px, 4vw, 56px)`.
-- **Section padding:** `clamp(96px, 12vw, 160px)`.
+- **Section padding:** `clamp(64px, 11vw, 160px)`. That's 64px on phones, where a screen is one section tall and desktop spacing reads as a gap.
 - **Container:** 1536px max. A 12-column grid from `lg`, and a single column below it.
 
 ## Radius
