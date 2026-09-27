@@ -34,6 +34,32 @@
   line-gap-override: 0%;
 }
 
+/* The tagline and the email are set far from Archivo's normal width, where the
+   fallback above would draw them much too wide (or narrow) until the webfont
+   lands — "music." at width 62 overflowed its column on a slow connection.
+   These faces are Arial Bold resized so each line keeps its Archivo width
+   (Archivo advance ÷ Arial Bold advance, measured per word). Line boxes come
+   from font-size × line-height, which size-adjust doesn't touch, so the swap
+   shifts nothing. */
+@font-face {
+  font-family: "Archivo Fallback Wide"; /* müzik, at width 125 */
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arial");
+  font-weight: 700 900;
+  size-adjust: 131%;
+}
+@font-face {
+  font-family: "Archivo Fallback Mid"; /* música, at width 100 */
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arial");
+  font-weight: 700 900;
+  size-adjust: 110.7%;
+}
+@font-face {
+  font-family: "Archivo Fallback Narrow"; /* music. and the email, at width 62 */
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Arial");
+  font-weight: 700 900;
+  size-adjust: 72.5%;
+}
+
 /* ─────────────────────────────────────────────────────────────── tokens ──
    Mirrors tailwind.config.ts; documented in DESIGN.md. */
 :root {
@@ -159,14 +185,17 @@
   letter-spacing: 0;
 }
 .tongue[data-voice="tr"] {
+  font-family: "Archivo", "Archivo Fallback Wide", sans-serif;
   font-stretch: 125%;
   font-size: calc(99cqi / 4.0758);
 }
 .tongue[data-voice="es"] {
+  font-family: "Archivo", "Archivo Fallback Mid", sans-serif;
   font-stretch: 100%;
   font-size: calc(99cqi / 4.1216);
 }
 .tongue[data-voice="en"] {
+  font-family: "Archivo", "Archivo Fallback Narrow", sans-serif;
   font-stretch: 62%;
   font-size: calc(99cqi / 2.3034);
 }
@@ -175,8 +204,8 @@
    A photograph printed in two inks from one file:
    - the ink plate is the photo in greyscale, screened onto stock, so black
      becomes the page and white stays paper-white;
-   - the violet plate is the same image multiplied into violet and screened on
-     top, a few pixels out of register.
+   - the violet plate is the same image tinted violet and screened on top, a
+     few pixels out of register.
    Both <img>s share one URL, so it downloads once.
    The frame deliberately does NOT isolate: where the violet plate hangs past
    the frame's edge it must screen against the page itself, so the
@@ -197,20 +226,21 @@
   position: absolute;
   inset: 0;
   z-index: 10;
-  background: var(--violet);
-  isolation: isolate;
   mix-blend-mode: screen;
   pointer-events: none;
   transform: translate(var(--plate-x), var(--plate-y));
   transition: translate var(--dur-settle) var(--ease-out);
 }
+/* The violet is tinted into the image itself (greyscale → sepia → rotated
+   into violet), not multiplied into a violet background: black stays black,
+   so a plate whose image hasn't arrived yet is simply transparent instead of
+   a solid violet block. */
 .print-plate > img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: var(--ink-pre,) grayscale(1) contrast(1.35) brightness(0.8);
-  mix-blend-mode: multiply;
+  filter: var(--ink-pre,) grayscale(1) contrast(1.35) brightness(0.6) sepia(1) hue-rotate(212deg) saturate(4.5);
 }
 /* Hovering or focusing a printed tile knocks the plate further out of
    register. `translate` is separate from `transform`, so this never fights
@@ -245,6 +275,7 @@
   container-type: inline-size;
 }
 .email {
+  font-family: "Archivo", "Archivo Fallback Narrow", sans-serif;
   display: inline-block;
   white-space: nowrap;
   font-weight: 800;
