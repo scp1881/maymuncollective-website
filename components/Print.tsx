@@ -13,6 +13,11 @@ type Props = {
   className?: string;
 };
 
+// Prints are greyscale behind a screen blend, where compression artefacts
+// disappear into the ink; 65 is visually identical to the default 75 here
+// and roughly a fifth lighter. The lightbox shows originals at the default.
+const PRINT_QUALITY = 65;
+
 /**
  * A photograph printed in two inks (see DESIGN.md → Photographs, and the
  * `.print` rules in globals.css): a greyscale ink plate on the page's stock,
@@ -42,6 +47,7 @@ export default function Print({ photo, sizes, ratio, priority = false, className
         width={photo.width}
         height={photo.height}
         sizes={sizes}
+        quality={PRINT_QUALITY}
         priority={priority}
         className="print-ink"
       />
@@ -52,7 +58,11 @@ export default function Print({ photo, sizes, ratio, priority = false, className
           width={photo.width}
           height={photo.height}
           sizes={sizes}
-          loading={priority ? "eager" : "lazy"}
+          quality={PRINT_QUALITY}
+          // Same URL as the ink plate, so this never costs a second download
+          // — but it paints on top, so it is what LCP measures: match the
+          // ink plate's priority rather than leave it at the default.
+          priority={priority}
         />
       </div>
     </div>

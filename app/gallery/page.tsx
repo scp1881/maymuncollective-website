@@ -9,10 +9,15 @@ export const metadata: Metadata = {
   title: galleryPage.heading,
   description: galleryPage.description,
   alternates: { canonical: "/gallery" },
+  // Next replaces (not merges) the layout's openGraph object, so the share
+  // image has to be restated here or /gallery links preview without one.
   openGraph: {
+    type: "website",
     url: `${site.url}/gallery`,
     title: `${galleryPage.heading} — ${site.name}`,
     description: galleryPage.description,
+    siteName: site.name,
+    images: [{ url: site.ogImage, width: 1200, height: 630, alt: `${site.name} — ${site.shortDescription}` }],
   },
 };
 

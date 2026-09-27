@@ -107,7 +107,9 @@ export default function GalleryWall({ photos }: { photos: Photo[] }) {
                     className="block h-auto w-full"
                   />
                 ) : (
-                  <Print photo={photo} ratio={layout.ratio} sizes={layout.sizes} />
+                  // The first tile is the page's largest paint: load it now. (Both
+                  // first-row tiles at high priority only fought for bandwidth.)
+                  <Print photo={photo} ratio={layout.ratio} sizes={layout.sizes} priority={i === 0} />
                 )}
               </button>
               {photo.label ? <p className="mt-3 text-small text-ink-soft">{photo.label}</p> : null}
