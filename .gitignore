@@ -41,3 +41,6 @@ next-env.d.ts
 # frontend-design is exempt: it is committed and loads automatically.
 /.claude/skills/*
 !/.claude/skills/frontend-design/
+
+# Redesign working files (video extraction, content audit, screenshots)
+/_redesign/
