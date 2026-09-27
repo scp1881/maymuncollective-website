@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Maymun Collective">
-  <rect width="1200" height="630" fill="#0a0a0a"/>
-  <circle cx="180" cy="470" r="260" fill="#a855f7" opacity="0.12"/>
-  <text x="90" y="300" font-family="'Space Grotesk', system-ui, sans-serif" font-size="120" font-weight="700" letter-spacing="-4" fill="#f5f3ef">Maymun</text>
-  <text x="90" y="420" font-family="'Space Grotesk', system-ui, sans-serif" font-size="120" font-weight="700" letter-spacing="-4" fill="#f5f3ef">Collective</text>
-  <text x="94" y="500" font-family="system-ui, sans-serif" font-size="30" fill="#8f8b83">A creative collective.</text>
-  <rect x="90" y="150" width="60" height="6" fill="#a855f7"/>
-</svg>
