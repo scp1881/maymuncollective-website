@@ -2,6 +2,8 @@
 
 A single-page scrolling site for **Maymun Collective**, a music collective whose tagline, *müzik, música, music.*, speaks Turkish, Spanish and English at once. It's built with **Next.js (App Router)** and **Tailwind CSS**, and deploys to **Vercel**.
 
+> **Alternate design.** This branch (`alternate-design`) keeps the two-ink poster redesign, finished and deployable, in case it's wanted again. The live site on `main` uses the Kurate-inspired design.
+
 The design is a gig poster printed in two inks on dark stock: one typeface at three widths, and every photograph printed rather than placed. See **[DESIGN.md](./DESIGN.md)** for the tokens, type, motion and rules.
 
 ## Sections (in order)
