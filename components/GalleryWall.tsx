@@ -23,10 +23,10 @@ const LAYOUT: Record<string, { span: string; ratio?: { sm: string; lg?: string }
   live: { span: "lg:col-span-5", ratio: { sm: "4 / 5", lg: "2 / 3" }, sizes: "(min-width: 1024px) 40vw, 100vw" },
   backstage: { span: "lg:col-span-4 lg:col-start-7 lg:mt-40", ratio: { sm: "4 / 5", lg: "2 / 3" }, sizes: "(min-width: 1024px) 32vw, 100vw" },
   crew: { span: "lg:col-span-12", sizes: "(min-width: 1536px) 1424px, 100vw" },
-  room: { span: "lg:col-span-5", sizes: "(min-width: 1024px) 40vw, 100vw" },
+  room: { span: "lg:col-span-4", sizes: "(min-width: 1024px) 32vw, 100vw" },
   // 851px wide at source: never shown wider than it can stay sharp.
-  studio: { span: "lg:col-span-4 lg:col-start-7 lg:mt-24 max-w-[425px]", sizes: "425px" },
-  painting: { span: "lg:col-span-4 lg:col-start-2", sizes: "(min-width: 1024px) 32vw, 100vw" },
+  studio: { span: "lg:col-span-4 lg:mt-24 max-w-[425px]", sizes: "(min-width: 1024px) 425px, 100vw" },
+  painting: { span: "lg:col-span-4", sizes: "(min-width: 1024px) 32vw, 100vw" },
 };
 
 /**

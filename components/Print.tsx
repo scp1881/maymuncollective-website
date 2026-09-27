@@ -29,6 +29,9 @@ export default function Print({ photo, sizes, ratio, priority = false, className
     "--ratio-lg": ratio?.lg ?? ratio?.sm ?? natural,
     "--pos-sm": photo.position?.sm ?? "50% 50%",
     "--pos-lg": photo.position?.lg ?? photo.position?.sm ?? "50% 50%",
+    ...(photo.tone?.channel === "red" ? { "--ink-pre": "url(#print-red)" } : {}),
+    ...(photo.tone?.brightness ? { "--ink-brightness": photo.tone.brightness } : {}),
+    ...(photo.tone?.contrast ? { "--ink-contrast": photo.tone.contrast } : {}),
   } as CSSProperties;
 
   return (

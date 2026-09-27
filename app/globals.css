@@ -117,6 +117,11 @@
     @apply text-title font-[800];
     font-stretch: 75%;
   }
+  /* One step up for what leads a list (the players on the bill). */
+  .title-lead {
+    font-size: clamp(34px, 4.2vw, 60px);
+    line-height: 0.98;
+  }
 
   /* A label printed on a violet plate: stock text on violet (4.9:1). */
   .label-plate {
@@ -183,7 +188,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.12) brightness(0.92);
+  filter: var(--ink-pre,) grayscale(1) contrast(var(--ink-contrast, 1.12)) brightness(var(--ink-brightness, 0.92));
   mix-blend-mode: screen;
 }
 .print-plate {
@@ -202,7 +207,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.35) brightness(0.8);
+  filter: var(--ink-pre,) grayscale(1) contrast(1.35) brightness(0.8);
   mix-blend-mode: multiply;
 }
 /* Hovering or focusing a printed tile knocks the plate further out of
@@ -285,7 +290,27 @@
 /* The fold between sections: a heavy ink rule, the way a folded poster
    breaks. */
 .fold {
+  position: relative;
   border-top: 3px solid var(--ink);
+}
+/* Registration marks at both ends of the fold: the printer's crosshair that
+   says a sheet starts here. Decorative; pseudo-elements, so never read out. */
+.fold::before,
+.fold::after {
+  content: "";
+  position: absolute;
+  top: -11px;
+  width: 17px;
+  height: 17px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17' fill='none' stroke='%23a9b0cd' stroke-width='1'%3E%3Ccircle cx='8.5' cy='8.5' r='4.5'/%3E%3Cpath d='M8.5 0v17M0 8.5h17'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  pointer-events: none;
+}
+.fold::before {
+  left: 6px;
+}
+.fold::after {
+  right: 6px;
 }
 
 /* Member names widen into their natural width under a pointer. Hover-only
@@ -372,14 +397,14 @@
     }
     @keyframes plate-register {
       0% {
-        transform: translate(34px, -26px);
+        transform: translate(16px, -12px);
       }
       35%,
       65% {
         transform: translate(var(--plate-x), var(--plate-y));
       }
       100% {
-        transform: translate(-22px, 18px);
+        transform: translate(-12px, 10px);
       }
     }
 

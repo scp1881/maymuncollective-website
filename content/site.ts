@@ -54,6 +54,11 @@ export type Photo = {
   position?: { sm: string; lg: string };
   // Artwork is shown as made: never printed in two inks, never cropped.
   artwork?: boolean;
+  // Printing adjustments, only for photos whose light doesn't survive a plain
+  // greyscale. `channel: "red"` is a darkroom red filter: greyscale weights
+  // red at 21%, so a room lit red prints as black unless the red channel
+  // itself becomes the grey (the #print-red SVG filter in app/layout.tsx).
+  tone?: { channel?: "red"; brightness?: number; contrast?: number };
 };
 
 export const photos: Record<string, Photo> = {
@@ -89,6 +94,8 @@ export const photos: Record<string, Photo> = {
     width: 1600,
     height: 1600,
     position: { sm: "50% 50%", lg: "45% 50%" },
+    // Lit almost entirely red, which greyscale reads as near-black.
+    tone: { channel: "red", brightness: 1.1, contrast: 1.15 },
   },
   backstage: {
     id: "backstage",

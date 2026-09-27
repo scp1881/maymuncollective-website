@@ -5,22 +5,31 @@ import { gallery } from "@/content/site";
 
 /**
  * The homepage selection: the after-show panorama across the full measure,
- * then the backstage portrait set off to the right, with the way into the full
- * gallery in the space it leaves.
+ * then the backstage portrait set off to the right. The column it leaves
+ * carries the lede as a statement and the way into the full gallery, rather
+ * than the lede floating beside the heading.
  *
- * Phones get their own crop of the portrait (4:5 rather than 2:3, so it doesn't
- * cost two screens of scrolling), and the panorama is never cropped at all —
- * it has people at both edges.
+ * Phones get their own crop of the portrait (4:5 rather than 2:3, so it
+ * doesn't cost two screens of scrolling), and the panorama is never cropped
+ * at all — it has people at both edges.
  */
 export default function Gallery() {
   const [wide, portrait] = gallery.images;
   return (
-    <Section id="gallery" heading={gallery.heading} lede={gallery.subheading}>
+    <Section id="gallery" heading={gallery.heading}>
       <div className="grid gap-y-12 lg:grid-cols-12 lg:gap-x-12">
         <figure className="lg:col-span-12">
           <Print photo={wide} sizes="(min-width: 1536px) 1424px, 100vw" />
           <figcaption className="mt-3 text-small text-ink-soft">{wide.label}</figcaption>
         </figure>
+        <div className="lg:col-span-5 lg:row-start-2 lg:mt-8">
+          <p className="title max-w-[12ch]">{gallery.subheading}</p>
+          <p className="mt-8 lg:mt-12">
+            <Link href="/gallery" className="plate-link text-lede font-semibold">
+              {gallery.moreLabel}
+            </Link>
+          </p>
+        </div>
         <figure className="lg:col-span-5 lg:col-start-7 lg:row-start-2 lg:mt-8">
           <Print
             photo={portrait}
@@ -29,11 +38,6 @@ export default function Gallery() {
           />
           <figcaption className="mt-3 text-small text-ink-soft">{portrait.label}</figcaption>
         </figure>
-        <p className="lg:col-span-5 lg:col-start-1 lg:row-start-2 lg:self-end">
-          <Link href="/gallery" className="title plate-link">
-            {gallery.moreLabel}
-          </Link>
-        </p>
       </div>
     </Section>
   );

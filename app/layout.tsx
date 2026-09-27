@@ -57,6 +57,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://open.spotify.com" />
       </head>
       <body>
+        {/* Darkroom red filter for printing red-lit photographs: the red
+            channel becomes the grey (see Photo.tone in content/site.ts). */}
+        <svg width="0" height="0" aria-hidden="true" focusable="false" className="absolute">
+          <filter id="print-red" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 1 0" />
+          </filter>
+        </svg>
         <SkipLink />
         {children}
       </body>
