@@ -95,10 +95,9 @@ export default function Nav() {
             <li key={item.href}>
               <a
                 href={onHome ? item.href : `/${item.href}`}
-                // The padding is the click target. These were 17px tall — the
-                // height of the text and nothing else — which is a small thing
-                // to hit with a mouse and an unreasonable one on a trackpad.
-                // The negative margin on the list keeps the bar its own height.
+                // The padding is the click target: 20px of line-height plus
+                // 24px of padding puts these at exactly 44px, the HIG minimum.
+                // The negative margin keeps the bar its own height.
                 className="-my-3 block py-3 text-sm text-muted transition-colors hover:text-bone"
               >
                 {item.label}
@@ -111,7 +110,7 @@ export default function Nav() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-bone md:hidden"
+          className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-md text-bone md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -144,7 +143,7 @@ export default function Nav() {
               <a
                 href={onHome ? item.href : `/${item.href}`}
                 onClick={() => setOpen(false)}
-                className="block py-2 text-base text-muted transition-colors hover:text-bone"
+                className="flex min-h-11 items-center text-base text-muted transition-colors hover:text-bone"
               >
                 {item.label}
               </a>

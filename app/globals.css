@@ -171,9 +171,20 @@
      identically and none of them ranked against the others. */
 
   /* Standfirst under a section heading. Bone at 70%, not `muted`: muted is a
-     warm grey-brown that reads as disabled at paragraph length. */
+     warm grey-brown that reads as disabled at paragraph length.
+
+     One size rather than 16px stepping up to 18px. Small screens are held
+     further from the eye and read in worse light than a laptop, so the
+     breakpoint was scaling body copy the wrong way; it also meant the phone
+     page carried 16px and 18px doing the same job, which is a type scale with
+     a rung that earns nothing.
+
+     No `leading-relaxed`: it overrode the line-height `text-lg` already sets,
+     taking ledes from 28px to 29.25px. That is invisible at `lg`, where the
+     lede sits in its own grid column, but at 768 and 640 the columns stack and
+     the extra 1.25px per lede pushed every section below it down the page. */
   .lede {
-    @apply max-w-prose text-base leading-relaxed text-bone/70 sm:text-lg;
+    @apply max-w-prose text-lg text-bone/70;
   }
 
   /* The quiet tier — captions, instrument credits, link labels.

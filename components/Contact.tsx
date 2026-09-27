@@ -46,7 +46,7 @@ export default function Contact() {
             // `anywhere` also shrinks the element's min-content width, and it
             // is that width — the unbreakable address — that was propping the
             // grid open and giving the page a horizontal scrollbar at 320px.
-            className="inline-block font-display text-[clamp(1.5rem,5vw,2.5rem)] font-semibold leading-tight tracking-tight text-bone underline decoration-stage decoration-2 underline-offset-[10px] transition-colors [overflow-wrap:anywhere] hover:text-stage"
+            className="-my-2 inline-block py-2 sm:my-0 sm:py-0 font-display text-[clamp(1.5rem,5vw,2.5rem)] font-semibold leading-tight tracking-tight text-bone underline decoration-stage decoration-2 underline-offset-[10px] transition-colors [overflow-wrap:anywhere] hover:text-stage"
           >
             {contact.email}
           </a>
@@ -57,7 +57,7 @@ export default function Contact() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Message us on WhatsApp at ${contact.whatsapp}`}
-              className="mt-7 flex w-fit items-center gap-2 py-1 text-base text-muted transition-colors hover:text-bone sm:text-lg"
+              className="mt-7 flex min-h-11 w-fit items-center gap-2 py-2 text-lg text-muted transition-colors hover:text-bone sm:min-h-0 sm:py-1"
             >
               <WhatsAppIcon />
               <span>{contact.whatsapp}</span>

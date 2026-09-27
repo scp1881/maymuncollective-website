@@ -94,7 +94,7 @@ export default function Gallery() {
             // The padding is the tap target — 44px of height on a link whose
             // text is 16px tall — and the negative margin keeps it from moving
             // anything around it.
-            className="-my-3 inline-block py-3 text-bone underline decoration-line decoration-1 underline-offset-[6px] transition-colors hover:decoration-stage focus-visible:decoration-stage"
+            className="-my-3 inline-block py-3 text-lg sm:text-base text-bone underline decoration-line decoration-1 underline-offset-[6px] transition-colors hover:decoration-stage focus-visible:decoration-stage"
           >
             See the rest of the gallery
           </Link>
