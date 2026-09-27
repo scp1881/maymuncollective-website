@@ -22,11 +22,12 @@ export const site = {
 };
 
 /* ------------------------------------------------------------------- NAV */
-// Anchor links in the header; `href` values match the section ids.
+// Anchor links in the bottom menu; `href` values match the section ids, and
+// the order is the order of the sections on the page.
 export const nav = [
   { label: "Gallery", href: "#gallery" },
-  { label: "Music", href: "#music" },
   { label: "Members", href: "#members" },
+  { label: "Music", href: "#music" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -207,6 +208,13 @@ export const footer = {
 /* ------------------------------------------------------------ INTERFACE */
 // Words the interface itself needs (controls, not content).
 export const ui = {
+  loading: "Loading",
+  nextStep: "Next step",
+  explore: "Explore",
+  follow: "Follow",
+  closePlayer: "Close player",
+  openPlayer: "Listen on Spotify",
+  membersRegion: "Members, scroll sideways",
   skipLink: "Skip to content",
   openMenu: "Open menu",
   closeMenu: "Close menu",

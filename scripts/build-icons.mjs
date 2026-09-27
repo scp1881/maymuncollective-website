@@ -245,7 +245,7 @@ const wmPath = await new Promise((res, rej) => {
 // every page — not worth it for a mark that is always this one colour. The
 // value is the palette's `bone` token; keep the two in step.
 // The palette's `ink` (tailwind.config.ts) — the wordmark prints in the pale ink.
-const INK = "#e6e9f5";
+const INK = "#fafafa";
 fs.writeFileSync(
   `${PUB}/logo-wordmark.svg`,
   // width/height on the root as well as the viewBox, so the file has a real
