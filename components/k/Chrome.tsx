@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-const fine = () =>
-  window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
-  !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+import { finePointer as fine } from "./motion";
 
 /**
  * Fixed background grid. A dark field with a clear centre follows the
@@ -25,7 +22,7 @@ export function BackgroundGrid() {
     const tick = () => {
       x += (tx - x) * 0.1;
       y += (ty - y) * 0.1;
-      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
       raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
     };
     const onMove = (e: PointerEvent) => {
@@ -55,7 +52,8 @@ export function BackgroundGrid() {
  * (lerp 0.3). `data-cursor="hide"` on an element hides it there (member
  * cards, the player iframe); `data-cursor="play"` grows it into a play
  * button. It also hides when the pointer leaves the page or enters an
- * iframe, where it would otherwise freeze at the edge.
+ * iframe, where it would otherwise freeze at the edge. The follow loop runs
+ * only while the ring is catching up, not on every idle frame.
  */
 export function Cursor() {
   const el = useRef<HTMLDivElement | null>(null);
@@ -73,10 +71,9 @@ export function Cursor() {
     const tick = () => {
       x += (tx - x) * 0.3;
       y += (ty - y) * 0.3;
-      node.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
-      raf = requestAnimationFrame(tick);
+      node.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.2 ? requestAnimationFrame(tick) : 0;
     };
-    raf = requestAnimationFrame(tick);
 
     const setState = (target: EventTarget | null) => {
       const hit = (target as Element | null)?.closest?.("[data-cursor], iframe");
@@ -88,6 +85,7 @@ export function Cursor() {
       if (e.pointerType !== "mouse") return;
       tx = e.clientX;
       ty = e.clientY;
+      if (!raf) raf = requestAnimationFrame(tick);
       setState(e.target);
     };
     const onLeave = () => node.classList.add("-hidden");

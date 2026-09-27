@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { finePointer } from "./motion";
 
 /**
  * The reference's water ripple on the hero logo, rebuilt in plain WebGL (no
@@ -13,7 +14,9 @@ import { useEffect, useRef } from "react";
  * and only after the logo's own entrance has played. Until then — and
  * whenever WebGL is unavailable — the plain SVG wordmark is what shows; when
  * the canvas is ready the two cross-fade (same image, same place).
- * The loop runs only while the hero is on screen.
+ * Frames are drawn only while there is something to draw — a live trail, or
+ * the logo moving as the page scrolls — and only while the hero is on
+ * screen; a still pointer costs nothing.
  */
 
 const VERT = `
@@ -49,8 +52,7 @@ export default function WaterLogo({ src }: { src: string }) {
     const canvas = ref.current;
     if (!canvas) return;
     if (window.innerWidth <= 768) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (!finePointer()) return;
     const hero = canvas.closest("section") as HTMLElement | null;
     const logo = hero?.querySelector<HTMLElement>(".hero-logo");
     if (!hero || !logo) return;
@@ -185,27 +187,47 @@ export default function WaterLogo({ src }: { src: string }) {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, lc);
       };
 
+      let ready = false;
+      let trailDirty = true;
+      let lastRect = "";
+      let still = 0;
       const frame = () => {
         raf = 0;
         if (disposed || !visible) return;
-        drawTrail();
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, trailTex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tc);
+        if (trail.length || trailDirty) {
+          drawTrail();
+          gl.activeTexture(gl.TEXTURE1);
+          gl.bindTexture(gl.TEXTURE_2D, trailTex);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tc);
+          // Once the last point has aged out, the (now empty) trail has been
+          // uploaded one final time and needs no more.
+          trailDirty = trail.length > 0;
+        }
         // The logo moves with scroll (Experience scrubs it), so its rect is
-        // read every frame, relative to the canvas.
+        // read each frame, relative to the canvas.
         const cr = canvas.getBoundingClientRect();
         const lr = logo.getBoundingClientRect();
+        const rect = `${cr.left} ${cr.top} ${cr.width} ${cr.height} ${lr.left} ${lr.top} ${lr.width} ${lr.height}`;
         gl.uniform4f(uRect, (lr.left - cr.left) / cr.width, 1 - (lr.bottom - cr.top) / cr.height, lr.width / cr.width, lr.height / cr.height);
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        raf = requestAnimationFrame(frame);
+        // Keep going while the trail lives or the logo is still moving (the
+        // smoothed scroll carries on for a moment after the wheel stops).
+        still = trailDirty || rect !== lastRect ? 0 : still + 1;
+        lastRect = rect;
+        if (still < 20) raf = requestAnimationFrame(frame);
+      };
+      const wake = () => {
+        still = 0;
+        if (ready && visible && !raf && !disposed) raf = requestAnimationFrame(frame);
       };
 
       const onMove = (e: PointerEvent) => {
         const r = canvas.getBoundingClientRect();
         addTouch((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height);
+        trailDirty = true;
+        wake();
       };
 
       img.onload = () => {
@@ -213,25 +235,31 @@ export default function WaterLogo({ src }: { src: string }) {
         size();
         canvas.classList.add("is-ready");
         logo.classList.add("webgl-on");
-        raf = requestAnimationFrame(frame);
+        ready = true;
+        wake();
       };
 
       const io = new IntersectionObserver(([e]) => {
         visible = e.isIntersecting;
-        if (visible && !raf && canvas.classList.contains("is-ready")) raf = requestAnimationFrame(frame);
+        if (visible) wake();
       });
       io.observe(hero);
       hero.addEventListener("pointermove", onMove, { passive: true });
+      window.addEventListener("scroll", wake, { passive: true });
       let rt = 0;
       const onResize = () => {
         window.clearTimeout(rt);
-        rt = window.setTimeout(() => img.complete && size(), 150);
+        rt = window.setTimeout(() => {
+          if (img.complete) size();
+          wake();
+        }, 150);
       };
       window.addEventListener("resize", onResize);
 
       cleanups.push(() => {
         io.disconnect();
         hero.removeEventListener("pointermove", onMove);
+        window.removeEventListener("scroll", wake);
         window.removeEventListener("resize", onResize);
         logo.classList.remove("webgl-on");
         gl.getExtension("WEBGL_lose_context")?.loseContext();

@@ -15,8 +15,10 @@ export default function Contact() {
   return (
     <section id="contact" className="section k-contact" data-grid="false" aria-labelledby="contact-heading">
       <div className="ticker" aria-hidden="true">
-        <span>{tick}</span>
-        <span>{tick}</span>
+        <div className="strip">
+          <span>{tick}</span>
+          <span>{tick}</span>
+        </div>
       </div>
       <div className="k-container">
         <div className="k-form">

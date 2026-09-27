@@ -108,18 +108,20 @@ function CircleLabel() {
   const text = `${site.shortDescription} — ${site.shortDescription} — `;
   return (
     <div className="k-circle" aria-hidden="true">
-      <svg className="k-ring" viewBox="0 0 192 192">
-        <defs>
-          <path id="k-circle-path" d="M96 96m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" />
-        </defs>
-        <circle cx="96" cy="96" r="95" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth=".8" />
-        <circle cx="96" cy="96" r="62" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth=".8" />
-        <text>
-          <textPath href="#k-circle-path" textLength="486" lengthAdjust="spacing">
-            {text}
-          </textPath>
-        </text>
-      </svg>
+      <div className="spin">
+        <svg className="k-ring" viewBox="0 0 192 192">
+          <defs>
+            <path id="k-circle-path" d="M96 96m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" />
+          </defs>
+          <circle cx="96" cy="96" r="95" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth=".8" />
+          <circle cx="96" cy="96" r="62" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth=".8" />
+          <text>
+            <textPath href="#k-circle-path" textLength="486" lengthAdjust="spacing">
+              {text}
+            </textPath>
+          </text>
+        </svg>
+      </div>
       <ArrowDown className="arrow" />
     </div>
   );

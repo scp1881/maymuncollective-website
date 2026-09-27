@@ -59,15 +59,17 @@ function Disc() {
         <Half />
       </div>
       <div className="piece middle">
-        <svg viewBox="0 0 200 200">
-          <defs>
-            <radialGradient id="k-vinyl" cx="42%" cy="38%" r="75%">
-              <stop offset="0" stopColor="#1f7a93" />
-              <stop offset="0.55" stopColor="#0f4b5d" />
-              <stop offset="1" stopColor="#082a34" />
-            </radialGradient>
-          </defs>
-          <g className="vinyl">
+        {/* The record spins on its own HTML layer (composited); the drawn
+            outline sits over it in a second, still SVG. */}
+        <div className="vinyl">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <radialGradient id="k-vinyl" cx="42%" cy="38%" r="75%">
+                <stop offset="0" stopColor="#1f7a93" />
+                <stop offset="0.55" stopColor="#0f4b5d" />
+                <stop offset="1" stopColor="#082a34" />
+              </radialGradient>
+            </defs>
             <circle cx="100" cy="100" r="97" fill="url(#k-vinyl)" />
             {[88, 80, 72, 64, 56, 48].map((r) => (
               <circle key={r} cx="100" cy="100" r={r} fill="none" stroke="rgba(255,255,255,.06)" strokeWidth=".6" />
@@ -77,7 +79,9 @@ function Disc() {
               <path d={SPIRAL_PATH} />
             </g>
             <circle cx="100" cy="100" r="3.2" fill="#0e0f0f" />
-          </g>
+          </svg>
+        </div>
+        <svg className="rim" viewBox="0 0 200 200">
           <g className="draw" style={{ ["--draw-d" as string]: "2s" }}>
             <path pathLength={1000} d="M100 1.5a98.5 98.5 0 1 1-.1 0" fill="none" stroke="#fafafa" strokeWidth="1.2" transform="translate(12 0)" />
           </g>

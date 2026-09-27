@@ -216,8 +216,10 @@ function PlayerCubes() {
           // The ticker text is drawn by CSS from data-t, so the button's only
           // text content is its screen-reader label.
           <span key={f} className={`face ${f}`}>
-            <span data-t={label} />
-            <span data-t={label} />
+            <span className="strip">
+              <span data-t={label} />
+              <span data-t={label} />
+            </span>
           </span>
         ))}
       </span>
@@ -228,10 +230,14 @@ function PlayerCubes() {
           </span>
         ))}
       </span>
-      <svg className="k-play-dot" viewBox="0 0 24 24">
-        <circle className="pulse" cx="12" cy="12" r="11" fill="#fafafa" />
-        <path d="M10 8.3v7.4l6-3.7z" fill="#0e0f0f" />
-      </svg>
+      {/* The pulsing disc is a plain HTML circle so its animation stays on
+          the compositor (an animated SVG child repaints every frame). */}
+      <span className="k-play-dot">
+        <span className="pulse" />
+        <svg viewBox="0 0 24 24">
+          <path d="M10 8.3v7.4l6-3.7z" fill="#0e0f0f" />
+        </svg>
+      </span>
     </span>
   );
 }

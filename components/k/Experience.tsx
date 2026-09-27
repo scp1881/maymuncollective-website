@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { motionOn } from "./motion";
 
 /**
  * The page's scroll choreography, after the reference:
@@ -21,17 +22,22 @@ import { ScrollSmoother } from "gsap/ScrollSmoother";
  *   announced to the bottom menu as a `k:section` event.
  * - As the hero scrolls out, its logo lifts and fades (scrubbed).
  * - In-page links scroll through the smoother and move focus to the target.
+ * - Sections off screen get `.is-off`, which pauses their looping CSS
+ *   animations (ring, equaliser, vinyl, ticker) until they come back.
  *
- * With prefers-reduced-motion there is no smoother and no scrub; the classes
- * are still set, but the CSS gives them nothing to animate.
+ * Without html.motion (reduced motion) there is no smoother and no scrub; the
+ * classes are still set, but the CSS gives them nothing to animate.
  */
 export default function Experience() {
   const pathname = usePathname();
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+    // Phones show and hide their address bar while scrolling; that resize
+    // must not re-measure every trigger mid-scroll.
+    ScrollTrigger.config({ ignoreMobileResize: true });
     const root = document.documentElement;
-    const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motion = motionOn();
     const home = pathname === "/";
 
     root.dataset.header = "shown";
@@ -90,6 +96,13 @@ export default function Experience() {
       }
     });
 
+    // Pause looping animations in sections that are off screen.
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.target.classList.toggle("is-off", !e.isIntersecting)),
+      { rootMargin: "10% 0px" },
+    );
+    document.querySelectorAll("#smooth-content section, #smooth-content footer").forEach((el) => io.observe(el));
+
     // Release the hero once the preloader has gone (or at once if skipped).
     const releaseHero = () => document.getElementById("top")?.classList.add("animated");
     if (root.classList.contains("page-loaded")) releaseHero();
@@ -133,6 +146,7 @@ export default function Experience() {
     window.addEventListener("load", refresh);
 
     return () => {
+      io.disconnect();
       document.removeEventListener("click", onClick);
       window.removeEventListener("k:loaded", releaseHero);
       window.removeEventListener("k:loaded", initialHash);

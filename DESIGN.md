@@ -32,6 +32,8 @@ Tokens live as CSS custom properties at the top of `app/globals.css`. Sizes are 
 
 ## Motion (all off under `prefers-reduced-motion`, and nothing hidden without JS)
 
+Everything animated is keyed to `html.motion`, which the boot script in `app/layout.tsx` sets before first paint (`?motion=on|off` overrides it for the browser session; see `components/k/motion.ts`).
+
 | Piece | Timing (from the reference's own CSS/JS) |
 |---|---|
 | Smooth scroll | GSAP ScrollSmoother, smooth 1.5 |
@@ -45,6 +47,16 @@ Tokens live as CSS custom properties at the top of `app/globals.css`. Sizes are 
 | Menu | rises 1 s expo-out after load; dropdown 0.4 s; player flip 1 s rotateX |
 | Cursor / grid | lerp 0.3 / 0.1 toward the pointer |
 | Marquee | 30 s linear loop |
+
+### Keeping it smooth
+
+ScrollTrigger keeps a requestAnimationFrame loop alive, so the page renders every frame and each running CSS animation costs a style pass per frame even when the compositor draws it. The rules that follow from that, measured with `_redesign/tools/perf.mjs` and `idle-diag.mjs`:
+
+- **Animate HTML boxes, not SVG internals or `<svg>` elements.** Chrome can't composite those, and the circle's spin was re-laying out the page every frame. The ring, vinyl and play-mark pulse spin/scale on HTML wrappers.
+- **Few animated elements.** Tickers slide one strip holding two copies of the text (by −50%), not each copy.
+- **Loops pause off screen.** Sections outside the viewport get `.is-off`, which pauses their ring, equaliser, vinyl and ticker.
+- **JS loops sleep when settled.** The cursor, grid spot and card tilt ease in requestAnimationFrame loops that stop once they arrive; the water ripple draws only while its trail is alive or the logo is moving.
+- **Watch class names against Tailwind.** `ring`, `underline` and `outline` are utilities; a component class with one of those names picks up its styles.
 
 ## Rules kept from the approved brief
 

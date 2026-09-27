@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motionOn } from "./motion";
 
 /**
  * Thin interlacing wave lines drifting across the contact panel, as in the
@@ -14,7 +15,7 @@ export default function Waves() {
     const canvas = ref.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const still = !motionOn();
     const lines = [
       { amp: 0.09, len: 1.1, speed: 0.22, phase: 0, alpha: 0.55 },
       { amp: 0.06, len: 0.8, speed: -0.18, phase: 1.3, alpha: 0.4 },
