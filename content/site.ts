@@ -79,6 +79,7 @@ export const photos: Record<string, Photo> = {
     alt: "Saxophone, drums and guitar playing together in a studio.",
     width: 851,
     height: 658,
+    label: "Studio",
   },
   painting: {
     id: "painting",

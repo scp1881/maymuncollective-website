@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import GalleryWall from "@/components/GalleryWall";
+import Footer from "@/components/k/Footer";
+import GalleryWall from "@/components/k/GalleryWall";
+import { ArrowRight, Paren } from "@/components/k/bits";
 import { galleryPage, site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: galleryPage.description,
   alternates: { canonical: "/gallery" },
   // Next replaces (not merges) the layout's openGraph object, so the share
-  // image has to be restated here or /gallery links preview without one.
+  // image has to be restated here.
   openGraph: {
     type: "website",
     url: `${site.url}/gallery`,
@@ -24,21 +24,30 @@ export const metadata: Metadata = {
 export default function GalleryPage() {
   return (
     <>
-      <Nav />
       <main id="content" tabIndex={-1} className="outline-none">
-        <div className="container-page pb-section pt-[120px] lg:pt-[160px]">
-          <h1 className="display">{galleryPage.heading}</h1>
-          <div className="mt-12 lg:mt-24">
+        <section className="section k-gpage" data-start="top 90%">
+          <div className="k-container">
+            <div className="head">
+              <div>
+                <p className="k-label rv" style={{ ["--rv-y" as string]: "60%" }}>
+                  <Paren>{site.name}</Paren>
+                </p>
+                <h1 className="k-h1">
+                  <span className="clip-line">
+                    <span className="rv">{galleryPage.heading}</span>
+                  </span>
+                </h1>
+              </div>
+              <Link href="/" className="k-link rv">
+                {galleryPage.backLabel}
+                <ArrowRight />
+              </Link>
+            </div>
             <GalleryWall photos={galleryPage.images} />
           </div>
-          <p className="mt-24 lg:mt-32">
-            <Link href="/" className="title plate-link">
-              {galleryPage.backLabel}
-            </Link>
-          </p>
-        </div>
+        </section>
       </main>
-      <Footer />
+      <Footer home={false} />
     </>
   );
 }

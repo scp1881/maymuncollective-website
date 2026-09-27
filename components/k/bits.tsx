@@ -120,8 +120,8 @@ export function Eq({ bars = 20, live = true, className = "", style }: { bars?: n
 
 /**
  * Splits text into per-letter spans with staggered delays (the reference's
- * letter-by-letter reveals). Screen readers get the whole string via
- * aria-label on the wrapper; the letters themselves are aria-hidden.
+ * letter-by-letter reveals). Screen readers get the whole string from a
+ * visually hidden copy; the letters themselves are aria-hidden.
  */
 export function Letters({
   text,
@@ -137,7 +137,8 @@ export function Letters({
   as?: "span" | "b" | "p";
 }) {
   return (
-    <Tag className={`rv-letters ${className}`} aria-label={text}>
+    <Tag className={`rv-letters ${className}`}>
+      <span className="sr-only">{text}</span>
       {[...text].map((ch, i) => (
         <span key={i} aria-hidden="true" style={{ transitionDelay: `${start + i * step}s` }}>
           {ch}

@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import SkipLink from "@/components/SkipLink";
-import { site } from "@/content/site";
+import BottomMenu from "@/components/k/BottomMenu";
+import Experience from "@/components/k/Experience";
+import Header from "@/components/k/Header";
+import Preloader from "@/components/k/Preloader";
+import { BackgroundGrid, Cursor } from "@/components/k/Chrome";
+import { site, ui } from "@/content/site";
 import "./globals.css";
 
 const title = `${site.name} — ${site.shortDescription}`;
@@ -27,45 +31,46 @@ export const metadata: Metadata = {
   },
 };
 
-/**
- * Short SHA of the commit this build came from, so "is this the new build or a
- * cached old one?" can be answered from view-source. Vercel sets the variable;
- * local builds say "local".
- */
+/** Short SHA of this build, readable from view-source. */
 const BUILD_COMMIT = (process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7);
 
 export const viewport: Viewport = {
-  themeColor: "#0D0F1C",
+  themeColor: "#0e0f0f",
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",
 };
 
+/**
+ * Runs before first paint: marks that JavaScript is on (so reveal start
+ * states may be hidden) and decides whether the preloader plays — only on a
+ * first visit to the homepage with motion allowed. Everyone else goes
+ * straight to html.page-loaded.
+ */
+const BOOT = `(function(){var d=document.documentElement;d.classList.add('js');var s=location.pathname!=='/';try{if(localStorage.getItem('mc-loaded')==='1')s=true}catch(e){}if(matchMedia('(prefers-reduced-motion: reduce)').matches)s=true;if(s)d.classList.add('no-preloader','page-loaded')})();`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
         <meta name="build-commit" content={BUILD_COMMIT} />
-        {/* The Latin cut draws the whole first screen (the tagline is the
-            largest element), so it is the one font file preloaded. The small
-            Turkish cut is found by unicode-range when the member names need
-            it. */}
         <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        {/* The Spotify player is withheld until the Music section nears the
-            viewport (components/SpotifyEmbed); warming its origin up front
-            means it doesn't pay DNS + TLS on arrival. */}
         <link rel="preconnect" href="https://open.spotify.com" />
       </head>
       <body>
-        {/* Darkroom red filter for printing red-lit photographs: the red
-            channel becomes the grey (see Photo.tone in content/site.ts). */}
-        <svg width="0" height="0" aria-hidden="true" focusable="false" className="absolute">
-          <filter id="print-red" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 1 0" />
-          </filter>
-        </svg>
-        <SkipLink />
-        {children}
+        <a className="k-skip" href="#content">
+          {ui.skipLink}
+        </a>
+        <Preloader />
+        <BackgroundGrid />
+        <Cursor />
+        <Header />
+        <BottomMenu />
+        <div id="smooth-wrapper">
+          <div id="smooth-content">{children}</div>
+        </div>
+        <Experience />
       </body>
     </html>
   );

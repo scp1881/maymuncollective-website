@@ -1003,6 +1003,14 @@ html[data-header="hidden"] .k-header .logo img {
   --rv-y: 25%;
   --rv-delay: 0.25s;
 }
+/* Explicit layers: the front card's perspective makes it its own stacking
+   context, which would otherwise paint beneath the fanned cards' z-index. */
+.k-cards .stack {
+  z-index: 1;
+}
+.k-cards .front {
+  z-index: 2;
+}
 .k-cards .front {
   perspective: 1000px;
 }
@@ -1119,7 +1127,7 @@ html[data-header="hidden"] .k-header .logo img {
   min-width: 120px;
   min-height: 120px;
 }
-.k-circle svg.ring {
+.k-circle svg.k-ring {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1139,7 +1147,7 @@ html[data-header="hidden"] .k-header .logo img {
   translate: -50% -50%;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .k-circle svg.ring {
+  .k-circle svg.k-ring {
     animation: spin 30s linear infinite;
   }
 }
@@ -1234,19 +1242,19 @@ html[data-header="hidden"] .k-header .logo img {
   flex-direction: column;
   align-items: center;
 }
-.k-about .about-text h3 {
+.k-about .about-text .ln {
   position: relative;
   width: fit-content;
   text-align: center;
   --rv-y: 25%;
 }
-.k-about .about-text h3:nth-of-type(1) {
+.k-about .about-text .ln:nth-of-type(1) {
   --rv-delay: 0.1s;
 }
-.k-about .about-text h3:nth-of-type(2) {
+.k-about .about-text .ln:nth-of-type(2) {
   --rv-delay: 0.2s;
 }
-.k-about .about-text h3:nth-of-type(3) {
+.k-about .about-text .ln:nth-of-type(3) {
   --rv-delay: 0.3s;
 }
 .k-about .about-text .k-label {
@@ -1274,6 +1282,13 @@ html[data-header="hidden"] .k-header .logo img {
   height: 100%;
   object-fit: cover;
 }
+.k-about .rect .k-eq {
+  gap: 3px;
+}
+.k-about .rect .k-eq > i {
+  --bar: 5px;
+  opacity: 0.9;
+}
 .k-about .shine {
   display: inline-block;
 }
@@ -1287,11 +1302,11 @@ html[data-header="hidden"] .k-header .logo img {
     opacity: 0;
   }
 }
-.k-about .underline {
+.k-about .uline {
   position: relative;
   display: inline-block;
 }
-.k-about .underline::after {
+.k-about .uline::after {
   content: "";
   position: absolute;
   left: 0;
@@ -1302,7 +1317,7 @@ html[data-header="hidden"] .k-header .logo img {
   transform-origin: left;
 }
 @media (prefers-reduced-motion: no-preference) {
-  html.js .k-about .underline::after {
+  html.js .k-about .uline::after {
     scale: 0 1;
     transition: scale 1.5s var(--ease) 0.9s;
   }
@@ -1323,7 +1338,7 @@ html[data-header="hidden"] .k-header .logo img {
   position: absolute;
   left: 0;
   top: 0;
-  translate: -80% -40%;
+  translate: -120% -70%;
 }
 @media (max-width: 768px) {
   .k-about .k-container {
@@ -1461,24 +1476,24 @@ html[data-header="hidden"] .k-header .logo img {
 .k-disc .flip svg {
   scale: -1 1;
 }
-.k-disc.is-out .side.l {
+.k-disc.animated .side.l {
   translate: -250% 0;
   opacity: 1;
 }
-.k-disc.is-out .side.r {
+.k-disc.animated .side.r {
   translate: 150% 0;
   opacity: 1;
 }
-.k-disc.is-out .last.l {
+.k-disc.animated .last.l {
   translate: -400% 0;
   opacity: 1;
 }
-.k-disc.is-out .last.r {
+.k-disc.animated .last.r {
   translate: 300% 0;
   opacity: 1;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .k-disc.is-out .middle .vinyl {
+  .k-disc.animated .middle .vinyl {
     animation: spin 2s linear infinite;
     transform-origin: 50% 50%;
     transform-box: fill-box;
@@ -1532,8 +1547,10 @@ html[data-header="hidden"] .k-header .logo img {
   gap: 16vw;
   height: 100%;
 }
-.k-members .title-row .k-h1 {
+.k-members .title-col {
   position: relative;
+}
+.k-members .title-row .k-h1 {
   padding-bottom: 0.1em;
 }
 .k-members .title-row .k-h1 .clip-line > span {
@@ -1549,10 +1566,12 @@ html[data-header="hidden"] .k-header .logo img {
 .k-members .title-row .k-label {
   position: absolute;
   left: 0;
-  bottom: 0.2em;
+  bottom: 1.2vw;
   font-size: clamp(12px, 1.19vw, 20px);
   line-height: 1.3;
   letter-spacing: 0;
+  --rv-y: 100%;
+  --rv-delay: 0.3s;
 }
 .k-members .text-block {
   display: flex;
@@ -1674,6 +1693,20 @@ html[data-header="hidden"] .k-header .logo img {
 .k-mcard:hover .media .k-eq,
 .k-mcard:focus-within .media .k-eq {
   color: var(--teal);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .k-mcard:hover .media .k-eq > i {
+    animation: eq-a 1.7s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * 60ms);
+  }
+  .k-mcard:hover .media .k-eq > i:nth-child(3n + 2) {
+    animation-name: eq-b;
+    animation-duration: 1.6s;
+  }
+  .k-mcard:hover .media .k-eq > i:nth-child(3n) {
+    animation-name: eq-c;
+    animation-duration: 1.8s;
+  }
 }
 .k-mcard:hover .media .num {
   -webkit-text-stroke-color: rgba(250, 250, 250, 0.8);
@@ -1815,7 +1848,7 @@ html[data-header="hidden"] .k-header .logo img {
 .k-music .arrow:hover {
   rotate: 180deg;
 }
-.k-music .arrow .ring {
+.k-music .arrow .k-ring {
   position: absolute;
   inset: 0;
   --draw-d: 3s;
@@ -2048,6 +2081,9 @@ html[data-header="hidden"] .k-header .logo img {
 }
 
 /* ────────────────────────────────────────────────────────── footer ── */
+.k-footer.section {
+  min-height: 0;
+}
 .k-footer .inner {
   display: flex;
   border-top: 1px solid var(--line);
