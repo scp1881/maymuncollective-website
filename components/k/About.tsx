@@ -1,14 +1,13 @@
 import Image from "next/image";
-import { ArcLine, Cross, Eq, Paren } from "@/components/k/bits";
+import { ArcLine, Eq, Paren } from "@/components/k/bits";
 import { SPIRAL_PATH } from "@/components/k/spiral";
-import { contact, photos, site, tagline } from "@/content/site";
+import { photos, site, tagline } from "@/content/site";
 
 /**
  * The reference's big centred statement, set with Maymun's tagline: one
  * language per line, each rising in turn; a pill in the first line holds a
  * stage photo with an equaliser playing over it; the second line blinks
- * ("shine"), the third is underlined; a small paragraph sits bottom-right
- * with the cross mark. Below it, the vinyl splits apart as it arrives and
+ * ("shine"), the third is underlined. Below it, the vinyl splits apart as it arrives and
  * its centre spins — the label is the Maymun spiral.
  */
 export default function About() {
@@ -36,10 +35,6 @@ export default function About() {
           <p className="ln k-h3 rv">
             <span className="uline">{en.text}</span>
           </p>
-        </div>
-        <div className="about-group rv">
-          <Cross />
-          <p className="k-p">{contact.subheading}</p>
         </div>
       </div>
       <Disc />
