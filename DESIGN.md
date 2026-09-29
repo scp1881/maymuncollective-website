@@ -10,6 +10,7 @@ Tokens live as CSS custom properties at the top of `app/globals.css`. Sizes are 
 |---|---|---|
 | `--bg` | `#0e0f0f` | Page |
 | `--panel` / `--panel-2` | `#121313` / `#181a1a` | Player plate, menu glass (at 72–78% opacity plus blur) |
+| Spotify mark | `#1ed760` | The icon beside "Listen Now" in the menu (Spotify's own green) |
 | `--fg` | `#fafafa` | Text, lines, wordmark (≈ 18 : 1 on bg) |
 | `--muted` | 62% white | Paragraphs (the reference used 50%; lifted for AA) |
 | `--faint` | 55% white | Small labels (the reference used 30–40%; lifted for AA) |
@@ -44,7 +45,7 @@ Everything animated is keyed to `html.motion`, which the boot script in `app/lay
 | Hero logo | clip reveal 1.2 s; water ripple (64 px trail texture, age 64 frames); scrubbed lift and fade on exit |
 | 3D cards | tilt = offset ÷ 100 deg; fan out ±6° on hover, 1 s |
 | Vinyl | pieces slide out over 3 s, cubic-bezier(.22,1,.36,1); centre spins every 2 s |
-| Menu | rises 1 s expo-out after load; dropdown 0.4 s; player flip 1 s rotateX |
+| Menu | rises 1 s expo-out after load; dropdown 0.4 s. "Listen Now" links straight to Spotify |
 | Cursor / grid | lerp 0.3 / 0.1 toward the pointer |
 | Marquee | 30 s linear loop |
 
@@ -65,7 +66,7 @@ ScrollTrigger keeps a requestAnimationFrame loop alive, so the page renders ever
 - Accessibility:
   - Visible focus rings.
   - A skip link.
-  - Keyboard-operable menu and player (Escape returns focus).
+  - Keyboard-operable menu (Escape returns focus).
   - A focusable, labelled slider.
   - Hidden steps are removed from the accessibility tree.
   - The cursor and the water ripple only run on fine pointers with motion allowed.

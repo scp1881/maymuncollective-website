@@ -35,7 +35,7 @@ html, body { width: 1200px; height: 630px; background: #0e0f0f; color: #fafafa; 
   -webkit-mask-image: radial-gradient(ellipse 70% 90% at 40% 50%, #000 20%, transparent 75%);
           mask-image: radial-gradient(ellipse 70% 90% at 40% 50%, #000 20%, transparent 75%); }
 .wordmark { position: absolute; left: 72px; top: 150px; width: 520px; }
-.tag { position: absolute; left: 76px; top: 478px; font-size: 26px; font-weight: 400; color: rgba(250,250,250,.62); letter-spacing: -.01em; }
+.tag { position: absolute; left: 72px; width: 520px; top: 478px; text-align: center; font-size: 28px; font-weight: 400; color: #fafafa; letter-spacing: -.01em; }
 .cards { position: absolute; left: 700px; top: 70px; width: 330px; height: 470px; }
 .card { position: absolute; inset: 0; overflow: hidden; }
 .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -50,7 +50,7 @@ html, body { width: 1200px; height: 630px; background: #0e0f0f; color: #fafafa; 
 </style></head><body><div class="page">
   <div class="grid"></div>
   <img class="wordmark" src="${pub("logo-wordmark.svg")}" alt="">
-  <p class="tag">(${TAG})</p>
+  <p class="tag">${TAG}</p>
   <div class="cards">
     <div class="card b2"><img src="${pub("images/gallery/06-crew.JPG")}" alt=""></div>
     <div class="card b1"><img src="${pub("images/gallery/04-live.JPG")}" alt=""></div>

@@ -1,14 +1,15 @@
 import Image from "next/image";
 import TiltCard from "@/components/k/TiltCard";
 import WaterLogo from "@/components/k/WaterLogo";
-import { ArrowDown, LoopLine, Paren, SwooshLine } from "@/components/k/bits";
+import { ArrowDown, LoopLine, SwooshLine } from "@/components/k/bits";
 import { photos, site } from "@/content/site";
 
 const LOGO = "/logo-wordmark.svg";
 
 /**
  * The reference's hero, with Maymun's own material: the wordmark large at
- * centre (with the water ripple over it on desktop), a small portrait card
+ * centre (with the water ripple over it on desktop) and the tagline centred
+ * beneath it, a small portrait card
  * top-left with a vertical label and a scribble, a landscape card right, and
  * the 3D card stack straddling the bottom edge — a tilting front card with
  * two cards fanned behind it, the rotating circular label and a swoosh.
@@ -89,9 +90,7 @@ export default function Hero() {
         </TiltCard>
         <div className="meta">
           <p className="label">
-            <span className="rv">
-              <Paren>{site.shortDescription}</Paren>
-            </span>
+            <span className="rv">{site.shortDescription}</span>
           </p>
           <div className="circle rv">
             <CircleLabel />

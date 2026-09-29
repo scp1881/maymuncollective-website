@@ -1,34 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Burger, CloseIcon, WhatsAppIcon } from "@/components/k/bits";
+import { ArrowRight, Burger, CloseIcon, SpotifyIcon, WhatsAppIcon } from "@/components/k/bits";
 import { contact, gallery, music, nav, ui } from "@/content/site";
 
-const PLAYER_SRC = "https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0";
-
 /**
- * The reference's floating glass bar at the bottom of the screen:
- * "≡ Menu", the section links, and a player switch (two 3D cubes — a
- * ticker and a photo — that roll on hover). "Menu" opens a glass dropdown
- * above the bar; the player switch flips the bar in 3D to a compact
- * Spotify player, loaded only when asked for.
+ * The reference's floating glass bar at the bottom of the screen, on every
+ * page: "≡ Menu", the section links, and "Listen Now", which goes straight
+ * to Maymun Collective on Spotify (new tab). "Menu" opens a glass dropdown
+ * above the bar.
  *
- * Keyboard: both are real buttons with aria-expanded; Escape closes either
- * and returns focus; the dropdown also closes on an outside click.
+ * Keyboard: Menu is a real button with aria-expanded; Escape closes the
+ * dropdown and returns focus to it, as does an outside click.
  */
 export default function BottomMenu() {
   const onHome = usePathname() === "/";
   const [open, setOpen] = useState(false);
-  const [player, setPlayer] = useState(false);
-  const [loadPlayer, setLoadPlayer] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const root = useRef<HTMLDivElement | null>(null);
   const menuBtn = useRef<HTMLButtonElement | null>(null);
-  const playerBtn = useRef<HTMLButtonElement | null>(null);
-  const closeBtn = useRef<HTMLButtonElement | null>(null);
 
   const href = (h: string) => (onHome ? h : `/${h}`);
 
@@ -38,19 +30,15 @@ export default function BottomMenu() {
     return () => window.removeEventListener("k:section", onSection);
   }, []);
 
-  const closeAll = useCallback((focus?: HTMLElement | null) => {
-    setOpen(false);
-    setPlayer(false);
-    focus?.focus();
-  }, []);
-
   useEffect(() => {
-    if (!open && !player) return;
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeAll(player ? playerBtn.current : menuBtn.current);
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      menuBtn.current?.focus();
     };
     const onDown = (e: PointerEvent) => {
-      if (open && root.current && !root.current.contains(e.target as Node)) setOpen(false);
+      if (root.current && !root.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown);
@@ -58,19 +46,12 @@ export default function BottomMenu() {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onDown);
     };
-  }, [open, player, closeAll]);
-
-  useEffect(() => {
-    if (player) {
-      setLoadPlayer(true);
-      window.setTimeout(() => closeBtn.current?.focus(), 350);
-    }
-  }, [player]);
+  }, [open]);
 
   const wa = contact.whatsapp.replace(/\D/g, "");
 
   return (
-    <div ref={root} className={`k-menu ${open ? "is-open" : ""} ${player ? "is-player" : ""}`}>
+    <div ref={root} className={`k-menu ${open ? "is-open" : ""}`}>
       <div className="m-content">
         <div className="m-drop" id="k-menu-drop" aria-hidden={!open}>
           <div className="m-drop-body">
@@ -135,7 +116,7 @@ export default function BottomMenu() {
         </div>
 
         <div className="m-panels">
-          <div className="m-panel nav" aria-hidden={player}>
+          <div className="m-panel nav">
             <nav aria-label="Primary">
               <button
                 ref={menuBtn}
@@ -144,7 +125,6 @@ export default function BottomMenu() {
                 aria-expanded={open}
                 aria-controls="k-menu-drop"
                 onClick={() => setOpen((o) => !o)}
-                tabIndex={player ? -1 : 0}
               >
                 {open ? <CloseIcon /> : <Burger />}
                 {ui.menu}
@@ -155,89 +135,20 @@ export default function BottomMenu() {
                   className="m-item section-link"
                   href={href(n.href)}
                   aria-current={onHome && active === n.href ? "true" : undefined}
-                  tabIndex={player ? -1 : 0}
                 >
                   {n.label}
                 </a>
               ))}
               <span className="m-sep" aria-hidden="true" />
-              <button
-                ref={playerBtn}
-                type="button"
-                className="m-item m-player-btn"
-                aria-expanded={player}
-                data-cursor="play"
-                onClick={() => {
-                  setOpen(false);
-                  setPlayer(true);
-                }}
-                tabIndex={player ? -1 : 0}
-              >
-                <span className="sr-only">{ui.openPlayer}</span>
-                <PlayerCubes />
-              </button>
+              <a className="m-item m-listen" href={music.spotifyUrl} target="_blank" rel="noopener noreferrer">
+                {ui.listenNow}
+                <span className="sr-only">{ui.listenNowHidden}</span>
+                <SpotifyIcon />
+              </a>
             </nav>
-          </div>
-
-          <div className="m-panel player" aria-hidden={!player}>
-            <div className="m-player">
-              <div className="m-player-bar">
-                <span>{music.subheading}</span>
-                <button ref={closeBtn} type="button" aria-label={ui.closePlayer} onClick={() => closeAll(playerBtn.current)} tabIndex={player ? 0 : -1}>
-                  <CloseIcon />
-                </button>
-              </div>
-              {loadPlayer ? (
-                <iframe
-                  title="Maymun Collective on Spotify"
-                  src={PLAYER_SRC}
-                  height={152}
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  tabIndex={player ? 0 : -1}
-                />
-              ) : null}
-            </div>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-/** Ticker cube + photo cube with a pulsing play mark between them. */
-function PlayerCubes() {
-  const label = `${music.subheading.replace(/\.$/, "")} · `;
-  const faces = ["f-front", "f-back", "f-top", "f-bottom"];
-  return (
-    <span className="k-scene" aria-hidden="true">
-      <span className="k-cube ticker">
-        {faces.map((f) => (
-          // The ticker text is drawn by CSS from data-t, so the button's only
-          // text content is its screen-reader label.
-          <span key={f} className={`face ${f}`}>
-            <span className="strip">
-              <span data-t={label} />
-              <span data-t={label} />
-            </span>
-          </span>
-        ))}
-      </span>
-      <span className="k-cube image">
-        {faces.map((f) => (
-          <span key={f} className={`face ${f}`}>
-            <Image src="/images/gallery/01-portrait.jpg" alt="" width={32} height={32} sizes="32px" />
-          </span>
-        ))}
-      </span>
-      {/* The pulsing disc is a plain HTML circle so its animation stays on
-          the compositor (an animated SVG child repaints every frame). */}
-      <span className="k-play-dot">
-        <span className="pulse" />
-        <svg viewBox="0 0 24 24">
-          <path d="M10 8.3v7.4l6-3.7z" fill="#0e0f0f" />
-        </svg>
-      </span>
-    </span>
   );
 }

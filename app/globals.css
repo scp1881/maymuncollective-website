@@ -594,38 +594,17 @@ html.js.page-loaded.motion .k-menu .m-content {
   background: rgba(24, 26, 26, 0.78);
   backdrop-filter: blur(59px);
   -webkit-backdrop-filter: blur(59px);
-  transition: border-radius 0.4s var(--ease), height 0.6s var(--ease-expo);
+  transition: border-radius 0.4s var(--ease);
   height: 5.75vh;
   min-height: 50px;
-  transform-style: preserve-3d;
 }
 .k-menu.is-open .m-panels {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.k-menu.is-player .m-panels {
-  height: 196px;
-}
 .k-menu .m-panel {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
-  transition: transform 1s var(--ease-expo), opacity 0.6s var(--ease);
-}
-.k-menu .m-panel.player {
-  transform: rotateX(-90deg) translateZ(40px);
-  opacity: 0;
-  pointer-events: none;
-}
-.k-menu.is-player .m-panel.nav {
-  transform: rotateX(90deg) translateZ(40px);
-  opacity: 0;
-  pointer-events: none;
-}
-.k-menu.is-player .m-panel.player {
-  transform: none;
-  opacity: 1;
-  pointer-events: auto;
 }
 .k-menu nav {
   display: flex;
@@ -665,44 +644,23 @@ html.js.page-loaded.motion .k-menu .m-content {
   height: 20px;
   background: rgba(255, 255, 255, 0.2);
 }
-.k-menu .m-player-btn {
-  position: relative;
-  flex: 0.95 1 0;
-  justify-content: flex-start;
-  padding: 0 0.4vw;
-}
-.k-menu .m-player {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 0.4vw;
-  gap: 6px;
-}
-.k-menu .m-player-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.4vw;
-  height: 30px;
-  font-size: clamp(12px, 0.85vw, 15px);
-  color: var(--muted);
-}
-.k-menu .m-player-bar button {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
+/* "Listen Now" + Spotify's mark: a straight link to the artist page. */
+.k-menu .m-listen {
+  flex: 1.15 1 0;
+  gap: 0.55vw;
+  padding: 0 0.5vw;
   color: var(--fg);
 }
-.k-menu .m-player-bar button:hover {
-  background: rgba(255, 255, 255, 0.08);
+.k-menu .m-listen .spotify {
+  flex: none;
+  width: max(1.25vw, 18px);
+  height: max(1.25vw, 18px);
+  color: #1ed760;
+  transition: scale 0.4s var(--ease);
 }
-.k-menu .m-player iframe {
-  border: 0;
-  width: 100%;
-  height: 152px;
-  border-radius: 12px;
+.k-menu .m-listen:hover .spotify,
+.k-menu .m-listen:focus-visible .spotify {
+  scale: 1.12;
 }
 @media (max-width: 768px) {
   .k-menu {
@@ -715,11 +673,11 @@ html.js.page-loaded.motion .k-menu .m-content {
     display: none;
   }
   .k-menu .m-item.menu-btn,
-  .k-menu .m-player-btn {
+  .k-menu .m-listen {
     flex: 1 1 50%;
   }
-  .k-menu .m-player-btn {
-    justify-content: center;
+  .k-menu .m-listen {
+    gap: 2vw;
   }
   .k-menu .m-drop-body {
     grid-template-columns: 1fr 1fr;
@@ -744,119 +702,9 @@ html.js.page-loaded.motion .k-menu .m-content {
   }
 }
 
-/* The 3D ticker cubes in the player switch. */
-.k-scene {
-  position: relative;
-  display: flex;
-  perspective: 1000px;
-}
-.k-cube {
-  --half: max(0.926vw, 13px);
-  position: relative;
-  width: calc(var(--half) * 2);
-  height: calc(var(--half) * 2);
-  transform-style: preserve-3d;
-}
-.k-cube .face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  overflow: hidden;
-}
-.k-cube .f-front {
-  transform: rotateY(0) translateZ(var(--half));
-}
-.k-cube .f-back {
-  transform: rotateY(180deg) translateZ(var(--half));
-}
-.k-cube .f-top {
-  transform: rotateX(90deg) translateZ(var(--half));
-}
-.k-cube .f-bottom {
-  transform: rotateX(-90deg) translateZ(var(--half));
-}
-.k-cube.ticker {
-  width: calc(var(--half) * 3.4);
-}
-.k-cube.ticker .face {
-  display: flex;
-  align-items: center;
-  background: #1b1b1b;
-  font-size: max(0.5vw, 7px);
-  font-weight: 600;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.k-cube.ticker .face .strip {
-  display: flex;
-  flex: 0 0 auto;
-}
-.k-cube.ticker .face .strip span {
-  flex: 0 0 auto;
-  padding-right: 0.4em;
-}
-.k-cube.ticker .face span::before {
-  content: attr(data-t);
-}
-.k-cube .face img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.k-play-dot {
-  position: absolute;
-  left: calc(var(--half, 13px) * 3.4);
-  top: 50%;
-  translate: -50% -50%;
-  z-index: 3;
-  width: max(1.4vw, 20px);
-  height: max(1.4vw, 20px);
-}
-.k-play-dot .pulse {
-  position: absolute;
-  inset: 4.17%;
-  border-radius: 50%;
-  background: var(--fg);
-}
-.k-play-dot svg {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-/* Each strip holds two copies of the label; sliding it by half its width
-   loops seamlessly. One animated element per face keeps per-frame work low. */
-html.motion .k-cube.ticker .face .strip {
-  animation: ticker 5s linear infinite;
-}
-html.motion .k-scene:hover .k-cube,
-html.motion .m-player-btn:focus-visible .k-cube {
-  animation: cube-rotate 3s linear infinite;
-}
-html.motion .k-scene:hover .k-cube.image,
-html.motion .m-player-btn:focus-visible .k-cube.image {
-  animation-direction: reverse;
-}
-html.motion .k-play-dot .pulse {
-  animation: pulse 2.5s linear infinite;
-}
-@keyframes cube-rotate {
-  to {
-    transform: rotateX(360deg);
-  }
-}
 @keyframes ticker {
   to {
     transform: translateX(-50%);
-  }
-}
-@keyframes pulse {
-  15% {
-    scale: 1.5;
-  }
-  30%,
-  100% {
-    scale: 1;
   }
 }
 
@@ -1079,9 +927,13 @@ html.js.motion .k-hero.animated .hero-logo img {
   translate: -50% 0;
   z-index: 5;
 }
+/* The tagline, centred under the wordmark (the stack sits on the page's
+   centre line). */
 .k-cards .meta .label {
   position: absolute;
   left: 0;
+  right: 0;
+  text-align: center;
   top: -2.8vw;
   font-size: clamp(14px, 1.455vw, 24px);
   line-height: 0.84;

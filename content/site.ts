@@ -213,8 +213,10 @@ export const ui = {
   nextStep: "Next step",
   explore: "Explore",
   follow: "Follow",
-  closePlayer: "Close player",
-  openPlayer: "Listen on Spotify",
+  // The bottom menu's link to Spotify; the hidden part completes it for
+  // screen readers ("Listen Now on Spotify, opens in a new tab").
+  listenNow: "Listen Now",
+  listenNowHidden: " on Spotify, opens in a new tab",
   membersRegion: "Members, scroll sideways",
   skipLink: "Skip to content",
   openMenu: "Open menu",

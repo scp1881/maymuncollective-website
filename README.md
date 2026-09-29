@@ -168,7 +168,7 @@ DESIGN.md             # the design system
 
 - **Headings and landmarks:** one `<h1>` per page (the wordmark on `/`, "Gallery" on `/gallery`), then `<h2>` per section and `<h3>` for the member groups. Semantic `<header>`, `<nav>`, `<main>`, `<section>` and `<footer>`, plus a skip link.
 - **Contrast:** every text pair passes WCAG AA (see DESIGN.md); the reference's 30–50% white small text is lifted to 55–62%.
-- **Keyboard:** one visible focus style everywhere. The menu dropdown and the mini player close on Escape and return focus. The member row is a focusable, labelled region. The lightbox is a native `<dialog>`, with arrow keys between photographs.
+- **Keyboard:** one visible focus style everywhere. The menu dropdown closes on Escape and returns focus. The member row is a focusable, labelled region. The lightbox is a native `<dialog>`, with arrow keys between photographs.
 - **Motion:** `prefers-reduced-motion: reduce` turns off all of it: no preloader, smooth scroll, ripple, custom cursor or reveals. (`?motion=on|off` overrides it for testing.)
 - **Language:** each word of the tagline carries its own `lang`, so screen readers pronounce it correctly.
 - **SEO:** title, description, canonical, Open Graph and Twitter tags are set from `content/site.ts`. `robots.txt` and `sitemap.xml` are generated.
