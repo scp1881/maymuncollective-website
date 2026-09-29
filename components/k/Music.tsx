@@ -1,11 +1,10 @@
 import SpotifyEmbed from "@/components/k/SpotifyEmbed";
-import { ArrowDownLeft, Cross, Ring } from "@/components/k/bits";
-import { music, site } from "@/content/site";
+import { ArrowDownLeft, Ring } from "@/components/k/bits";
+import { music } from "@/content/site";
 
 /**
  * The reference's records section: on the left the title as an outline that
- * fills in, with the cross mark and a line of text at the bottom; on the
- * right a second title with a drawn circle arrow (it turns on hover), and the
+ * fills in; on the right a second title with a drawn circle arrow (it turns on hover), and the
  * list — here the Spotify artist player, loaded as the section approaches.
  */
 export default function Music() {
@@ -20,10 +19,6 @@ export default function Music() {
               {music.heading}
             </span>
           </h2>
-          <div className="group rv">
-            <Cross />
-            <p className="k-p">{site.shortDescription}</p>
-          </div>
         </div>
         <div className="list">
           <div className="list-top">

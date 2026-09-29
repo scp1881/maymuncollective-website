@@ -164,6 +164,9 @@ export const music = {
 /* --------------------------------------------------------------- MEMBERS */
 export const members = {
   heading: "Members",
+  // The section's large two-line title (visual; the heading above is what
+  // screen readers hear).
+  title: ["A Creative", "Collective"],
   groups: [
     {
       label: "On stage",

@@ -11,7 +11,7 @@ The live design is adapted from the [Kurate](https://kurate-label.vercel.app/) r
 1. **Hero:** the wordmark (with a WebGL water ripple under the pointer on desktop), two photo cards and the tilting 3D card stack.
 2. **Gallery:** the gallery line typed in, a drawn line, and the link to the full `/gallery`.
 3. **Statement:** the tagline, one language per line, and the splitting vinyl.
-4. **Members:** "On stage / Off stage" and a draggable row of member cards.
+4. **Members:** "A Creative / Collective" and a draggable row of member cards.
 5. **Music:** the Spotify artist player, loaded only as the section approaches.
 6. **Contact:** email, WhatsApp and socials in a frosted panel over a giant email marquee.
 
