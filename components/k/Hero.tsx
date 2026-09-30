@@ -4,7 +4,7 @@ import WaterLogo from "@/components/k/WaterLogo";
 import { ArrowDown, LoopLine, SwooshLine } from "@/components/k/bits";
 import { photos, site } from "@/content/site";
 
-const LOGO = "/logo-wordmark.svg";
+const LOGO = "/logo-maymun.png";
 
 /**
  * The reference's hero, with Maymun's own material: the wordmark large at
@@ -26,7 +26,7 @@ export default function Hero() {
     <section id="top" className="section k-hero" aria-label={site.name}>
       <h1 className="hero-logo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO} alt={site.name} width={294} height={168} fetchPriority="high" />
+        <img src={LOGO} alt={site.name} width={254} height={144} fetchPriority="high" />
       </h1>
       <WaterLogo src={LOGO} />
 
