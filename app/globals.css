@@ -2480,19 +2480,9 @@ html.motion .k-form .stream .listbox {
   --rv-y: 50%;
 }
 .k-footer .brand .tag {
-  display: flex;
-  align-items: center;
-  gap: 1.157vw;
   color: var(--faint);
   --rv-y: 50%;
   --rv-delay: 0.2s;
-}
-.k-footer .brand .tag::before {
-  content: "";
-  width: 1.8vw;
-  min-width: 18px;
-  height: 1px;
-  background: currentColor;
 }
 .k-footer .cols {
   flex: 0.75;
