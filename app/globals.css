@@ -2487,8 +2487,12 @@ html.motion .k-form .stream .listbox {
   flex: 0.25;
   padding: 5.291vw 5vw 10.913vw;
   border-right: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
+  /* The logo and the tagline as one centred pair: one column as wide as
+     the wider of the two, each centred in it, the pair kept at the left. */
+  display: grid;
+  align-content: start;
+  justify-content: start;
+  justify-items: center;
   gap: 2.315vw;
 }
 .k-footer .brand img {
@@ -2499,6 +2503,7 @@ html.motion .k-form .stream .listbox {
 }
 .k-footer .brand .tag {
   color: var(--faint);
+  text-align: center;
   --rv-y: 50%;
   --rv-delay: 0.2s;
 }
