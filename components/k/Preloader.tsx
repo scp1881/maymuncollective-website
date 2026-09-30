@@ -85,10 +85,10 @@ export default function Preloader() {
     <div className={`k-preloader ${closing ? "is-closing" : ""}`} aria-hidden="true" style={{ ["--pl-wipe" as string]: `${MIN_MS - 200}ms` }}>
       <div className="pl-logo">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="pl-shadow" src="/logo-maymun.png" alt="" width={254} height={144} />
+        <img className="pl-shadow" src="/logo-wordmark.svg" alt="" width={294} height={168} />
         <div className="pl-filled">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-maymun.png" alt="" width={254} height={144} />
+          <img src="/logo-wordmark.svg" alt="" width={294} height={168} />
         </div>
       </div>
       <div className="pl-text pl-left">
