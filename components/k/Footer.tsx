@@ -57,8 +57,9 @@ export default function Footer({ home = true }: { home?: boolean }) {
                 </a>
               </li>
               <li className="rv">
-                <a className="k-grow" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" aria-label={ui.whatsappLabel(contact.whatsapp)}>
-                  <WhatsAppIcon /> {contact.whatsapp}
+                <a className="k-grow k-wa" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" aria-label={ui.whatsappLabel(contact.whatsapp)}>
+                  <WhatsAppIcon />
+                  {contact.whatsapp}
                 </a>
               </li>
             </ul>

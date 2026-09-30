@@ -218,6 +218,21 @@ html.has-cursor button {
   width: 100%;
 }
 
+/* A WhatsApp number with its icon: icon, a small gap, the number, on one
+   line (the base styles make SVGs blocks, which put the icon on its own
+   line). Used wherever the number appears: footer and menu. */
+.k-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+}
+.k-wa svg {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+
 /* The small cross mark the reference pairs with its paragraphs. */
 .k-cross {
   width: 2.4vw;

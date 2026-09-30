@@ -100,14 +100,15 @@ export default function BottomMenu() {
                 </li>
                 <li>
                   <a
-                    className="k-grow"
+                    className="k-grow k-wa"
                     href={`https://wa.me/${wa}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={ui.whatsappLabel(contact.whatsapp)}
                     tabIndex={open ? 0 : -1}
                   >
-                    <WhatsAppIcon /> {contact.whatsapp}
+                    <WhatsAppIcon />
+                    {contact.whatsapp}
                   </a>
                 </li>
               </ul>
