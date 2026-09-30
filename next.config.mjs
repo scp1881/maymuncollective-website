@@ -37,7 +37,9 @@ const nextConfig = {
       {
         // Same reasoning, but a shorter window: the wordmark has a stable
         // filename, so a year of immutability would make replacing it awkward.
-        source: "/logo-wordmark.svg",
+        // Browsers may still keep it for a week, so when its content changes,
+        // give it a new filename (as with logo-wordmark.svg → logo-maymun.svg).
+        source: "/logo-maymun.svg",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
       },
     ];

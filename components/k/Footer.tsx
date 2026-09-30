@@ -15,7 +15,7 @@ export default function Footer({ home = true }: { home?: boolean }) {
       <div className="inner">
         <div className="brand">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="rv" src="/logo-wordmark.svg" alt={site.name} width={294} height={168} loading="lazy" />
+          <img className="rv" src="/logo-maymun.svg" alt={site.name} width={294} height={168} loading="lazy" />
           <p className="tag rv">{site.shortDescription}</p>
         </div>
         <div className="cols">

@@ -49,7 +49,7 @@ html, body { width: 1200px; height: 630px; background: #0e0f0f; color: #fafafa; 
 .arrow { position: absolute; left: 50%; top: 50%; width: 12px; height: 24px; translate: -50% -50%; }
 </style></head><body><div class="page">
   <div class="grid"></div>
-  <img class="wordmark" src="${pub("logo-wordmark.svg")}" alt="">
+  <img class="wordmark" src="${pub("logo-maymun.svg")}" alt="">
   <p class="tag">${TAG}</p>
   <div class="cards">
     <div class="card b2"><img src="${pub("images/gallery/06-crew.JPG")}" alt=""></div>

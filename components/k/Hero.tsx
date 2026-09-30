@@ -4,7 +4,7 @@ import WaterLogo from "@/components/k/WaterLogo";
 import { ArrowDown, LoopLine, SwooshLine } from "@/components/k/bits";
 import { photos, site } from "@/content/site";
 
-const LOGO = "/logo-wordmark.svg";
+const LOGO = "/logo-maymun.svg";
 
 /**
  * The reference's hero, with Maymun's own material: the wordmark large at

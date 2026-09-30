@@ -13,7 +13,7 @@ export default function Header() {
     <header className="k-header">
       <Link href="/" className="logo" aria-label={`${site.name}, home`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-wordmark.svg" alt="" width={294} height={168} />
+        <img src="/logo-maymun.svg" alt="" width={294} height={168} />
       </Link>
       <a className="k-link" href={music.spotifyUrl} target="_blank" rel="noopener noreferrer">
         {music.subheading.replace(/\.$/, "")}
