@@ -2370,6 +2370,8 @@ html.motion .k-form .stream .listbox {
   left: 0;
   bottom: 0;
   max-width: 20%;
+  /* Room between the corner mark (pinned to the top) and the tagline. */
+  padding-top: max(1.1vw, 14px);
 }
 .k-form .left .k-cross {
   position: absolute;
@@ -2465,6 +2467,7 @@ html.motion .k-form .stream .listbox {
     position: relative;
     max-width: 100%;
     margin-top: 12vw;
+    padding-top: 4vw;
     text-align: center;
   }
   .k-form .left .k-cross {
