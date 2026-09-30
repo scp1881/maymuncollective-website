@@ -237,6 +237,9 @@ const wmPath = await new Promise((res, rej) => {
   p.loadImage(wmFlat, (err) => (err ? rej(err) : res(p.getPathTag().match(/ d="([^"]+)"/)[1])));
 });
 
+// potrace marks holes (the counters of the A and the O) as nested subpaths
+// meant for the even-odd rule; under SVG's default nonzero rule they fill in
+// solid, so the rule is set explicitly.
 // The fill is baked rather than left as `currentColor`: this is loaded through
 // an <img>, and an SVG in an <img> is an isolated document, so `currentColor`
 // would resolve to its own default black and the wordmark would disappear
@@ -251,7 +254,7 @@ fs.writeFileSync(
   // width/height on the root as well as the viewBox, so the file has a real
   // intrinsic size instead of falling back to the SVG-in-<img> default of 150px
   // tall with a derived width.
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${INK}"/></svg>\n`
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${INK}" fill-rule="evenodd"/></svg>\n`
 );
 console.log(`wrote ${PUB}/logo-wordmark.svg (${wmW}x${wmH}, aspect ${(wmW / wmH).toFixed(3)})`);
 
