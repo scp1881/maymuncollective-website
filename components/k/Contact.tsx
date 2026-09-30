@@ -1,4 +1,4 @@
-import ContactSteps from "@/components/k/ContactSteps";
+import ContactStream from "@/components/k/ContactStream";
 import Waves from "@/components/k/Waves";
 import { Cross, Letters, Paren } from "@/components/k/bits";
 import { contact, site } from "@/content/site";
@@ -6,9 +6,9 @@ import { contact, site } from "@/content/site";
 /**
  * The reference's "Send your demos" section: a giant marquee behind a
  * frosted glass panel (so its lower half blurs), animated wave lines inside
- * the panel, a title typed in letter by letter, and a pill with pagination
- * and a "Next step" button. There is no form to submit here: the steps are
- * the three ways to reach the collective — email, WhatsApp, and its socials.
+ * the panel, a title typed in letter by letter, and the contact stream — the
+ * reference's pill with pagination and "Next step", as a three-step form that
+ * records each message (see components/k/ContactStream and lib/contact).
  */
 export default function Contact() {
   const tick = `${contact.email} —`;
@@ -29,7 +29,7 @@ export default function Contact() {
                 <Paren>{contact.heading}</Paren>
               </h2>
               <Letters as="p" className="title" text={contact.subheading} start={0.2} step={0.03} />
-              <ContactSteps />
+              <ContactStream />
             </div>
             <div className="left rv" style={{ ["--rv-y" as string]: "40%", ["--rv-delay" as string]: "0.6s" }}>
               <Cross />

@@ -51,6 +51,7 @@
   --line: rgba(252, 252, 252, 0.25);
   --teal: #95b6c5;
   --teal-2: #83c3cc;
+  --err: #ff9d8f; /* form errors; ≈ 9:1 on bg */
 
   --pad: 1.984vw;
   --ease: ease;
@@ -1780,13 +1781,6 @@ html.motion .k-contact .ticker .strip {
   visibility: visible;
   transition-delay: 0s;
 }
-.k-form .pill .step a {
-  white-space: nowrap;
-}
-.k-form .pill .step.socials {
-  font-size: clamp(18px, 2.2vw, 38px);
-  gap: 2.4vw;
-}
 .k-form .pagination {
   display: flex;
   gap: 0.3vw;
@@ -1803,7 +1797,8 @@ html.motion .k-contact .ticker .strip {
   flex: 2.4;
   background: var(--fg);
 }
-.k-form .next {
+.k-form .next,
+.k-form .back {
   display: inline-flex;
   align-items: center;
   gap: 0.8em;
@@ -1821,6 +1816,338 @@ html.motion .k-contact .ticker .strip {
 }
 .k-form .next:hover {
   background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── The contact stream (components/k/ContactStream): the pill above, as a
+      three-step form. Steps 1–2 keep the pill's shape; the message step grows
+      it into a rounded panel. Everything else — the frost, the pagination,
+      the pill buttons — is the section's own. */
+.k-form .stream {
+  --pill-h: max(22vh, 150px);
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2vw;
+}
+.k-form .stream[data-step="2"] {
+  --pill-h: max(40vh, 320px);
+}
+.k-form .stream .pill {
+  height: var(--pill-h);
+  min-height: 0;
+  border-radius: calc(var(--pill-h) / 2);
+  transition:
+    height 0.7s var(--ease-expo),
+    border-radius 0.7s var(--ease-expo),
+    background-color 0.7s var(--ease-expo),
+    border-color 0.3s var(--ease);
+}
+.k-form .stream[data-step="2"] .pill {
+  border-radius: 36px;
+  /* A deeper tint behind the message, so the waves stay behind the text. */
+  background: rgba(16, 17, 17, 0.62);
+}
+.k-form .stream .pill.is-drag {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.k-form .stream .step {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0 4.2vw;
+  gap: 3vw;
+  font-size: inherit;
+}
+.k-form .stream label,
+.k-form .stream .label {
+  display: block;
+  margin-bottom: 0.6em;
+  font-size: clamp(11px, 0.72vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.k-form .stream .field {
+  flex: 1;
+  min-width: 0;
+}
+.k-form .stream input:not([type="file"]),
+.k-form .stream textarea,
+.k-form .stream .select {
+  display: block;
+  width: 100%;
+  padding: 0.3em 0 0.4em;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: clamp(18px, 1.72vw, 30px);
+  letter-spacing: -0.01em;
+  caret-color: var(--fg);
+  outline: none;
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.k-form .stream ::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+  opacity: 1;
+}
+.k-form .stream input:focus-visible,
+.k-form .stream textarea:focus-visible,
+.k-form .stream .select:focus-visible {
+  border-bottom-color: var(--fg);
+  box-shadow: 0 1px 0 var(--fg);
+}
+.k-form .stream [aria-invalid="true"] {
+  border-bottom-color: var(--err);
+}
+.k-form .stream input:-webkit-autofill {
+  -webkit-text-fill-color: var(--fg);
+  caret-color: var(--fg);
+  transition: background-color 9999s ease-out 0s;
+}
+.k-form .stream .divider {
+  align-self: stretch;
+  width: 1px;
+  margin: 5vh 0;
+  background: rgba(255, 255, 255, 0.1);
+}
+.k-form .stream .s-reason .field {
+  flex: 0 1 30vw;
+  min-width: 260px;
+}
+.k-form .stream .select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  text-align: left;
+}
+.k-form .stream .select.is-empty span {
+  color: rgba(255, 255, 255, 0.32);
+}
+.k-form .stream .select svg {
+  flex: none;
+  width: 0.7em;
+  height: 0.7em;
+  transition: rotate 0.3s var(--ease);
+}
+.k-form .stream .select[aria-expanded="true"] svg {
+  rotate: 180deg;
+}
+.k-form .stream .s-message {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 2.4vw 3vw 2vw;
+}
+.k-form .stream .s-message textarea {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+  border-bottom: 0;
+  padding: 0.2em 0 0.6em;
+  font-size: clamp(16px, 1.25vw, 22px);
+  line-height: 1.45;
+}
+.k-form .stream .s-message textarea:focus-visible {
+  box-shadow: none;
+}
+.k-form .stream .s-message:focus-within {
+  --rule: rgba(255, 255, 255, 0.28);
+}
+.k-form .stream .attach {
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+  padding-top: 1.1vw;
+  border-top: 1px solid var(--rule, rgba(255, 255, 255, 0.1));
+  transition: border-color 0.3s var(--ease);
+}
+.k-form .stream .attach .add,
+.k-form .stream .attach .chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.55em;
+  min-height: 40px;
+  margin: 0;
+  padding: 0.5em 1em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--fg);
+  font-size: clamp(13px, 0.926vw, 16px);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: background-color 0.3s var(--ease);
+}
+.k-form .stream .attach .add {
+  cursor: pointer;
+}
+.k-form .stream .attach .add:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.k-form .stream .attach input:focus-visible + .add {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.k-form .stream .chip .name {
+  max-width: 14vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-form .stream .chip .size {
+  color: var(--faint);
+  font-weight: 400;
+}
+.k-form .stream .chip button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: -0.45em;
+  border-radius: 50%;
+}
+.k-form .stream .chip button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.k-form .stream .chip button svg {
+  width: 12px;
+  height: 12px;
+}
+.k-form .stream .clip {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+.k-form .stream .attach .hint {
+  flex: 1;
+  min-width: 0;
+  color: var(--faint);
+  font-size: clamp(11px, 0.72vw, 13px);
+  line-height: 1.35;
+}
+.k-form .stream .drop {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgba(14, 15, 15, 0.72);
+  font-size: clamp(16px, 1.3vw, 24px);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+.k-form .stream .pill.is-drag .drop {
+  opacity: 1;
+}
+.k-form .stream .s-done {
+  padding: 0 5vw;
+  outline: none;
+  text-align: center;
+  font-size: clamp(20px, 2.2vw, 40px);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.k-form .stream .listbox {
+  position: absolute;
+  left: 50%;
+  z-index: 5;
+  width: min(30vw, 100%);
+  min-width: 260px;
+  margin: 0;
+  padding: 8px;
+  translate: -50% 0;
+  list-style: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(24, 26, 26, 0.98);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  outline: none;
+}
+html.motion .k-form .stream .listbox {
+  animation: list-in 0.3s var(--ease-expo);
+}
+@keyframes list-in {
+  from {
+    opacity: 0;
+    translate: -50% -6px;
+  }
+}
+.k-form .stream .listbox li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.8em 1em;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: clamp(15px, 1.1vw, 20px);
+  cursor: pointer;
+}
+.k-form .stream .listbox li.is-active {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--fg);
+}
+.k-form .stream .listbox:focus-visible li.is-active {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+.k-form .stream .listbox li[aria-selected="true"] {
+  color: var(--fg);
+}
+.k-form .stream .listbox li svg {
+  width: 1em;
+  height: 1em;
+}
+.k-form .stream-error {
+  min-height: 1.35em;
+  margin: -0.8vw 0;
+  color: var(--err);
+  font-size: clamp(13px, 0.926vw, 16px);
+  text-align: center;
+}
+.k-form .pagination i.is-past {
+  background: rgba(255, 255, 255, 0.55);
+}
+.k-form .actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+}
+.k-form .back {
+  background: transparent;
+  color: var(--muted);
+}
+.k-form .back svg {
+  rotate: 180deg;
+}
+.k-form .back:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--fg);
+}
+.k-form .next:disabled,
+.k-form .back:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+.k-form .next[aria-busy="true"] {
+  font-variant-numeric: tabular-nums;
+}
+.k-form .hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 .k-form .left {
   position: absolute;
@@ -1852,9 +2179,71 @@ html.motion .k-contact .ticker .strip {
     flex-wrap: wrap;
     padding: 0 6vw;
   }
-  .k-form .pill .step.socials {
-    font-size: 5vw;
-    gap: 5vw;
+  .k-form .stream {
+    --pill-h: auto;
+    gap: 6vw;
+  }
+  .k-form .stream .pill,
+  .k-form .stream[data-step="2"] .pill {
+    height: auto;
+    border-radius: 7vw;
+  }
+  .k-form .stream .step {
+    position: static;
+    display: none;
+    padding: 7vw 6vw;
+    translate: none;
+    transition: none;
+  }
+  .k-form .stream .step.is-on {
+    display: flex;
+  }
+  .k-form .stream .s-details {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6vw;
+  }
+  .k-form .stream .divider {
+    display: none;
+  }
+  .k-form .stream .s-reason .field {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .k-form .stream input:not([type="file"]),
+  .k-form .stream .select {
+    font-size: 5.4vw;
+  }
+  .k-form .stream .s-message {
+    padding: 6vw 6vw 5vw;
+  }
+  .k-form .stream .s-message textarea {
+    min-height: 34vh;
+    font-size: 4.4vw;
+  }
+  .k-form .stream .attach {
+    flex-wrap: wrap;
+    gap: 3vw;
+    padding-top: 4vw;
+  }
+  .k-form .stream .chip .name {
+    max-width: 38vw;
+  }
+  .k-form .stream .s-done {
+    min-height: 26vh;
+    align-items: center;
+    justify-content: center;
+    font-size: 6vw;
+  }
+  .k-form .stream .listbox {
+    width: calc(100% - 8vw);
+    min-width: 0;
+  }
+  .k-form .stream-error {
+    margin: -2vw 0;
+  }
+  .k-form .actions {
+    gap: 2vw;
   }
   .k-form .left {
     position: relative;
@@ -2139,4 +2528,200 @@ html.motion .k-contact .ticker .strip {
 #smooth-wrapper {
   position: relative;
   z-index: 1;
+}
+
+/* ────────────────────────────────────────────────────────────── inbox ── */
+/* app/inbox: where contact submissions are read. Plain page, no site
+   chrome; same tokens. */
+.inbox {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 64px var(--pad) 96px;
+}
+.inbox-lock {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+.inbox-card {
+  display: flex;
+  width: min(420px, 100%);
+  flex-direction: column;
+  gap: 18px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  background: rgba(72, 72, 72, 0.08);
+}
+.inbox-card img {
+  width: 96px;
+  height: auto;
+}
+.inbox-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.inbox-card p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+.inbox label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.inbox input {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fg);
+  font: inherit;
+}
+.inbox input:focus-visible,
+.inbox a:focus-visible,
+.inbox button:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.inbox button,
+.inbox-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s var(--ease);
+}
+.inbox button:hover,
+.inbox-actions a:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.inbox-error {
+  color: var(--err) !important;
+}
+.inbox-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.inbox-title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.inbox-title img {
+  width: 88px;
+  height: auto;
+}
+.inbox-title p {
+  color: var(--faint);
+}
+.inbox-actions {
+  display: flex;
+  gap: 10px;
+}
+.inbox-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0;
+}
+.inbox-filter a {
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.inbox-filter a[aria-current] {
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--bg);
+}
+.inbox-filter a span {
+  margin-left: 4px;
+  opacity: 0.6;
+}
+.inbox-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.inbox-item {
+  display: grid;
+  gap: 14px;
+  padding: 26px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.inbox-item .meta,
+.inbox-item .foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.inbox-item .meta {
+  color: var(--faint);
+  font-size: 13px;
+}
+.inbox-item .tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(149, 182, 197, 0.14);
+  color: var(--teal);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.inbox-item .who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+}
+.inbox-item h2 {
+  font-size: clamp(20px, 1.6vw, 28px);
+  font-weight: 400;
+}
+.inbox-item .who a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.inbox-item .msg {
+  max-width: 75ch;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.inbox-item .file {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+}
+.inbox-item .reply {
+  font-weight: 500;
+}
+.inbox-empty {
+  padding: 40px 0;
+  color: var(--muted);
 }

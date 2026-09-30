@@ -202,11 +202,67 @@ export const contact = {
     { label: "TikTok", href: "https://www.tiktok.com/@maymuncollective" },
     { label: "YouTube", href: "https://www.youtube.com/channel/UCJ1cnAUNK68gRJXUH9G_GuQ" },
   ],
+  // The contact stream in the Contact section: name and email → reason →
+  // message (+ optional file). Submissions are stored as records and read in
+  // /inbox; see lib/contact.
+  form: {
+    steps: ["Your details", "Reason", "Message"],
+    name: { label: "Name", placeholder: "Your name" },
+    email: { label: "Email", placeholder: "you@example.com" },
+    category: {
+      label: "Reason for getting in touch",
+      placeholder: "Choose one",
+      options: ["Bookings", "Collaborations", "Partnerships", "Other"],
+    },
+    message: { label: "Message", placeholder: "Tell us what you have in mind" },
+    file: {
+      add: "Attach a file",
+      hint: "Optional. Audio, video, PDF or images, up to 50 MB. For longer videos, add a link to your message.",
+      remove: "Remove attachment",
+      drop: "Drop the file to attach it",
+    },
+    back: "Back",
+    next: "Next step",
+    send: "Send",
+    sending: "Sending",
+    uploading: (percent: number) => `Uploading ${percent}%`,
+    stepOf: (step: number, total: number, title: string) => `Step ${step} of ${total}: ${title}`,
+    errors: {
+      name: "Please add your name.",
+      email: "Please add a valid email address.",
+      category: "Please choose a reason.",
+      message: "Please write a message.",
+      fileType: "That file type can't be attached. Try audio, video, PDF, images or a document.",
+      fileSize: "That file is over 50 MB. Add a link to it in your message instead.",
+      generic: `Something went wrong and your message wasn't sent. Please try again, or email ${site.email}.`,
+    },
+    success: (name: string) => `Thank you, ${name}. We'll get back to you soon.`,
+    again: "Send another message",
+  },
 };
 
 /* ---------------------------------------------------------------- FOOTER */
 export const footer = {
   note: `© ${new Date().getFullYear()} Maymun Collective`,
+};
+
+/* ----------------------------------------------------------------- INBOX */
+// The private page (/inbox) where contact submissions are read.
+export const inbox = {
+  title: "Inbox",
+  locked: "Sign in to read messages sent through the contact form.",
+  password: "Password",
+  signIn: "Sign in",
+  signOut: "Sign out",
+  wrongPassword: "That password didn't work.",
+  notConfigured: "The inbox opens once INBOX_PASSWORD is set in the project's environment variables.",
+  noStorage: "No storage is connected, so the contact form can't save messages. Connect a private Blob store in Vercel → Storage.",
+  all: "All",
+  count: (n: number) => (n === 1 ? "1 message" : `${n} messages`),
+  empty: "No messages yet.",
+  export: "Download CSV",
+  reply: "Reply",
+  replySubject: (category: string) => `Re: ${category} — ${site.name}`,
 };
 
 /* ------------------------------------------------------------ INTERFACE */

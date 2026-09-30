@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Redesign working files (video extraction, content audit, screenshots)
 /_redesign/
+
+# contact submissions stored locally in development
+/.data

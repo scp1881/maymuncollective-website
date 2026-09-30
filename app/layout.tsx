@@ -1,10 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import BottomMenu from "@/components/k/BottomMenu";
-import Experience from "@/components/k/Experience";
-import Header from "@/components/k/Header";
-import Preloader from "@/components/k/Preloader";
-import { BackgroundGrid, Cursor } from "@/components/k/Chrome";
-import { site, ui } from "@/content/site";
+import { site } from "@/content/site";
 import "./globals.css";
 
 const title = `${site.name} — ${site.shortDescription}`;
@@ -60,20 +55,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://open.spotify.com" />
       </head>
-      <body>
-        <a className="k-skip" href="#content">
-          {ui.skipLink}
-        </a>
-        <Preloader />
-        <BackgroundGrid />
-        <Cursor />
-        <Header />
-        <BottomMenu />
-        <div id="smooth-wrapper">
-          <div id="smooth-content">{children}</div>
-        </div>
-        <Experience />
-      </body>
+      {/* The site's chrome (preloader, header, menu, smooth scroll) lives in
+          app/(site)/layout.tsx; pages outside that group, like /inbox, get
+          only this document shell. */}
+      <body>{children}</body>
     </html>
   );
 }

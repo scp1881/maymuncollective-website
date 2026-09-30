@@ -13,7 +13,7 @@ The live design is adapted from the [Kurate](https://kurate-label.vercel.app/) r
 3. **Statement:** the tagline, one language per line, and the splitting vinyl.
 4. **Members:** "A Creative / Collective" and a draggable row of member cards.
 5. **Music:** the Spotify artist player, loaded only as the section approaches.
-6. **Contact:** email, WhatsApp and socials in a frosted panel over a giant email marquee.
+6. **Contact:** a three-step contact form (details → reason → message, with an optional file) in a frosted panel over a giant email marquee. Messages are read at `/inbox`.
 
 **`/gallery`** shows every image. Each one opens in a lightbox in its original colour.
 
@@ -49,6 +49,20 @@ The file must never state something the collective hasn't published itself: no i
 The homepage selection is `gallery.images`, and the `/gallery` order is `galleryPage.images`. The hero photograph is `hero.photo`.
 
 **Motion** is driven by `components/k/Experience.tsx` (GSAP ScrollSmoother + ScrollTrigger): sections get `.animated` as they arrive, which releases the CSS reveals in `app/globals.css`. All of it is keyed to one class, `html.motion`, set before first paint unless the visitor's system asks for reduced motion. Without it there is no smooth scroll and every reveal is static; without JavaScript nothing is hidden. To see the animated version on a machine with Reduce Motion on, add `?motion=on` to the URL (and `?motion=off` to see the still one); the choice lasts for the browser session.
+
+### Contact form and inbox
+
+The form in the Contact section saves every message as a structured record (name, email, reason, message, optional attachment). You read them at **`/inbox`**, a password-protected page with a filter by reason, a Reply link, attachment downloads and a CSV export. It is not linked from the site and is kept out of search engines.
+
+**One-time setup in Vercel** (nothing is saved until this is done; the form shows an error instead):
+
+1. Project → **Storage** → **Create** → **Blob**, set access to **Private**, and connect it to the project for **Production** and **Preview**. This adds `BLOB_READ_WRITE_TOKEN`, which the form needs for uploads.
+2. Project → **Settings → Environment Variables** → add `INBOX_PASSWORD` (a long random password; share it only with whoever answers messages).
+3. Redeploy, then open `https://maymuncollective.com/inbox`.
+
+The free Hobby plan includes 1 GB of Blob storage and 2,000 writes a month; each message is one write (plus one per attachment). Attachments are limited to 50 MB; delete old ones in Vercel → Storage if space runs low.
+
+**Locally**, without a store, messages and files are written to `.data/` (gitignored), and the inbox password comes from `.env.local` (`INBOX_PASSWORD=…`, also gitignored). The code is in `components/k/ContactStream.tsx`, `app/api/contact/`, `app/inbox/` and `lib/contact/`.
 
 ### Music (Spotify embed)
 
