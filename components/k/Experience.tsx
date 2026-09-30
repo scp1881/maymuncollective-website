@@ -66,7 +66,10 @@ export default function Experience() {
         }
         ScrollTrigger.create({
           trigger: section,
-          start: "top 50%",
+          // A section takes over when its top reaches mid-screen, or later if
+          // it says so (data-active-start), e.g. Channels waits until Music
+          // has mostly scrolled away before the grid fades.
+          start: section.dataset.activeStart ?? "top 50%",
           end: "bottom 50%",
           onToggle: (self) => {
             if (!self.isActive) return;

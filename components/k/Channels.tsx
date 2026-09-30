@@ -20,7 +20,9 @@ export default function Channels() {
   ];
 
   return (
-    <section id="channels" className="section k-channels" aria-labelledby="channels-heading">
+    // The grid fades out here (and stays out through Contact), once the
+    // section's top is 30% down the screen rather than at mid-screen.
+    <section id="channels" className="section k-channels" data-grid="false" data-active-start="top 30%" aria-labelledby="channels-heading">
       <div className="k-container">
         <div className="head">
           <p className="k-label rv">
