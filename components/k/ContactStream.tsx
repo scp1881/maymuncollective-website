@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
-import { upload } from "@vercel/blob/client";
 import { ArrowRight } from "@/components/k/bits";
 import { contact } from "@/content/site";
 import { CATEGORIES, FILE_ACCEPT, LIMITS, PATHS, fileError, safeFilename, validate, type FieldErrors, type Fields } from "@/lib/contact/shared";
@@ -196,6 +195,9 @@ export default function ContactStream() {
         if (mode === "blob") {
           setPhase("uploading");
           setProgress(0);
+          // Loaded only when someone actually attaches a file, so the ~38 kB
+          // upload client stays out of every visitor's first load.
+          const { upload } = await import("@vercel/blob/client");
           const blob = await upload(`${PATHS.uploads}${draft.current}/${safeFilename(file.name)}`, file, {
             access: "private",
             handleUploadUrl: "/api/contact/upload",
