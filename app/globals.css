@@ -1673,6 +1673,207 @@ html.js.motion .k-music.animated .outline-fill .f {
   }
 }
 
+/* ───────────────────────────────────────────────────────── channels ── */
+/* Every direct line, as the channel strips of a mixing desk (see
+   components/k/Channels). Hairlines as in the member cards; the meters are
+   the site's equaliser, resting grey and playing in teal on the strip you
+   point at or focus. */
+.k-channels.section {
+  min-height: 0;
+}
+.k-channels .k-container {
+  padding-top: 9vw;
+  padding-bottom: 5vw;
+}
+.k-channels .head {
+  display: flex;
+  align-items: baseline;
+  gap: 2.4vw;
+  margin-bottom: 3.3vw;
+}
+.k-channels .head .k-label {
+  flex: none;
+  --rv-y: 100%;
+}
+.k-channels .title {
+  font-size: 4.762vw;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.k-channels .title .rv {
+  display: block;
+  --rv-y: 100%;
+  --rv-delay: 0.1s;
+}
+.k-channels .strips {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.k-channels .strip {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.k-channels .strip.wide {
+  flex-grow: 1.75;
+}
+.k-channels .strip + .strip {
+  border-left: 1px solid var(--line);
+}
+.k-channels .strip a {
+  position: relative;
+  display: flex;
+  height: 24vw;
+  min-height: 280px;
+  flex-direction: column;
+  gap: 1.3vw;
+  padding: 1.6vw 1.6vw 1.8vw;
+  transition: background-color 0.5s var(--ease);
+  --rv-y: 10%;
+  --rv-delay: calc(0.2s + var(--n, 0) * 0.07s);
+}
+.k-channels .strip a:hover,
+.k-channels .strip a:focus-visible {
+  background: rgba(255, 255, 255, 0.025);
+}
+.k-channels .strip a:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: -2px;
+}
+.k-channels .top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1vw;
+}
+.k-channels .name {
+  color: var(--muted);
+  font-size: clamp(14px, 1.19vw, 20px);
+  transition: color 0.4s var(--ease);
+}
+.k-channels .strip a:hover .name,
+.k-channels .strip a:focus-visible .name {
+  color: var(--fg);
+}
+.k-channels .go {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: 3.4vw;
+  height: 3.4vw;
+  min-width: 40px;
+  min-height: 40px;
+  place-items: center;
+  transition: rotate 0.5s var(--ease);
+}
+/* Like the Music section's arrow: it points in at rest and turns to point
+   out when the strip is taken. */
+.k-channels .strip a:hover .go,
+.k-channels .strip a:focus-visible .go {
+  rotate: 180deg;
+}
+.k-channels .go .k-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  --draw-d: 2s;
+  --draw-delay: calc(0.5s + var(--n, 0) * 0.08s);
+}
+.k-channels .go .ico {
+  width: 36%;
+}
+.k-channels .meter {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.k-channels .meter .k-eq {
+  gap: 4px;
+  color: #232626;
+  transition: color 0.6s var(--ease);
+}
+.k-channels .meter .k-eq > i {
+  flex: 1 1 0;
+  border-radius: 3px;
+}
+.k-channels .strip a:hover .k-eq,
+.k-channels .strip a:focus-visible .k-eq {
+  color: var(--teal);
+}
+html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i {
+  animation: eq-a 1.7s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * 60ms);
+}
+html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i:nth-child(3n + 2) {
+  animation-name: eq-b;
+  animation-duration: 1.6s;
+}
+html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i:nth-child(3n) {
+  animation-name: eq-c;
+  animation-duration: 1.8s;
+}
+.k-channels .value {
+  font-size: clamp(15px, 1.32vw, 24px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 768px) {
+  .k-channels .k-container {
+    padding-top: 22vw;
+    padding-bottom: 12vw;
+  }
+  .k-channels .head {
+    flex-direction: column;
+    gap: 2vw;
+    margin-bottom: 7vw;
+  }
+  .k-channels .title {
+    font-size: 9.23vw;
+  }
+  .k-channels .strips {
+    flex-direction: column;
+  }
+  .k-channels .strip + .strip {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .k-channels .strip a {
+    display: grid;
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name go" "value go";
+    gap: 1.5vw 4vw;
+    padding: 5vw 1vw;
+  }
+  .k-channels .top {
+    display: contents;
+  }
+  .k-channels .name {
+    grid-area: name;
+    font-size: 3.6vw;
+  }
+  .k-channels .go {
+    grid-area: go;
+    align-self: center;
+    width: 11vw;
+    height: 11vw;
+  }
+  .k-channels .meter {
+    display: none;
+  }
+  .k-channels .value {
+    grid-area: value;
+    font-size: 5vw;
+  }
+}
+
 /* ────────────────────────────────────────────────────────── contact ── */
 .k-contact {
   overflow: hidden;

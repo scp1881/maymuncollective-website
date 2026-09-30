@@ -197,11 +197,22 @@ export const contact = {
   // Shown under the email; the wa.me link is derived from it (non-digits
   // stripped). Set to "" to hide the WhatsApp line.
   whatsapp: "+44 7915 378469",
+  // `handle` is what the Channels section shows: the account name from each
+  // URL; YouTube's is the channel's own name (it has no @handle in the URL).
   socials: [
-    { label: "Instagram", href: "https://www.instagram.com/maymun.collective" },
-    { label: "TikTok", href: "https://www.tiktok.com/@maymuncollective" },
-    { label: "YouTube", href: "https://www.youtube.com/channel/UCJ1cnAUNK68gRJXUH9G_GuQ" },
+    { label: "Instagram", handle: "@maymun.collective", href: "https://www.instagram.com/maymun.collective" },
+    { label: "TikTok", handle: "@maymuncollective", href: "https://www.tiktok.com/@maymuncollective" },
+    { label: "YouTube", handle: "Maymun Collective", href: "https://www.youtube.com/channel/UCJ1cnAUNK68gRJXUH9G_GuQ" },
   ],
+  // The Channels section, between Music and Contact: every direct line in one
+  // row of mixer-like strips.
+  channels: {
+    label: "Channels",
+    heading: "Reach us directly.",
+    email: "Email",
+    whatsapp: "WhatsApp",
+    newTab: ", opens in a new tab",
+  },
   // The contact stream in the Contact section: name and email → reason →
   // message (+ optional file). Submissions are stored as records and read in
   // /inbox; see lib/contact.
