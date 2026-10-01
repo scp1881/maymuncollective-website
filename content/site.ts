@@ -1,67 +1,148 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────
- *  SITE CONTENT — single source of truth for all editable copy & placeholders
+ *  SITE CONTENT — single source of truth for all copy
  * ─────────────────────────────────────────────────────────────────────────
  *
- *  Everything a non-developer needs to change lives in this file.
- *  Search for "REPLACE" to jump straight to items that need real content.
- *
- *  Sections below map 1:1 to the on-page sections.
+ *  Every word on the site comes from this file. Nothing here may state a fact
+ *  the collective has not published itself (see _redesign/CONTENT.md for the
+ *  approved wording and every change made during the redesign).
  */
 
 /* ---------------------------------------------------------------- SITE META */
 export const site = {
   name: "Maymun Collective",
-  // Drives the <title>, meta description, and Open Graph / Twitter tags.
-  // Same line as the hero tagline, deliberately: what the page says out loud
-  // and what a search result or a shared link says should not disagree.
+  // Drives <title>, the meta description and the Open Graph / Twitter tags.
+  // Same line as the tagline on purpose: what the page says and what a shared
+  // link says should not disagree.
   shortDescription: "müzik, música, music.",
-  // The canonical URL of the deployed site (used for Open Graph / SEO).
   url: "https://maymuncollective.com",
-  // Path (in /public) to the social share image. REPLACE with a real 1200x630 image.
-  ogImage: "/og-placeholder.svg",
-  // Primary contact address (also used by the Contact section mailto link).
+  // 1200×630, generated from the design by scripts/build-og.mjs.
+  ogImage: "/og.png",
   email: "info@maymuncollective.com",
 };
 
 /* ------------------------------------------------------------------- NAV */
-// Anchor links shown in the header. `href` values match the section ids.
+// Anchor links in the bottom menu; `href` values match the section ids, and
+// the order is the order of the sections on the page.
 export const nav = [
   { label: "Gallery", href: "#gallery" },
-  { label: "Music", href: "#music" },
   { label: "Members", href: "#members" },
+  { label: "Music", href: "#music" },
   { label: "Contact", href: "#contact" },
 ];
 
+/* ---------------------------------------------------------------- TAGLINE */
+// The tagline, one entry per language. Each is set at its own width (see
+// DESIGN.md → Type); `lang` lets screen readers pronounce each word correctly.
+export const tagline = [
+  { text: "müzik,", lang: "tr", voice: "tr" },
+  { text: "música,", lang: "es", voice: "es" },
+  { text: "music.", lang: "en", voice: "en" },
+] as const;
+
+/* --------------------------------------------------------------- PHOTOS */
+// Every image the site may use. `width`/`height` are the files' real pixel
+// dimensions — next/image reserves space from them, so a wrong pair means a
+// layout jump. `position` is the object-position used when a layout crops the
+// image (phones / wider screens). Filenames are case-sensitive on Vercel.
+export type Photo = {
+  id: string;
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  label?: string;
+  position?: { sm: string; lg: string };
+  // Artwork is shown as made: never printed in two inks, never cropped.
+  artwork?: boolean;
+  // Printing adjustments, only for photos whose light doesn't survive a plain
+  // greyscale. `channel: "red"` is a darkroom red filter: greyscale weights
+  // red at 21%, so a room lit red prints as black unless the red channel
+  // itself becomes the grey (the #print-red SVG filter in app/layout.tsx).
+  tone?: { channel?: "red"; brightness?: number; contrast?: number };
+};
+
+export const photos: Record<string, Photo> = {
+  live: {
+    id: "live",
+    src: "/images/gallery/01-portrait.jpg",
+    alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.",
+    width: 1708,
+    height: 2560,
+    label: "Live",
+    // The stage sits at 45–70% of the frame; below the ceiling fans.
+    position: { sm: "50% 75%", lg: "50% 75%" },
+  },
+  studio: {
+    id: "studio",
+    src: "/images/gallery/02-studio.PNG",
+    alt: "Saxophone, drums and guitar playing together in a studio.",
+    width: 851,
+    height: 658,
+    label: "Studio",
+  },
+  painting: {
+    id: "painting",
+    src: "/images/gallery/03-newartwork.jpg",
+    alt: "Painting of figures in bright robes carrying baskets overhead.",
+    width: 1979,
+    height: 2560,
+    artwork: true,
+  },
+  room: {
+    id: "room",
+    src: "/images/gallery/04-live.JPG",
+    alt: "Maymun Collective playing a small room under red light.",
+    width: 1600,
+    height: 1600,
+    position: { sm: "50% 50%", lg: "45% 50%" },
+    // Lit almost entirely red, which greyscale reads as near-black.
+    tone: { channel: "red", brightness: 1.1, contrast: 1.15 },
+  },
+  backstage: {
+    id: "backstage",
+    src: "/images/gallery/05-backstage.jpeg",
+    alt: "Four members of Maymun Collective laughing on a couch backstage.",
+    width: 1708,
+    height: 2560,
+    label: "Backstage",
+    position: { sm: "50% 60%", lg: "50% 55%" },
+  },
+  crew: {
+    id: "crew",
+    src: "/images/gallery/06-crew.JPG",
+    alt: "Four members of Maymun Collective in front of a packed crowd after a show.",
+    width: 2560,
+    height: 1044,
+    label: "Crew",
+    position: { sm: "50% 40%", lg: "50% 40%" },
+  },
+};
+
 /* ------------------------------------------------------------------- HERO */
+// The photograph printed beside the tagline: the Blind show, whose violet
+// stage light is where the site's second ink comes from.
 export const hero = {
-  // The two lines of the name, rendered as the page's single <h1> in all caps.
-  // Kept as an array rather than one string with a "\n" so each line is its own
-  // element and the lockup can be balanced line by line (see components/Hero).
-  titleLines: ["Maymun", "Collective"],
-  tagline: "müzik, música, music.",
-  scrollCue: "Scroll",
+  photo: photos.live,
 };
 
 /* --------------------------------------------------------------- GALLERY */
-// Gallery tiles. `src` points at a file in /public (image files live in
-// public/images/gallery/). To swap an image, drop a new file in and update the
-// `src`, `alt`, and the `width`/`height` (the image's real pixel dimensions —
-// they let the layout reserve the correct space and preserve aspect ratio so
-// nothing is cropped or distorted). NOTE: paths are case-sensitive on Vercel —
-// match the exact filename, including extension casing (e.g. .PNG, .JPG). Set
-// `src` to "" to fall back to a labelled placeholder tile; `label` shows there.
-// A curated three-photo selection. The other files are still in
-// public/images/gallery/ — they were removed from this list, not deleted — so
-// adding one back is just a matter of putting its entry back here.
+// The homepage shows a selection (the Blind photo is already the hero);
+// /gallery shows everything.
 export const gallery = {
   heading: "Gallery",
-  subheading: "Selected photography and stills from the collective.",
-  images: [
-    { id: 1, src: "/images/gallery/01-portrait.jpg", label: "Live", alt: "Maymun Collective performing live on stage under pink and purple lights at Blind.", width: 1708, height: 2560 },
-    { id: 5, src: "/images/gallery/05-backstage.jpeg", label: "Backstage", alt: "The four members of Maymun Collective relaxing on a couch backstage.", width: 1708, height: 2560 },
-    { id: 6, src: "/images/gallery/06-crew.JPG", label: "Crew", alt: "The four members of Maymun Collective posing together in front of a packed crowd after a show.", width: 2560, height: 1044 },
-  ],
+  subheading: "On stage and off it.",
+  moreLabel: "All photographs",
+  images: [photos.crew, photos.backstage],
+};
+
+export const galleryPage = {
+  heading: "Gallery",
+  description: "Photographs of Maymun Collective.",
+  backLabel: "Back to home",
+  // Order on the page; the painting sits with the photographs but is shown
+  // as made (see Photo.artwork).
+  images: [photos.live, photos.backstage, photos.crew, photos.room, photos.studio, photos.painting],
 };
 
 /* ----------------------------------------------------------------- MUSIC */
@@ -69,70 +150,150 @@ export const gallery = {
 // ⋯ ▸ Share ▸ Embed, and paste the full <iframe> code into `spotifyEmbed`.
 export const music = {
   heading: "Music",
+  // Rendered as a link to `spotifyUrl` — the always-visible fallback for the
+  // player, which only loads as the section approaches.
   subheading: "Listen on Spotify.",
-  spotifyEmbed: `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`,
+  spotifyEmbed: `<iframe data-testid="embed-iframe" title="Maymun Collective on Spotify" style="border-radius:0" src="https://open.spotify.com/embed/artist/65l6MjVrzKqg5gNzo5K7ly?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`,
   // Height the embed renders at, in px. The placeholder reserves exactly this
-  // so swapping in the real player shifts nothing. Keep it in step with the
-  // `height` in the iframe above.
+  // so swapping in the real player shifts nothing.
   embedHeight: 352,
-  // Plain link to the same artist, used as the no-JS fallback.
   spotifyUrl: "https://open.spotify.com/artist/65l6MjVrzKqg5gNzo5K7ly",
+  loadingLabel: "Loading the player…",
 };
 
 /* --------------------------------------------------------------- MEMBERS */
-// Simple roster. Each entry is just a `name` and a `role` — no contact details
-// are shown here; general enquiries go through the Contact section's email.
 export const members = {
   heading: "Members",
-  subheading: "The people behind the collective.",
-  people: [
-    { id: 1, name: "Ada Fındıkoğlu", role: "Saxophone" },
-    { id: 2, name: "Sarp Serinan", role: "Guitar" },
-    { id: 3, name: "Adahan Altılar", role: "Drums" },
-    { id: 4, name: "Ada Kar Tamyürek", role: "Keyboard" },
-    { id: 5, name: "Ata Gökdemir", role: "Bass" },
-    { id: 6, name: "Mert Adıgüzel", role: "Management & Booking" },
-    { id: 7, name: "San Ertuğ", role: "Social Media" },
-    { id: 8, name: "Selimcan Paydaş", role: "Corporate" },
+  // The section's large two-line title (visual; the heading above is what
+  // screen readers hear).
+  title: ["A Creative", "Collective"],
+  groups: [
+    {
+      label: "On stage",
+      people: [
+        { name: "Ada Fındıkoğlu", role: "Saxophone" },
+        { name: "Sarp Serinan", role: "Guitar" },
+        { name: "Adahan Altılar", role: "Drums" },
+        { name: "Ada Kar Tamyürek", role: "Keyboard" },
+        { name: "Ata Gökdemir", role: "Bass" },
+      ],
+    },
+    {
+      label: "Off stage",
+      people: [
+        { name: "Mert Adıgüzel", role: "Management & Booking" },
+        { name: "San Ertuğ", role: "Social Media" },
+        { name: "Selimcan Paydaş", role: "Corporate" },
+      ],
+    },
   ],
-};
-
-/* ------------------------------------------------------------ GALLERY PAGE */
-// The standalone /gallery route is intentionally a holding page for now: a
-// heading, a line of copy, and a way back. When the real collection is ready,
-// this is where its copy goes.
-//
-// The grid that used to live here has NOT been thrown away — components/
-// GalleryGrid.tsx still implements the full masonry + image/video lightbox, and
-// the item shape it expects is documented at the top of that file. Dropping an
-// `items` array back onto this object and rendering <GalleryGrid /> again on
-// app/gallery/page.tsx is all it takes to bring it back.
-export const galleryPage = {
-  eyebrow: "Gallery",
-  heading: "Coming soon",
-  subheading:
-    "A fuller collection of photography and video from the collective is on its way. In the meantime, there is a selection on the homepage.",
-  backLabel: "Back to home",
 };
 
 /* --------------------------------------------------------------- CONTACT */
-// Social links. Set `href` to "" to hide a given platform.
 export const contact = {
   heading: "Contact",
-  subheading:
-    "Bookings, collaborations, press. Reach us directly or find us online.",
+  subheading: "Bookings, collaborations, press.",
   email: site.email,
-  // WhatsApp number, shown under the email. The wa.me link is derived from it
-  // (non-digits stripped). Set to "" to hide the WhatsApp line entirely.
+  // Shown under the email; the wa.me link is derived from it (non-digits
+  // stripped). Set to "" to hide the WhatsApp line.
   whatsapp: "+44 7915 378469",
+  // `handle` is what the Channels section shows: the account name from each
+  // URL; YouTube's is the channel's own name (it has no @handle in the URL).
   socials: [
-    { label: "Instagram", href: "https://www.instagram.com/maymun.collective?igsh=MWE3dmx2MHppZ2F4Mw==" },
-    { label: "TikTok", href: "https://www.tiktok.com/@maymuncollective?_r=1&_t=ZS-92W1QWdmZV9" },
-    { label: "YouTube", href: "https://www.youtube.com/channel/UCJ1cnAUNK68gRJXUH9G_GuQ" },
+    { label: "Instagram", handle: "@maymun.collective", href: "https://www.instagram.com/maymun.collective" },
+    { label: "TikTok", handle: "@maymuncollective", href: "https://www.tiktok.com/@maymuncollective" },
+    { label: "YouTube", handle: "Maymun Collective", href: "https://www.youtube.com/channel/UCJ1cnAUNK68gRJXUH9G_GuQ" },
   ],
+  // The Channels section, between Music and Contact: every direct line in one
+  // row of mixer-like strips.
+  channels: {
+    label: "Channels",
+    heading: "Reach us directly.",
+    email: "Email",
+    whatsapp: "WhatsApp",
+    newTab: ", opens in a new tab",
+  },
+  // The contact stream in the Contact section: name and email → reason →
+  // message (+ optional file). Submissions are stored as records and read in
+  // /inbox; see lib/contact.
+  form: {
+    steps: ["Your details", "Reason", "Message"],
+    name: { label: "Name", placeholder: "Your name" },
+    email: { label: "Email", placeholder: "you@example.com" },
+    category: {
+      label: "Reason for getting in touch",
+      placeholder: "Choose one",
+      options: ["Bookings", "Collaborations", "Partnerships", "Other"],
+    },
+    message: { label: "Message", placeholder: "Tell us what you have in mind" },
+    file: {
+      add: "Attach a file",
+      hint: "Optional. Audio, video, PDF or images, up to 50 MB. For longer videos, add a link to your message.",
+      remove: "Remove attachment",
+      drop: "Drop the file to attach it",
+    },
+    back: "Back",
+    next: "Next step",
+    send: "Send",
+    sending: "Sending",
+    uploading: (percent: number) => `Uploading ${percent}%`,
+    stepOf: (step: number, total: number, title: string) => `Step ${step} of ${total}: ${title}`,
+    errors: {
+      name: "Please add your name.",
+      email: "Please add a valid email address.",
+      category: "Please choose a reason.",
+      message: "Please write a message.",
+      fileType: "That file type can't be attached. Try audio, video, PDF, images or a document.",
+      fileSize: "That file is over 50 MB. Add a link to it in your message instead.",
+      generic: `Something went wrong and your message wasn't sent. Please try again, or email ${site.email}.`,
+    },
+    success: (name: string) => `Thank you, ${name}. We'll get back to you soon.`,
+    again: "Send another message",
+  },
 };
 
 /* ---------------------------------------------------------------- FOOTER */
 export const footer = {
-  note: `© ${new Date().getFullYear()} Maymun Collective. All rights reserved.`,
+  note: `© ${new Date().getFullYear()} Maymun Collective`,
+};
+
+/* ----------------------------------------------------------------- INBOX */
+// The private page (/inbox) where contact submissions are read.
+export const inbox = {
+  title: "Inbox",
+  locked: "Sign in to read messages sent through the contact form.",
+  password: "Password",
+  signIn: "Sign in",
+  signOut: "Sign out",
+  wrongPassword: "That password didn't work.",
+  notConfigured: "The inbox opens once INBOX_PASSWORD is set in the project's environment variables.",
+  noStorage: "No storage is connected, so the contact form can't save messages. Connect a private Blob store in Vercel → Storage.",
+  all: "All",
+  count: (n: number) => (n === 1 ? "1 message" : `${n} messages`),
+  empty: "No messages yet.",
+  export: "Download CSV",
+  reply: "Reply",
+  replySubject: (category: string) => `Re: ${category} — ${site.name}`,
+};
+
+/* ------------------------------------------------------------ INTERFACE */
+// Words the interface itself needs (controls, not content).
+export const ui = {
+  loading: "Loading",
+  nextStep: "Next step",
+  explore: "Explore",
+  follow: "Follow",
+  // The bottom menu's link to Spotify; the hidden part completes it for
+  // screen readers ("Listen Now on Spotify, opens in a new tab").
+  listenNow: "Listen Now",
+  listenNowHidden: " on Spotify, opens in a new tab",
+  membersRegion: "Members, scroll sideways",
+  skipLink: "Skip to content",
+  openMenu: "Open menu",
+  closeMenu: "Close menu",
+  menu: "Menu",
+  close: "Close",
+  previous: "Previous photograph",
+  next: "Next photograph",
+  whatsappLabel: (n: string) => `Message us on WhatsApp at ${n}`,
 };

@@ -1,7 +1,7 @@
 /**
  * Builds the site's brand assets from Favicon.svg:
  *   app/icon.svg, app/favicon.ico, app/apple-icon.png  — the site icon
- *   public/logo-wordmark.svg                           — the nav wordmark
+ *   public/logo-maymun.svg                           — the nav wordmark
  *
  * The icon is the spiral — the mark at the centre of the MAYMUN COLLECTIVE
  * lockup. It used to be the M; the spiral is more distinctive at tab size and
@@ -237,6 +237,9 @@ const wmPath = await new Promise((res, rej) => {
   p.loadImage(wmFlat, (err) => (err ? rej(err) : res(p.getPathTag().match(/ d="([^"]+)"/)[1])));
 });
 
+// potrace marks holes (the counters of the A and the O) as nested subpaths
+// meant for the even-odd rule; under SVG's default nonzero rule they fill in
+// solid, so the rule is set explicitly.
 // The fill is baked rather than left as `currentColor`: this is loaded through
 // an <img>, and an SVG in an <img> is an isolated document, so `currentColor`
 // would resolve to its own default black and the wordmark would disappear
@@ -244,14 +247,15 @@ const wmPath = await new Promise((res, rej) => {
 // of path data that is more than the entire HTML document currently weighs, on
 // every page — not worth it for a mark that is always this one colour. The
 // value is the palette's `bone` token; keep the two in step.
-const BONE = "#f5f3ef";
+// The palette's `ink` (tailwind.config.ts) — the wordmark prints in the pale ink.
+const INK = "#fafafa";
 fs.writeFileSync(
-  `${PUB}/logo-wordmark.svg`,
+  `${PUB}/logo-maymun.svg`,
   // width/height on the root as well as the viewBox, so the file has a real
   // intrinsic size instead of falling back to the SVG-in-<img> default of 150px
   // tall with a derived width.
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${BONE}"/></svg>\n`
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${wmW}" height="${wmH}" viewBox="0 0 ${wmW} ${wmH}" role="img" aria-label="Maymun Collective"><path d="${wmPath}" fill="${INK}" fill-rule="evenodd"/></svg>\n`
 );
-console.log(`wrote ${PUB}/logo-wordmark.svg (${wmW}x${wmH}, aspect ${(wmW / wmH).toFixed(3)})`);
+console.log(`wrote ${PUB}/logo-maymun.svg (${wmW}x${wmH}, aspect ${(wmW / wmH).toFixed(3)})`);
 
 fs.rmSync(TMP, { recursive: true, force: true });

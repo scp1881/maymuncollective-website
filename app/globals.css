@@ -2,210 +2,2940 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Webfonts ────────────────────────────────────────────────────────────────
-   Self-hosted and subsetted rather than loaded through next/font. The Google
-   files carry several thousand glyphs each; this site renders a few hundred, and
-   these are High-priority requests contending with this very stylesheet, so they
-   land straight on first paint. scripts/build-fonts.py does the subsetting and
-   explains the trade; the sources are vendored in fonts-src/ so it stays
-   re-runnable.
+/* ═══════════════════════════════════════════════════════════════════════════
+   Maymun Collective — v3, adapted from the Kurate reference (see
+   _redesign/KURATE_STUDY.md). Sizes are in vw like the reference, clamped
+   where they would fall below legible sizes. All motion is gated behind
+   html.motion (set before first paint from prefers-reduced-motion, with a
+   ?motion=on|off override — see components/k/motion.ts), and every hidden
+   starting state is also gated behind html.js, so without JavaScript or with
+   reduced motion the page is simply static and fully visible.
+   ═══════════════════════════════════════════════════════════════════════ */
 
-   The unicode-range values are Google's own, kept verbatim, so the browser still
-   fetches the extended file only when a page renders a character from it. The
-   `-Fallback` faces below are also next/font's own output, copied exactly: they
-   pin Arial's metrics to each webfont's so the swap from fallback to real face
-   does not move any text. Losing them would trade a font saving for layout
-   shift, which is a bad deal — measured CLS is 0.0000 and should stay there. */
-/* The capitals-only cut of the display face — see scripts/build-fonts.py.
-   6.4 KB against the full latin cut's 33 KB, so the hero's H1 (the LCP element)
-   stops waiting on a font that carries 400 glyphs it never draws. Every headline
-   on the site is uppercase, so this one file draws all of them. It is first in
-   the `display` stack; anything outside this range falls through to the full
-   face below, same family, same weight, identical pixels. */
+/* ─────────────────────────────────────────────────────────────── fonts ──
+   Archivo stands in for the reference's Helvetica Now Display (licensed).
+   Subset by scripts/build-fonts.mjs. */
 @font-face {
-  font-family: "Bricolage Display";
-  font-style: normal;
-  font-weight: 500 800;
+  font-family: "Archivo";
+  src: url("/fonts/archivo-latin.woff2") format("woff2");
+  font-weight: 300 900;
+  font-stretch: 62% 125%;
   font-display: swap;
-  src: url("/fonts/bricolage-display.woff2") format("woff2");
-  unicode-range: u+0020,u+0026,u+0027,u+002c,u+002d,u+002e,u+0041-005a,u+00c0-00c5,u+00c7-00cf,u+00d1-00d6,u+00d9-00dd;
-}
-
-@font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 500 800;
-  font-display: swap;
-  src: url("/fonts/bricolage-latin.woff2") format("woff2");
-  unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc,
-    u+0304, u+0308, u+0329, u+2000-206f, u+20ac, u+2122, u+2191, u+2193, u+2212,
-    u+2215, u+feff, u+fffd;
+  unicode-range: U+0000-00FF, U+2010, U+2013-2014, U+2018-201A, U+201C-201E, U+2022, U+2026, U+2039-203A, U+20AC, U+2122;
 }
 @font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 500 800;
+  font-family: "Archivo";
+  src: url("/fonts/archivo-latin-ext.woff2") format("woff2");
+  font-weight: 300 900;
+  font-stretch: 62% 125%;
   font-display: swap;
-  src: url("/fonts/bricolage-ext.woff2") format("woff2");
-  unicode-range: u+0100-02ba, u+02bd-02c5, u+02c7-02cc, u+02ce-02d7, u+02dd-02ff,
-    u+0304, u+0308, u+0329, u+1d00-1dbf, u+1e00-1e9f, u+1ef2-1eff, u+2020,
-    u+20a0-20ab, u+20ad-20c0, u+2113, u+2c60-2c7f, u+a720-a7ff;
+  unicode-range: U+011E-011F, U+0130-0131, U+0152-0153, U+015E-015F, U+0160-0161, U+0178, U+017D-017E;
 }
 @font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("/fonts/inter-latin.woff2") format("woff2");
-  unicode-range: u+00??, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da, u+02dc,
-    u+0304, u+0308, u+0329, u+2000-206f, u+20ac, u+2122, u+2191, u+2193, u+2212,
-    u+2215, u+feff, u+fffd;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("/fonts/inter-ext.woff2") format("woff2");
-  unicode-range: u+0100-02ba, u+02bd-02c5, u+02c7-02cc, u+02ce-02d7, u+02dd-02ff,
-    u+0304, u+0308, u+0329, u+1d00-1dbf, u+1e00-1e9f, u+1ef2-1eff, u+2020,
-    u+20a0-20ab, u+20ad-20c0, u+2113, u+2c60-2c7f, u+a720-a7ff;
-}
-
-/* Metric-matched fallbacks — next/font's generated values, kept verbatim. */
-/* Measured, not derived. The obvious calculation — compare Bricolage's average
-   advance to Arial's — is wrong here, because the face this fallback stands in
-   for is ExtraBold and `local("Arial")` has no bold to match: the browser
-   synthesises one, which comes out WIDER than real Bricolage ExtraBold, not
-   narrower. Setting "COLLECTIVE" at the headline's size and weight in both and
-   comparing rendered widths gives 948.8px against 1074.1px, so the fallback
-   needs scaling down, and size-adjust lands at ~100%.
-
-   This matters beyond tidiness: the hero headline is the LCP element, and it
-   only becomes an LCP candidate once its fade-up finishes. If the real font
-   changes the block's size when it swaps in, that registers as a NEW, later
-   candidate — a mismatched size-adjust here measured +380ms of LCP. The two
-   overrides are Bricolage's own ascent/descent (930/270 per 1000 upm) divided
-   by size-adjust. */
-@font-face {
-  font-family: "Bricolage Grotesque Fallback";
+  font-family: "Archivo Fallback";
   src: local("Arial");
-  ascent-override: 92.84%;
-  descent-override: 26.95%;
+  size-adjust: 98.7%;
+  ascent-override: 88.96%;
+  descent-override: 21.28%;
   line-gap-override: 0%;
-  size-adjust: 100.17%;
-}
-@font-face {
-  font-family: "Inter Fallback";
-  src: local("Arial");
-  ascent-override: 90.49%;
-  descent-override: 22.56%;
-  line-gap-override: 0%;
-  size-adjust: 107.06%;
 }
 
-@layer base {
+/* ─────────────────────────────────────────────────────────────── tokens ── */
+:root {
+  --bg: #0e0f0f;
+  --panel: #121313;
+  --panel-2: #181a1a;
+  --fg: #fafafa;
+  --muted: rgba(255, 255, 255, 0.62); /* reference used 40–50%; lifted for AA */
+  --faint: rgba(255, 255, 255, 0.55);
+  --line: rgba(252, 252, 252, 0.25);
+  --teal: #95b6c5;
+  --teal-2: #83c3cc;
+  --err: #ff9d8f; /* form errors; ≈ 9:1 on bg */
+
+  --pad: 1.984vw;
+  --ease: ease;
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: dark;
+}
+@media (max-width: 768px) {
   :root {
-    color-scheme: dark;
+    --pad: 5.128vw;
   }
+}
 
-  html {
-    scroll-behavior: smooth;
-    /* Offset anchor targets so section headings aren't hidden under the fixed nav. */
-    scroll-padding-top: 5rem;
-    -webkit-text-size-adjust: 100%;
-  }
-
+/* ───────────────────────────────────────────────────────────────── base ── */
+html {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  font-family: "Archivo", "Archivo Fallback", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-stretch: 100%;
+  font-size: clamp(14px, 1vw, 19px);
+  line-height: 1.3;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+@media (max-width: 768px) {
   body {
-    @apply bg-ink text-bone font-body antialiased;
-    /* `clip`, not `hidden`. The full-bleed photograph is sized in `vw`, which
-       counts the scrollbar the content box does not have, so it ends up about
-       15px wider than the page and would otherwise add a horizontal scrollbar.
-       `overflow-x: clip` trims that sliver without creating a scroll container
-       — which matters, because `overflow: hidden` would create one and silently
-       break every `position: sticky` heading on the page. */
-    overflow-x: clip;
-    text-rendering: optimizeLegibility;
-    /* Lining, tabular figures everywhere. The site is full of numbers that sit
-       in columns — years, phone numbers, track times — and proportional digits
-       make those columns wobble. */
-    font-variant-numeric: tabular-nums;
+    font-size: 4.103vw;
   }
+}
+a,
+button {
+  color: inherit;
+  touch-action: manipulation;
+}
+button {
+  font: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+/* The reference hides the system cursor for its own; only where there is a
+   precise pointer to follow and motion is welcome (html.has-cursor is set by
+   components/Cursor under exactly those conditions). */
+html.has-cursor body,
+html.has-cursor a,
+html.has-cursor button {
+  cursor: none;
+}
 
-  /* Running copy only. `pretty` costs a little layout work per paragraph, so it
-     is not worth putting on headings (which get `balance` where they need it)
-     or on single-line labels. It exists to stop a paragraph ending on a
-     one-word line, which is the single most common thing that makes otherwise
-     careful typography look careless. */
-  p {
-    text-wrap: pretty;
+.k-container {
+  width: 100%;
+  height: 100%;
+  padding: 0 var(--pad);
+}
+.section {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+.k-p {
+  font-size: clamp(14px, 1.19vw, 20px);
+  line-height: 1.45;
+  color: var(--muted);
+}
+.k-label {
+  /* The reference's "(About)" style section labels. */
+  font-size: clamp(13px, 1.323vw, 22px);
+  line-height: 1.5;
+  color: var(--faint);
+}
+.k-h1 {
+  font-size: 10.582vw;
+  line-height: 0.84;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.k-h2 {
+  font-size: 7.275vw;
+  line-height: 0.92;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.k-h3 {
+  font-size: 4.762vw;
+  line-height: 1.128;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+@media (max-width: 768px) {
+  .k-h1 {
+    font-size: 16.41vw;
   }
-
-  /* Consistent, visible focus ring for keyboard users across interactive elements. */
-  :focus-visible {
-    @apply outline-none ring-2 ring-stage ring-offset-2 ring-offset-ink;
+  .k-h2 {
+    font-size: 12.4vw;
   }
-
-  ::selection {
-    @apply bg-stage text-ink;
+  .k-h3 {
+    font-size: 9.231vw;
+  }
+  .k-p {
+    font-size: 4.103vw;
+  }
+  .k-label {
+    font-size: 4.2vw;
   }
 }
 
-@layer utilities {
-
-  /* The rail: one set of gutters for the whole site, no max-width. The header,
-     the hero and every section below now share it, so the page has a single
-     spine from the wordmark to the footer and the hairlines can run edge to
-     edge. Reading measure is controlled per element (max-w on the paragraphs
-     that need it) rather than by squeezing the whole page into a column — a
-     centred max-w-6xl container made every section the same shape, which is
-     what made the page below the hero read as a template. */
-  .container-rail {
-    @apply w-full px-6 sm:px-8 lg:px-16;
-  }
-
-  /* ── Type tiers ─────────────────────────────────────────────────────────
-     Four roles, each with one job. Before this the site had two — display for
-     headings and one grey body size for everything else — so a section's
-     standfirst, an image caption and a member's instrument were all set
-     identically and none of them ranked against the others. */
-
-  /* Standfirst under a section heading. Bone at 70%, not `muted`: muted is a
-     warm grey-brown that reads as disabled at paragraph length. */
-  .lede {
-    @apply max-w-prose text-base leading-relaxed text-bone/70 sm:text-lg;
-  }
-
-  /* The quiet tier — captions, instrument credits, link labels.
-     Deliberately sentence case. A tracked-out uppercase label above every
-     piece of content is the single most recognisable piece of template chrome
-     there is; it announces "this is a designed page" without telling anyone
-     anything. Small, dimmer, and in the same voice as the rest of the writing
-     does the same ranking job and reads like a person wrote it. */
-  .note {
-    @apply text-sm leading-snug text-muted;
-  }
-
-  /* Small uppercase label. Now used only by the /gallery holding page, where
-     it names which page you are on above a heading that otherwise would not
-     say. That is a job; decorating a section heading was not. */
-  .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.2em] text-muted;
+/* Underlined arrow link ("Send your demos →" in the reference). */
+.k-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9em;
+  padding-bottom: 0.55em;
+  border-bottom: 1px solid currentColor;
+  font-size: clamp(13px, 0.926vw, 17px);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.k-link svg {
+  width: 1.1em;
+  height: 1.1em;
+  transition: translate 0.4s var(--ease);
+}
+.k-link:hover svg {
+  translate: 0.25em 0;
+}
+@media (max-width: 768px) {
+  .k-link {
+    font-size: 3.6vw;
   }
 }
 
-/* Respect users who prefer reduced motion: no smooth scroll, and the hero's
-   one entrance is reduced to nothing. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+/* Links whose underline grows on hover (menu dropdown, footer). */
+.k-grow {
+  position: relative;
+  width: fit-content;
+}
+.k-grow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.35em;
+  height: 1px;
+  width: 0;
+  background: currentColor;
+  transition: width 0.4s var(--ease);
+}
+.k-grow:hover::after,
+.k-grow:focus-visible::after {
+  width: 100%;
+}
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+/* A WhatsApp number with its icon: icon, a small gap, the number, on one
+   line (the base styles make SVGs blocks, which put the icon on its own
+   line). Used wherever the number appears: footer and menu. */
+.k-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+}
+.k-wa svg {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/* The small cross mark the reference pairs with its paragraphs. */
+.k-cross {
+  width: 2.4vw;
+  height: 2.4vw;
+  min-width: 22px;
+  min-height: 22px;
+}
+
+/* ───────────────────────────────────────────────── reveal system ──
+   `.rv` children start displaced and settle when their section is
+   `.animated` (added by components/Experience when its top reaches 25% of the
+   viewport, as in the reference). Only with JS and motion allowed. */
+html.js.motion .rv {
+  transform: translate(var(--rv-x, 0), var(--rv-y, 100%)) rotate(var(--rv-r, 0deg)) scale(var(--rv-s, 1));
+  opacity: var(--rv-o, 0);
+  transition:
+    transform var(--rv-d, 1s) var(--rv-e, var(--ease)) var(--rv-delay, 0s),
+    opacity var(--rv-d, 1s) var(--rv-e, var(--ease)) var(--rv-delay, 0s);
+}
+html.js.motion .animated .rv {
+  transform: none;
+  opacity: 1;
+}
+/* Letter-by-letter fades (statement, contact title). */
+html.js.motion .rv-letters > span {
+  opacity: 0;
+  transition: opacity 1s var(--ease);
+}
+html.js.motion .animated .rv-letters > span {
+  opacity: 1;
+}
+/* Hand-drawn lines draw themselves in. */
+html.js.motion .draw path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset var(--draw-d, 2s) var(--ease-io) var(--draw-delay, 0s);
+}
+html.js.motion .animated .draw path {
+  stroke-dashoffset: 0;
+}
+.rv-letters > span {
+  white-space: pre;
+}
+.clip-line {
+  display: block;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────── preloader ── */
+.k-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: none;
+  padding: 2.646vw 3.307vw;
+  background: var(--bg);
+  text-transform: uppercase;
+  transition: translate 1.5s var(--ease-io) 0.5s;
+}
+html.js:not(.no-preloader) .k-preloader {
+  display: block;
+}
+.k-preloader.is-closing {
+  translate: 0 100%;
+}
+.k-preloader .pl-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24vw;
+  translate: -50% -50%;
+}
+.k-preloader .pl-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.k-preloader .pl-shadow {
+  opacity: 0.18;
+}
+.k-preloader .pl-filled {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.k-preloader .pl-filled::before {
+  /* the cover that slides away left to right, revealing the filled logo */
+  content: "";
+  position: absolute;
+  top: -5%;
+  height: 110%;
+  width: 100%;
+  z-index: 1;
+  background: var(--bg);
+  animation: pl-wipe var(--pl-wipe, 2.2s) linear forwards;
+}
+@keyframes pl-wipe {
+  to {
+    translate: 110% 0;
   }
+}
+.k-preloader .pl-text {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: clamp(11px, 0.926vw, 15px);
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+.k-preloader .pl-left {
+  left: 3.307vw;
+  color: var(--faint);
+}
+.k-preloader .pl-right {
+  right: 3.307vw;
+  text-align: right;
+}
+.k-preloader .pl-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: 2.646vw;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6vw;
+  font-size: clamp(11px, 0.794vw, 14px);
+  font-weight: 500;
+  text-align: center;
+}
+.k-preloader .pl-anim > span {
+  display: inline-block;
+  opacity: 0;
+  animation: pl-in 1s var(--ease) forwards;
+  white-space: pre;
+}
+@keyframes pl-in {
+  to {
+    opacity: 1;
+  }
+}
+.k-preloader .pl-rise {
+  opacity: 0;
+  translate: 0 25%;
+  animation: pl-rise 1s var(--ease) 1s forwards;
+}
+@keyframes pl-rise {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (max-width: 768px) {
+  .k-preloader .pl-logo {
+    width: 60vw;
+  }
+  .k-preloader .pl-text {
+    font-size: 3vw;
+  }
+  .k-preloader .pl-left,
+  .k-preloader .pl-right {
+    top: 72%;
+  }
+}
+
+/* ────────────────────────────────────────────────────── background grid ── */
+.k-grid {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.k-grid .lines {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 0, rgba(255, 255, 255, 0.5) 1px, transparent 0),
+    linear-gradient(90deg, transparent 0, rgba(255, 255, 255, 0.5) 1px, transparent 0);
+  background-size: 10% 20%, 10% 20%;
+  transition: opacity 1s var(--ease);
+}
+.k-grid .spot {
+  /* A dark field twice the viewport with a clear centre that follows the
+     pointer, so the grid only shows around the cursor. */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200vw;
+  height: 200vh;
+  transform: translate(50vw, 50vh);
+  transition: opacity 1s var(--ease);
+  will-change: transform;
+}
+.k-grid .spot > div {
+  position: absolute;
+  inset: 0;
+  translate: -50% -50%;
+  background: radial-gradient(circle, rgba(14, 15, 15, 0.001) 0%, var(--bg) 50%);
+}
+html[data-grid="off"] .k-grid .lines,
+html[data-grid="off"] .k-grid .spot {
+  opacity: 0;
+}
+@media (max-width: 768px) {
+  .k-grid .lines {
+    background-size: 30% 20%, 30% 20%;
+    background-position: center;
+  }
+  .k-grid .spot {
+    width: 125vw;
+    height: 125vh;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────── cursor ── */
+.k-cursor {
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 95;
+  display: none;
+  will-change: transform;
+}
+html.has-cursor .k-cursor {
+  display: block;
+}
+.k-cursor > div {
+  width: 2.25vw;
+  height: 2.25vw;
+  min-width: 28px;
+  min-height: 28px;
+  translate: -50% -50%;
+  border: 1px solid var(--fg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.6s var(--ease);
+  transition-property: width, height, opacity, scale;
+}
+.k-cursor > div::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--fg) center / 45% no-repeat;
+  scale: 0.15;
+  transition: all 0.5s var(--ease);
+}
+.k-cursor.-hidden > div {
+  scale: 0.5;
+  opacity: 0;
+}
+.k-cursor.-play > div {
+  width: 4.5vw;
+  height: 4.5vw;
+}
+.k-cursor.-play > div::before {
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5.5v13l10.5-6.5z' fill='%23fafafa'/%3E%3C/svg%3E");
+  scale: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────── header ── */
+.k-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 2.646vw var(--pad) 0;
+  pointer-events: none;
+}
+.k-header > * {
+  pointer-events: auto;
+}
+.k-header .logo {
+  display: block;
+  height: 3vw;
+  min-height: 34px;
+  overflow: hidden;
+}
+.k-header .logo img {
+  height: 100%;
+  width: auto;
+  transition: translate 0.8s var(--ease-io), opacity 0.6s var(--ease);
+}
+html[data-header="hidden"] .k-header .logo img {
+  translate: 0 -110%;
+  opacity: 0;
+}
+@media (max-width: 768px) {
+  .k-header {
+    padding-top: 2.2vh;
+  }
+  .k-header .logo {
+    height: 9vw;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── bottom menu ── */
+.k-menu {
+  position: fixed;
+  left: 50%;
+  bottom: 2.7778vh;
+  z-index: 45;
+  width: 35%;
+  min-width: 470px;
+  translate: -50% 0;
+  perspective: 1000px;
+}
+.k-menu .m-content {
+  position: relative;
+}
+html.js.motion .k-menu .m-content {
+  translate: 0 120%;
+  opacity: 0;
+  transition: translate 1s var(--ease-expo) 0.4s, opacity 0.6s var(--ease) 0.4s;
+}
+html.js.page-loaded.motion .k-menu .m-content {
+  translate: 0 0;
+  opacity: 1;
+}
+.k-menu .m-drop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  padding: 0.4vw 0.4vw 0;
+  opacity: 0;
+  translate: 0 10px;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.4s var(--ease), translate 0.4s var(--ease), visibility 0s linear 0.4s;
+}
+.k-menu.is-open .m-drop {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0.1s, 0.1s, 0s;
+}
+.k-menu .m-drop-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 1.3vw;
+  padding: 1.653vw;
+  border-radius: 0.794vw 0.794vw 0 0;
+  background: rgba(20, 21, 21, 0.78);
+  backdrop-filter: blur(60px);
+  -webkit-backdrop-filter: blur(60px);
+}
+.k-menu .m-col-label {
+  display: block;
+  margin-bottom: 1vw;
+  font-size: clamp(10px, 0.661vw, 12px);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.k-menu .m-col ul {
+  display: grid;
+  gap: 0.75vw;
+  font-size: clamp(13px, 1.058vw, 18px);
+  font-weight: 500;
+}
+.k-menu .m-panels {
+  position: relative;
+  border-radius: 0.794vw;
+  background: rgba(24, 26, 26, 0.78);
+  backdrop-filter: blur(59px);
+  -webkit-backdrop-filter: blur(59px);
+  transition: border-radius 0.4s var(--ease);
+  height: 5.75vh;
+  min-height: 50px;
+}
+.k-menu.is-open .m-panels {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.k-menu .m-panel {
+  position: absolute;
+  inset: 0;
+}
+.k-menu nav {
+  display: flex;
+  height: 100%;
+  padding: 0.397vw;
+  gap: 0.2vw;
+  font-size: clamp(13px, 1.058vw, 18px);
+  font-weight: 500;
+}
+.k-menu .m-item {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7vw;
+  border-radius: 0.5vw;
+  color: rgba(255, 255, 255, 0.62);
+  transition: color 0.3s var(--ease), background-color 0.4s var(--ease);
+  white-space: nowrap;
+}
+.k-menu .m-item:hover,
+.k-menu .m-item[aria-current] {
+  color: var(--fg);
+}
+.k-menu .m-item.menu-btn {
+  color: var(--fg);
+  background: rgba(201, 201, 201, 0.07);
+  flex: 1.15 1 0;
+}
+.k-menu .m-item.menu-btn svg {
+  width: 0.75vw;
+  min-width: 11px;
+}
+.k-menu .m-sep {
+  align-self: center;
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+}
+/* "Listen Now" + Spotify's mark: a straight link to the artist page. */
+.k-menu .m-listen {
+  flex: 1.15 1 0;
+  gap: 0.55vw;
+  padding: 0 0.5vw;
+  color: var(--fg);
+}
+.k-menu .m-listen .spotify {
+  flex: none;
+  width: max(1.25vw, 18px);
+  height: max(1.25vw, 18px);
+  color: #1ed760;
+  transition: scale 0.4s var(--ease);
+}
+.k-menu .m-listen:hover .spotify,
+.k-menu .m-listen:focus-visible .spotify {
+  scale: 1.12;
+}
+@media (max-width: 768px) {
+  .k-menu {
+    width: calc(100% - 2 * var(--pad));
+    min-width: 0;
+    bottom: 2.2vh;
+  }
+  .k-menu nav .m-item.section-link,
+  .k-menu nav .m-sep {
+    display: none;
+  }
+  .k-menu .m-item.menu-btn,
+  .k-menu .m-listen {
+    flex: 1 1 50%;
+  }
+  .k-menu .m-listen {
+    gap: 2vw;
+  }
+  .k-menu .m-drop-body {
+    grid-template-columns: 1fr 1fr;
+    gap: 7vw 4vw;
+    padding: 6vw;
+    border-radius: 3vw 3vw 0 0;
+  }
+  .k-menu .m-panels {
+    border-radius: 3vw;
+    height: 56px;
+  }
+  .k-menu .m-col-label {
+    margin-bottom: 3vw;
+    font-size: 3vw;
+  }
+  .k-menu .m-col ul {
+    gap: 3.2vw;
+    font-size: 4.4vw;
+  }
+  .k-menu .m-col.contact {
+    grid-column: 1 / -1;
+  }
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────── hero ── */
+.k-hero {
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+}
+.k-hero .hero-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(44vw, 60vh * 1.75);
+  translate: -50% -88%;
+  z-index: 1;
+  margin: 0;
+}
+.k-hero .hero-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.k-hero .hero-logo.webgl-on img {
+  opacity: 0;
+}
+html.js.motion .k-hero .hero-logo img {
+  clip-path: inset(100% 0 0 0);
+  translate: 0 12%;
+  transition: clip-path 1.2s var(--ease-io) 0.1s, translate 1.2s var(--ease-io) 0.1s, opacity 0.5s var(--ease);
+}
+html.js.motion .k-hero.animated .hero-logo img {
+  clip-path: inset(0 0 0 0);
+  translate: 0 0;
+}
+.k-water {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+.k-water.is-ready {
+  opacity: 1;
+}
+.k-hero .hero-card {
+  position: absolute;
+  z-index: 2;
+  user-select: none;
+}
+.k-hero .hero-card .content {
+  display: flex;
+  gap: 12px;
+  font-size: clamp(12px, 0.926vw, 16px);
+}
+.k-hero .hero-card .img {
+  position: relative;
+  overflow: hidden;
+}
+.k-hero .hero-card .img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 0.75s var(--ease);
+}
+.k-hero .hero-card:hover .img img {
+  scale: 1.15;
+}
+.k-hero .card-first {
+  top: 0;
+  left: 6.5vw;
+}
+.k-hero .card-first .content {
+  --rv-y: 50%;
+  --rv-d: 1.25s;
+}
+.k-hero .card-first .text {
+  writing-mode: vertical-lr;
+  scale: -1;
+  align-self: flex-end;
+}
+.k-hero .card-first .img {
+  width: 11.574vw;
+  height: 14.881vw;
+}
+.k-hero .card-first .line {
+  position: absolute;
+  right: -1.8vw;
+  bottom: -1.4vw;
+  z-index: 2;
+  width: 5.622vw;
+  height: 4.96vw;
+}
+.k-hero .card-second {
+  right: 0;
+  top: 23.5vh;
+}
+.k-hero .card-second .content {
+  flex-direction: column;
+  align-items: flex-start;
+  --rv-y: 50%;
+  --rv-d: 1.25s;
+  --rv-delay: 0.15s;
+}
+.k-hero .card-second .img {
+  width: 16.204vw;
+  height: 20vh;
+}
+@media (max-width: 768px) {
+  /* Sized by the shorter of width and height so it clears the photo cards
+     above and the card stack below on phones and portrait tablets alike. */
+  .k-hero .hero-logo {
+    width: min(76vw, 40vh);
+    translate: -50% -55%;
+  }
+  .k-hero .card-first {
+    left: 10.256vw;
+    top: 9vh;
+  }
+  .k-hero .card-first .img {
+    width: 23.59vw;
+    height: 30.769vw;
+  }
+  .k-hero .card-first .line {
+    width: 11.5vw;
+    height: 10.3vw;
+  }
+  .k-hero .card-second {
+    top: 14vh;
+    right: var(--pad);
+  }
+  .k-hero .card-second .img {
+    width: 36.41vw;
+    height: 26.41vw;
+  }
+  .k-hero .hero-card .content {
+    font-size: 3.077vw;
+    gap: 3vw;
+  }
+}
+
+/* The 3D card stack straddling the hero's bottom edge. */
+.k-cards {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  z-index: 3;
+  width: 50vw;
+  height: 85vh;
+  translate: -50% -42.5%;
+}
+.k-cards .stack,
+.k-cards .front {
+  position: absolute;
+  inset: 0;
+  --rv-y: 25%;
+  --rv-delay: 0.25s;
+}
+/* Explicit layers: the front card's perspective makes it its own stacking
+   context, which would otherwise paint beneath the fanned cards' z-index. */
+.k-cards .stack {
+  z-index: 1;
+}
+.k-cards .front {
+  z-index: 2;
+}
+.k-cards .front {
+  perspective: 1000px;
+}
+.k-cards .card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(33vw, 100%);
+  height: 100%;
+  translate: -50% 0;
+  overflow: hidden;
+  transition: transform 1s var(--ease), translate 1s var(--ease);
+}
+.k-cards .card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.k-cards .stack .card:nth-child(1) {
+  z-index: 2;
+  transform: rotate(-6.15deg);
+}
+.k-cards .stack .card:nth-child(2) {
+  z-index: 1;
+  transform: rotate(6.15deg);
+}
+.k-cards:hover .stack .card {
+  transition-delay: 0.125s;
+}
+.k-cards:hover .stack .card:nth-child(1) {
+  translate: 0 0;
+  transform: rotate(6deg);
+}
+.k-cards:hover .stack .card:nth-child(2) {
+  translate: -100% 0;
+  transform: rotate(-6deg);
+}
+.k-cards .front .card {
+  z-index: 3;
+  /* Tilted by components/k/TiltCard, which eases it itself. */
+  transition: translate 1s var(--ease);
+}
+.k-cards .meta {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(33vw, 100%);
+  height: 100%;
+  translate: -50% 0;
+  z-index: 5;
+}
+.k-cards .meta .line {
+  position: absolute;
+  right: 0;
+  bottom: 4%;
+  width: 295px;
+  height: 240px;
+  translate: 50% 0;
+}
+.k-cards .meta .circle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% 25%;
+  --rv-y: 60%;
+  --rv-delay: 0.5s;
+}
+@media (max-width: 768px) {
+  .k-cards {
+    top: 66vh;
+    width: 73.333vw;
+    height: 44vh;
+    translate: -50% 0;
+  }
+  .k-cards .card,
+  .k-cards .meta {
+    width: 100%;
+  }
+  .k-cards:hover .stack .card:nth-child(2) {
+    translate: -40% 0;
+  }
+  .k-cards .meta .line {
+    width: 44.4vw;
+    height: 35.9vw;
+    translate: 0 0;
+  }
+  .k-cards .meta .circle {
+    translate: -25% 25%;
+  }
+}
+
+/* Rotating circular label. */
+.k-circle {
+  position: relative;
+  width: 12.566vw;
+  height: 12.566vw;
+  min-width: 120px;
+  min-height: 120px;
+}
+.k-circle .spin,
+.k-circle svg.k-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.k-circle text {
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  fill: var(--fg);
+}
+.k-circle .arrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(0.9vw, 10px);
+  translate: -50% -50%;
+}
+/* The turning happens on an HTML wrapper: Chrome cannot hand an animated
+   <svg> element to the compositor, and would re-lay it out every frame. */
+html.motion .k-circle .spin {
+  animation: spin 30s linear infinite;
+}
+/* Looping animations rest while their section is off screen (.is-off is
+   set by components/k/Experience). !important because each loop is set with
+   the animation shorthand, which resets the play state, on more specific
+   selectors. */
+.is-off :is(.k-circle .spin, .k-eq > i, .ticker .strip, .vinyl) {
+  animation-play-state: paused !important;
+}
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@media (max-width: 768px) {
+  .k-circle {
+    width: 36vw;
+    height: 36vw;
+  }
+}
+
+/* ───────────────────────────────────────── statement ("preAbout") ── */
+.k-statement .text {
+  position: absolute;
+  top: 60vh;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(12px, 1.19vw, 20px);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.k-statement .text .m {
+  color: var(--muted);
+}
+.k-statement .text b {
+  font-weight: 500;
+  color: var(--fg);
+}
+.k-statement .text .line {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 14vw;
+  height: 40vh;
+  translate: -50% 106%;
+  --draw-delay: 1.5s;
+}
+.k-statement .more {
+  position: absolute;
+  right: var(--pad);
+  bottom: 8vh;
+  --rv-y: 50%;
+  --rv-delay: 1.2s;
+}
+@media (max-width: 768px) {
+  .k-statement .text {
+    top: 58vh;
+    font-size: 3.6vw;
+  }
+  .k-statement .text .line {
+    width: 30vw;
+    height: 28vh;
+  }
+  .k-statement .more {
+    right: auto;
+    left: var(--pad);
+    bottom: 6vh;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── about ── */
+.k-about .k-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 90px;
+  padding-top: 22vh;
+  overflow: hidden;
+}
+.k-about .about-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 30.897vw;
+  height: 18.423vw;
+  translate: -50% -20%;
+  --draw-delay: 1.2s;
+}
+.k-about .about-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.k-about .about-text .ln {
+  position: relative;
+  width: fit-content;
+  text-align: center;
+  --rv-y: 25%;
+}
+.k-about .about-text .ln:nth-of-type(1) {
+  --rv-delay: 0.1s;
+}
+.k-about .about-text .ln:nth-of-type(2) {
+  --rv-delay: 0.2s;
+}
+.k-about .about-text .ln:nth-of-type(3) {
+  --rv-delay: 0.3s;
+}
+.k-about .about-text .k-label {
+  position: absolute;
+  top: 0.4em;
+  left: 0;
+  translate: -130% 0;
+  font-size: clamp(12px, 1.19vw, 20px);
+  white-space: nowrap;
+}
+.k-about .rect {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin: -0.3em 1.323vw 0;
+  width: 9.921vw;
+  height: 4.63vw;
+  overflow: hidden;
+  border-radius: 170px;
+  --rv-y: 25%;
+  --rv-delay: 0.5s;
+}
+.k-about .rect img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.k-about .rect .k-eq {
+  gap: 3px;
+}
+.k-about .rect .k-eq > i {
+  --bar: 5px;
+  opacity: 0.9;
+}
+.k-about .shine {
+  display: inline-block;
+}
+html.js.motion .k-about.animated .shine {
+  animation: shine 2.5s var(--ease) 1.2s 2;
+}
+@keyframes shine {
+  50% {
+    opacity: 0;
+  }
+}
+.k-about .uline {
+  position: relative;
+  display: inline-block;
+}
+.k-about .uline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0.04em;
+  height: 2px;
+  width: 85%;
+  background: rgba(250, 250, 250, 0.3);
+  transform-origin: left;
+}
+html.js.motion .k-about .uline::after {
+  scale: 0 1;
+  transition: scale 1.5s var(--ease) 0.9s;
+}
+html.js.motion .k-about.animated .uline::after {
+  scale: 1 1;
+}
+@media (max-width: 768px) {
+  .k-about .k-container {
+    gap: 12vw;
+    padding-top: 16vh;
+  }
+  .k-about .about-line {
+    width: 60vw;
+    height: 36vw;
+  }
+  .k-about .rect {
+    width: 19vw;
+    height: 9vw;
+  }
+  .k-about .about-text .k-label {
+    position: static;
+    translate: none;
+    display: block;
+    margin-bottom: 3vw;
+    text-align: center;
+  }
+}
+
+/* Equaliser ("spectograph" in the reference). */
+.k-eq {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  height: 100%;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
+  color: #fff;
+}
+.k-eq > i {
+  flex: 0 0 var(--bar, 8px);
+  height: 50%;
+  background: currentColor;
+  border-radius: 6px;
+  transform: translateY(var(--rest, 100%));
+  transform-origin: center bottom;
+}
+html.motion .k-eq.is-live > i {
+  animation: eq-a 1.7s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * 50ms);
+}
+html.motion .k-eq.is-live > i:nth-child(3n + 2) {
+  animation-name: eq-b;
+  animation-duration: 1.6s;
+}
+html.motion .k-eq.is-live > i:nth-child(3n) {
+  animation-name: eq-c;
+  animation-duration: 1.8s;
+}
+@keyframes eq-a {
+  0%,
+  5% {
+    transform: translateY(100%);
+  }
+  50% {
+    transform: translateY(20%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes eq-b {
+  0%,
+  66% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(10%);
+  }
+}
+@keyframes eq-c {
+  33%,
+  66% {
+    transform: translateY(100%);
+  }
+  0%,
+  100% {
+    transform: translateY(30%);
+  }
+}
+
+/* The vinyl that splits apart as it enters. */
+.k-disc {
+  position: relative;
+  width: 100%;
+  height: 17.196vw;
+  margin: 6vw 0 10vw;
+  z-index: 0;
+}
+.k-disc .piece {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  translate: -50% 0;
+  height: 100%;
+  transition: 3s var(--ease-expo);
+  transition-property: translate, opacity;
+}
+.k-disc .middle {
+  width: 17.196vw;
+  z-index: 3;
+}
+.k-disc .side,
+.k-disc .last {
+  width: 8.598vw;
+  opacity: 0;
+}
+.k-disc .side {
+  z-index: 2;
+}
+.k-disc .last {
+  z-index: 1;
+}
+.k-disc svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.k-disc .vinyl {
+  width: 100%;
+  height: 100%;
+}
+.k-disc .rim {
+  position: absolute;
+  inset: 0;
+}
+.k-disc .flip svg {
+  scale: -1 1;
+}
+.k-disc.animated .side.l {
+  translate: -250% 0;
+  opacity: 1;
+}
+.k-disc.animated .side.r {
+  translate: 150% 0;
+  opacity: 1;
+}
+.k-disc.animated .last.l {
+  translate: -400% 0;
+  opacity: 1;
+}
+.k-disc.animated .last.r {
+  translate: 300% 0;
+  opacity: 1;
+}
+html.motion .k-disc.animated .middle .vinyl {
+  animation: spin 2s linear infinite;
+}
+html:not(.motion) .k-disc .side,
+html:not(.motion) .k-disc .last {
+  opacity: 1;
+}
+html:not(.motion) .k-disc .side.l {
+  translate: -250% 0;
+}
+html:not(.motion) .k-disc .side.r {
+  translate: 150% 0;
+}
+html:not(.motion) .k-disc .last.l {
+  translate: -400% 0;
+}
+html:not(.motion) .k-disc .last.r {
+  translate: 300% 0;
+}
+@media (max-width: 768px) {
+  .k-disc {
+    height: 26vw;
+  }
+  .k-disc .middle {
+    width: 26vw;
+  }
+  .k-disc .side,
+  .k-disc .last {
+    width: 13vw;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────── members ── */
+.k-members .wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 150vh;
+  gap: 3vh;
+}
+.k-members .top {
+  flex: 0.3;
+  padding-top: 4.96vw;
+}
+.k-members .title-row {
+  display: flex;
+  align-items: center;
+  gap: 16vw;
+  height: 100%;
+}
+.k-members .title-col {
+  position: relative;
+}
+.k-members .title-row .k-h1 {
+  padding-bottom: 0.1em;
+}
+.k-members .title-row .k-h1 .clip-line > span {
+  display: block;
+  --rv-y: 100%;
+}
+.k-members .title-row .k-h1 .clip-line:nth-child(2) {
+  padding-left: 0.6em;
+}
+.k-members .title-row .k-h1 .clip-line:nth-child(2) > span {
+  --rv-delay: 0.12s;
+}
+.k-members .title-row .k-label {
+  position: absolute;
+  left: 0;
+  bottom: 1.2vw;
+  font-size: clamp(12px, 1.19vw, 20px);
+  line-height: 1.3;
+  letter-spacing: 0;
+  --rv-y: 100%;
+  --rv-delay: 0.3s;
+}
+.k-members .slider {
+  flex: 0.7;
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  border-top: 1px solid var(--line);
+  cursor: grab;
+}
+.k-members .slider::-webkit-scrollbar {
+  display: none;
+}
+.k-members .slider.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+.k-members .slider.is-dragging * {
+  user-select: none;
+  pointer-events: none;
+}
+.k-mcard {
+  flex: 0 0 calc(100% / 3);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.984vw;
+  padding: 3.307vw 2.315vw;
+  border-right: 1px solid var(--line);
+}
+.k-mcard .title {
+  display: flex;
+  gap: 1.2vw;
+  line-height: 0.84;
+  --rv-y: 25%;
+  --rv-delay: calc(0.15s + var(--i, 0) * 0.08s);
+}
+.k-mcard .title sup {
+  font-size: clamp(12px, 1.058vw, 17px);
+  color: var(--faint);
+  top: 0;
+}
+.k-mcard .title h3 {
+  font-size: 2.91vw;
+  font-weight: 400;
+  line-height: 1;
+}
+.k-mcard .role {
+  --rv-y: 25%;
+  --rv-delay: calc(0.25s + var(--i, 0) * 0.08s);
+}
+.k-mcard .role p {
+  font-size: clamp(14px, 1.058vw, 18px);
+  color: var(--muted);
+  line-height: 1.48;
+}
+.k-mcard .role .group {
+  display: block;
+  margin-top: 0.6em;
+  font-size: clamp(11px, 0.794vw, 13px);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+.k-mcard .media {
+  position: relative;
+  width: 100%;
+  padding-top: 105%;
+  background: #141515;
+  overflow: hidden;
+  --rv-y: 5%;
+  --rv-delay: calc(0.1s + var(--i, 0) * 0.08s);
+}
+.k-mcard .media .num {
+  position: absolute;
+  left: 1.3vw;
+  top: 1.2vw;
+  font-size: 9vw;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(250, 250, 250, 0.3);
+  transition: -webkit-text-stroke-color 0.6s var(--ease);
+}
+.k-mcard .media .k-eq {
+  color: #303333;
+  gap: 5px;
+  padding: 0 1.4vw;
+  height: 70%;
+  transition: color 0.6s var(--ease);
+}
+.k-mcard .media .k-eq > i {
+  flex: 1 1 0;
+  border-radius: 3px;
+}
+.k-mcard:hover .media .k-eq,
+.k-mcard:focus-within .media .k-eq {
+  color: var(--teal);
+}
+html.motion .k-mcard:hover .media .k-eq > i {
+  animation: eq-a 1.7s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * 60ms);
+}
+html.motion .k-mcard:hover .media .k-eq > i:nth-child(3n + 2) {
+  animation-name: eq-b;
+  animation-duration: 1.6s;
+}
+html.motion .k-mcard:hover .media .k-eq > i:nth-child(3n) {
+  animation-name: eq-c;
+  animation-duration: 1.8s;
+}
+.k-mcard:hover .media .num {
+  -webkit-text-stroke-color: rgba(250, 250, 250, 0.8);
+}
+.k-mcard.alt .media {
+  order: 1;
+}
+.k-mcard.alt .role {
+  order: 2;
+}
+.k-mcard.alt .title {
+  order: 3;
+}
+@media (max-width: 768px) {
+  .k-members .wrap {
+    min-height: auto;
+    gap: 8vw;
+    padding-bottom: 10vw;
+  }
+  .k-members .top {
+    padding-top: 22vw;
+  }
+  .k-members .title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10vw;
+  }
+  .k-members .title-row .k-label {
+    position: static;
+    display: block;
+    margin-top: 3vw;
+    font-size: 3.6vw;
+  }
+  .k-mcard {
+    flex: 0 0 78vw;
+    padding: 7vw 5vw;
+    gap: 5vw;
+  }
+  .k-mcard .title h3 {
+    font-size: 7.7vw;
+  }
+  .k-mcard .media .num {
+    font-size: 26vw;
+  }
+}
+
+/* ─────────────────────────────────────────── music ("records") ── */
+.k-music .k-container {
+  display: flex;
+  gap: 7.275vw;
+  padding-top: 4.96vw;
+  padding-bottom: 1.984vw;
+  min-height: 100vh;
+}
+.k-music .text-col {
+  flex: 0.3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4vw;
+  padding-bottom: 12vh;
+}
+.k-music .outline-fill {
+  position: relative;
+}
+.k-music .outline-fill .o,
+.k-music .outline-fill .f {
+  display: block;
+}
+.k-music .outline-fill .o {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--fg);
+}
+.k-music .outline-fill .f {
+  position: absolute;
+  inset: 0;
+  color: var(--fg);
+}
+html.js.motion .k-music .outline-fill .f {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.6s var(--ease-io) 0.6s;
+}
+html.js.motion .k-music.animated .outline-fill .f {
+  clip-path: inset(0 0 0 0);
+}
+.k-music .text-col .k-link {
+  margin-top: 1.6vw;
+  --rv-y: 50%;
+  --rv-delay: 0.4s;
+}
+.k-music .list {
+  flex: 0.7;
+  display: flex;
+  flex-direction: column;
+  gap: 2.646vw;
+}
+.k-music .list-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.k-music .list-top .k-h2 .clip-line > span {
+  display: block;
+  --rv-y: 100%;
+}
+.k-music .list-top .k-h2 .clip-line:nth-child(2) > span {
+  --rv-delay: 0.1s;
+}
+.k-music .arrow {
+  position: relative;
+  display: flex;
+  width: 7.937vw;
+  height: 7.937vw;
+  min-width: 64px;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  transition: rotate 0.4s var(--ease);
+}
+.k-music .arrow:hover {
+  rotate: 180deg;
+}
+.k-music .arrow .k-ring {
+  position: absolute;
+  inset: 0;
+  --draw-d: 3s;
+}
+.k-music .arrow .ico {
+  width: 2.4vw;
+  min-width: 22px;
+  --rv-y: -50%;
+  --rv-x: 50%;
+  --rv-delay: 1s;
+}
+.k-music .player {
+  position: relative;
+  --rv-y: 8%;
+  --rv-delay: 0.3s;
+}
+.k-music .player .plate {
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+@media (max-width: 768px) {
+  .k-music .k-container {
+    flex-direction: column;
+    gap: 12vw;
+    padding-top: 22vw;
+    padding-bottom: 24vw;
+  }
+  .k-music .text-col {
+    gap: 10vw;
+    padding-bottom: 0;
+  }
+}
+
+/* ───────────────────────────────────────────────────────── channels ── */
+/* Every direct line, as the channel strips of a mixing desk (see
+   components/k/Channels). Hairlines as in the member cards; the meters are
+   the site's equaliser, resting grey and playing in teal on the strip you
+   point at or focus. */
+.k-channels.section {
+  min-height: 0;
+}
+.k-channels .k-container {
+  padding-top: 9vw;
+  padding-bottom: 5vw;
+}
+.k-channels .head {
+  display: flex;
+  align-items: baseline;
+  gap: 2.4vw;
+  margin-bottom: 3.3vw;
+}
+.k-channels .head .k-label {
+  flex: none;
+  --rv-y: 100%;
+}
+.k-channels .title {
+  font-size: 4.762vw;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.k-channels .title .rv {
+  display: block;
+  --rv-y: 100%;
+  --rv-delay: 0.1s;
+}
+.k-channels .strips {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.k-channels .strip {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.k-channels .strip.wide {
+  flex-grow: 1.75;
+}
+.k-channels .strip + .strip {
+  border-left: 1px solid var(--line);
+}
+.k-channels .strip a {
+  position: relative;
+  display: flex;
+  height: 24vw;
+  min-height: 280px;
+  flex-direction: column;
+  gap: 1.3vw;
+  padding: 1.6vw 1.6vw 1.8vw;
+  transition: background-color 0.5s var(--ease);
+  --rv-y: 10%;
+  --rv-delay: calc(0.2s + var(--n, 0) * 0.07s);
+}
+.k-channels .strip a:hover,
+.k-channels .strip a:focus-visible {
+  background: rgba(255, 255, 255, 0.025);
+}
+.k-channels .strip a:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: -2px;
+}
+.k-channels .top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1vw;
+}
+.k-channels .name {
+  color: var(--muted);
+  font-size: clamp(14px, 1.19vw, 20px);
+  transition: color 0.4s var(--ease);
+}
+.k-channels .strip a:hover .name,
+.k-channels .strip a:focus-visible .name {
+  color: var(--fg);
+}
+.k-channels .go {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: 3.4vw;
+  height: 3.4vw;
+  min-width: 40px;
+  min-height: 40px;
+  place-items: center;
+  transition: rotate 0.5s var(--ease);
+}
+/* Like the Music section's arrow: it points in at rest and turns to point
+   out when the strip is taken. */
+.k-channels .strip a:hover .go,
+.k-channels .strip a:focus-visible .go {
+  rotate: 180deg;
+}
+.k-channels .go .k-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  --draw-d: 2s;
+  --draw-delay: calc(0.5s + var(--n, 0) * 0.08s);
+}
+.k-channels .go .ico {
+  width: 36%;
+}
+.k-channels .meter {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.k-channels .meter .k-eq {
+  gap: 4px;
+  color: #232626;
+  transition: color 0.6s var(--ease);
+}
+.k-channels .meter .k-eq > i {
+  flex: 1 1 0;
+  border-radius: 3px;
+}
+.k-channels .strip a:hover .k-eq,
+.k-channels .strip a:focus-visible .k-eq {
+  color: var(--teal);
+}
+html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i {
+  animation: eq-a 1.7s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * 60ms);
+}
+html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i:nth-child(3n + 2) {
+  animation-name: eq-b;
+  animation-duration: 1.6s;
+}
+html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i:nth-child(3n) {
+  animation-name: eq-c;
+  animation-duration: 1.8s;
+}
+.k-channels .value {
+  font-size: clamp(15px, 1.32vw, 24px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 768px) {
+  .k-channels .k-container {
+    padding-top: 22vw;
+    padding-bottom: 12vw;
+  }
+  .k-channels .head {
+    flex-direction: column;
+    gap: 2vw;
+    margin-bottom: 7vw;
+  }
+  .k-channels .title {
+    font-size: 9.23vw;
+  }
+  .k-channels .strips {
+    flex-direction: column;
+  }
+  .k-channels .strip + .strip {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .k-channels .strip a {
+    display: grid;
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name go" "value go";
+    gap: 1.5vw 4vw;
+    padding: 5vw 1vw;
+  }
+  .k-channels .top {
+    display: contents;
+  }
+  .k-channels .name {
+    grid-area: name;
+    font-size: 3.6vw;
+  }
+  .k-channels .go {
+    grid-area: go;
+    align-self: center;
+    width: 11vw;
+    height: 11vw;
+  }
+  .k-channels .meter {
+    display: none;
+  }
+  .k-channels .value {
+    grid-area: value;
+    font-size: 5vw;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── contact ── */
+.k-contact {
+  overflow: hidden;
+}
+.k-contact .ticker {
+  position: absolute;
+  top: 7vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  font-size: 13.228vw;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+.k-contact .ticker .strip {
+  display: flex;
+  flex: 0 0 auto;
+}
+.k-contact .ticker span {
+  flex: 0 0 auto;
+  padding-right: 0.25em;
+}
+html.motion .k-contact .ticker .strip {
+  animation: ticker 30s linear infinite;
+}
+.k-contact .k-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 21vh;
+  padding-bottom: 14vh;
+  min-height: 100vh;
+}
+.k-form {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  padding: 3.968vw;
+  border-radius: 30px;
+  background: rgba(72, 72, 72, 0.06);
+  backdrop-filter: blur(9.5px);
+  -webkit-backdrop-filter: blur(9.5px);
+  overflow: hidden;
+}
+.k-form .waves {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.k-form .content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: calc(70vh - 7.936vw);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.k-form .wrap {
+  display: flex;
+  width: 100%;
+  max-width: 52%;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.646vw;
+}
+.k-form .title {
+  text-align: center;
+  font-size: clamp(18px, 1.72vw, 30px);
+  line-height: 1.22;
+}
+.k-form .pill {
+  position: relative;
+  width: 100%;
+  height: 22vh;
+  min-height: 120px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+.k-form .pill .step {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5vw;
+  padding: 0 2vw;
+  font-size: clamp(22px, 2.9vw, 52px);
+  letter-spacing: -0.01em;
+  opacity: 0;
+  translate: 0 25%;
+  visibility: hidden;
+  transition: opacity 0.35s var(--ease), translate 0.35s var(--ease), visibility 0s linear 0.35s;
+}
+.k-form .pill .step.is-on {
+  opacity: 1;
+  translate: 0 0;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.k-form .pagination {
+  display: flex;
+  gap: 0.3vw;
+  height: 2.5px;
+  width: 5.952vw;
+  min-width: 70px;
+}
+.k-form .pagination i {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.2);
+  transition: flex 0.5s var(--ease), background-color 0.5s var(--ease);
+}
+.k-form .pagination i.is-on {
+  flex: 2.4;
+  background: var(--fg);
+}
+.k-form .next,
+.k-form .back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8em;
+  min-height: 44px;
+  padding: 0.9em 1.3em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: clamp(13px, 0.926vw, 16px);
+  font-weight: 500;
+  transition: background-color 0.3s var(--ease);
+}
+.k-form .next svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+.k-form .next:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── The contact stream (components/k/ContactStream): the pill above, as a
+      three-step form. Steps 1–2 keep the pill's shape; the message step grows
+      it into a rounded panel. Everything else — the frost, the pagination,
+      the pill buttons — is the section's own. */
+.k-form .stream {
+  --pill-h: max(22vh, 150px);
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2vw;
+}
+.k-form .stream[data-step="2"] {
+  --pill-h: max(40vh, 320px);
+}
+.k-form .stream .pill {
+  height: var(--pill-h);
+  min-height: 0;
+  border-radius: calc(var(--pill-h) / 2);
+  transition:
+    height 0.7s var(--ease-expo),
+    border-radius 0.7s var(--ease-expo),
+    background-color 0.7s var(--ease-expo),
+    border-color 0.3s var(--ease);
+}
+.k-form .stream[data-step="2"] .pill {
+  border-radius: 36px;
+  /* A deeper tint behind the message, so the waves stay behind the text. */
+  background: rgba(16, 17, 17, 0.62);
+}
+.k-form .stream .pill.is-drag {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.k-form .stream .step {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0 4.2vw;
+  gap: 3vw;
+  font-size: inherit;
+}
+.k-form .stream label,
+.k-form .stream .label {
+  display: block;
+  margin-bottom: 0.6em;
+  font-size: clamp(11px, 0.72vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.k-form .stream .field {
+  flex: 1;
+  min-width: 0;
+}
+.k-form .stream input:not([type="file"]),
+.k-form .stream textarea,
+.k-form .stream .select {
+  display: block;
+  width: 100%;
+  padding: 0.3em 0 0.4em;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: clamp(18px, 1.72vw, 30px);
+  letter-spacing: -0.01em;
+  caret-color: var(--fg);
+  outline: none;
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.k-form .stream ::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+  opacity: 1;
+}
+.k-form .stream input:focus-visible,
+.k-form .stream textarea:focus-visible,
+.k-form .stream .select:focus-visible {
+  border-bottom-color: var(--fg);
+  box-shadow: 0 1px 0 var(--fg);
+}
+.k-form .stream [aria-invalid="true"] {
+  border-bottom-color: var(--err);
+}
+.k-form .stream input:-webkit-autofill {
+  -webkit-text-fill-color: var(--fg);
+  caret-color: var(--fg);
+  transition: background-color 9999s ease-out 0s;
+}
+.k-form .stream .divider {
+  align-self: stretch;
+  width: 1px;
+  margin: 5vh 0;
+  background: rgba(255, 255, 255, 0.1);
+}
+.k-form .stream .s-reason .field {
+  flex: 0 1 30vw;
+  min-width: 260px;
+}
+.k-form .stream .select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  text-align: left;
+}
+.k-form .stream .select.is-empty span {
+  color: rgba(255, 255, 255, 0.32);
+}
+.k-form .stream .select svg {
+  flex: none;
+  width: 0.7em;
+  height: 0.7em;
+  transition: rotate 0.3s var(--ease);
+}
+.k-form .stream .select[aria-expanded="true"] svg {
+  rotate: 180deg;
+}
+.k-form .stream .s-message {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 2.4vw 3vw 2vw;
+}
+.k-form .stream .s-message textarea {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+  border-bottom: 0;
+  padding: 0.2em 0 0.6em;
+  font-size: clamp(16px, 1.25vw, 22px);
+  line-height: 1.45;
+}
+.k-form .stream .s-message textarea:focus-visible {
+  box-shadow: none;
+}
+.k-form .stream .s-message:focus-within {
+  --rule: rgba(255, 255, 255, 0.28);
+}
+.k-form .stream .attach {
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+  padding-top: 1.1vw;
+  border-top: 1px solid var(--rule, rgba(255, 255, 255, 0.1));
+  transition: border-color 0.3s var(--ease);
+}
+.k-form .stream .attach .add,
+.k-form .stream .attach .chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.55em;
+  min-height: 40px;
+  margin: 0;
+  padding: 0.5em 1em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--fg);
+  font-size: clamp(13px, 0.926vw, 16px);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: background-color 0.3s var(--ease);
+}
+.k-form .stream .attach .add {
+  cursor: pointer;
+}
+.k-form .stream .attach .add:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.k-form .stream .attach input:focus-visible + .add {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.k-form .stream .chip .name {
+  max-width: 14vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-form .stream .chip .size {
+  color: var(--faint);
+  font-weight: 400;
+}
+.k-form .stream .chip button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: -0.45em;
+  border-radius: 50%;
+}
+.k-form .stream .chip button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.k-form .stream .chip button svg {
+  width: 12px;
+  height: 12px;
+}
+.k-form .stream .clip {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+.k-form .stream .attach .hint {
+  flex: 1;
+  min-width: 0;
+  color: var(--faint);
+  font-size: clamp(11px, 0.72vw, 13px);
+  line-height: 1.35;
+}
+.k-form .stream .drop {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgba(14, 15, 15, 0.72);
+  font-size: clamp(16px, 1.3vw, 24px);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+.k-form .stream .pill.is-drag .drop {
+  opacity: 1;
+}
+.k-form .stream .s-done {
+  padding: 0 5vw;
+  outline: none;
+  text-align: center;
+  font-size: clamp(20px, 2.2vw, 40px);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.k-form .stream .listbox {
+  position: absolute;
+  left: 50%;
+  z-index: 5;
+  width: min(30vw, 100%);
+  min-width: 260px;
+  margin: 0;
+  padding: 8px;
+  translate: -50% 0;
+  list-style: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(24, 26, 26, 0.98);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  outline: none;
+}
+html.motion .k-form .stream .listbox {
+  animation: list-in 0.3s var(--ease-expo);
+}
+@keyframes list-in {
+  from {
+    opacity: 0;
+    translate: -50% -6px;
+  }
+}
+.k-form .stream .listbox li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.8em 1em;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: clamp(15px, 1.1vw, 20px);
+  cursor: pointer;
+}
+.k-form .stream .listbox li.is-active {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--fg);
+}
+.k-form .stream .listbox:focus-visible li.is-active {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+.k-form .stream .listbox li[aria-selected="true"] {
+  color: var(--fg);
+}
+.k-form .stream .listbox li svg {
+  width: 1em;
+  height: 1em;
+}
+.k-form .stream-error {
+  min-height: 1.35em;
+  margin: -0.8vw 0;
+  color: var(--err);
+  font-size: clamp(13px, 0.926vw, 16px);
+  text-align: center;
+}
+.k-form .pagination i.is-past {
+  background: rgba(255, 255, 255, 0.55);
+}
+.k-form .actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+}
+.k-form .back {
+  background: transparent;
+  color: var(--muted);
+}
+.k-form .back svg {
+  rotate: 180deg;
+}
+.k-form .back:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--fg);
+}
+.k-form .next:disabled,
+.k-form .back:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+.k-form .next[aria-busy="true"] {
+  font-variant-numeric: tabular-nums;
+}
+.k-form .hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.k-form .left {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  max-width: 20%;
+  /* Room between the corner mark (pinned to the top) and the tagline. */
+  padding-top: max(1.1vw, 14px);
+}
+.k-form .left .k-cross {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -35% -80%;
+}
+@media (max-width: 768px) {
+  .k-contact .ticker {
+    top: 12vh;
+    font-size: 18vw;
+  }
+  .k-form {
+    padding: 8vw 5vw 10vw;
+    border-radius: 6vw;
+  }
+  .k-form .wrap {
+    max-width: 100%;
+    gap: 7vw;
+  }
+  .k-form .pill .step {
+    font-size: 5.6vw;
+    flex-wrap: wrap;
+    padding: 0 6vw;
+  }
+  .k-form .stream {
+    --pill-h: auto;
+    gap: 6vw;
+  }
+  .k-form .stream .pill,
+  .k-form .stream[data-step="2"] .pill {
+    height: auto;
+    border-radius: 7vw;
+  }
+  .k-form .stream .step {
+    position: static;
+    display: none;
+    padding: 7vw 6vw;
+    translate: none;
+    transition: none;
+  }
+  .k-form .stream .step.is-on {
+    display: flex;
+  }
+  .k-form .stream .s-details {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6vw;
+  }
+  .k-form .stream .divider {
+    display: none;
+  }
+  .k-form .stream .s-reason .field {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .k-form .stream input:not([type="file"]),
+  .k-form .stream .select {
+    font-size: 5.4vw;
+  }
+  .k-form .stream .s-message {
+    padding: 6vw 6vw 5vw;
+  }
+  .k-form .stream .s-message textarea {
+    min-height: 34vh;
+    font-size: 4.4vw;
+  }
+  .k-form .stream .attach {
+    flex-wrap: wrap;
+    gap: 3vw;
+    padding-top: 4vw;
+  }
+  .k-form .stream .chip .name {
+    max-width: 38vw;
+  }
+  .k-form .stream .s-done {
+    min-height: 26vh;
+    align-items: center;
+    justify-content: center;
+    font-size: 6vw;
+  }
+  .k-form .stream .listbox {
+    width: calc(100% - 8vw);
+    min-width: 0;
+  }
+  .k-form .stream-error {
+    margin: -2vw 0;
+  }
+  .k-form .actions {
+    gap: 2vw;
+  }
+  .k-form .left {
+    position: relative;
+    max-width: 100%;
+    margin-top: 12vw;
+    padding-top: 4vw;
+    text-align: center;
+  }
+  .k-form .left .k-cross {
+    left: 50%;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── footer ── */
+.k-footer.section {
+  min-height: 0;
+}
+.k-footer .inner {
+  display: flex;
+  border-top: 1px solid var(--line);
+}
+.k-footer .brand {
+  flex: 0.25;
+  padding: 5.291vw 5vw 10.913vw;
+  border-right: 1px solid var(--line);
+  /* The logo and the tagline as one centred pair: one column as wide as
+     the wider of the two, each centred in it, the pair kept at the left. */
+  display: grid;
+  align-content: start;
+  justify-content: start;
+  justify-items: center;
+  gap: 2.315vw;
+}
+.k-footer .brand img {
+  width: 11vw;
+  min-width: 110px;
+  height: auto;
+  --rv-y: 50%;
+}
+.k-footer .brand .tag {
+  color: var(--faint);
+  text-align: center;
+  --rv-y: 50%;
+  --rv-delay: 0.2s;
+}
+.k-footer .cols {
+  flex: 0.75;
+  display: flex;
+  justify-content: space-between;
+  padding: 2.646vw 3.968vw 9.259vw;
+  gap: 3vw;
+}
+.k-footer .col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.852vw;
+  font-weight: 500;
+  color: #979797;
+}
+.k-footer .col > span {
+  font-size: clamp(12px, 0.794vw, 14px);
+  --rv-y: 50%;
+  --rv-delay: 0.35s;
+}
+.k-footer .col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1vw;
+  font-size: clamp(16px, 1.587vw, 26px);
+  color: var(--fg);
+  letter-spacing: -0.02em;
+}
+.k-footer .col ul li {
+  --rv-y: 50%;
+  --rv-delay: 0.35s;
+}
+.k-footer .col.contact ul {
+  font-size: clamp(14px, 1.19vw, 20px);
+}
+.k-footer .legal {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.4vw var(--pad) 9vw;
+  border-top: 1px solid var(--line);
+  font-size: clamp(12px, 0.794vw, 14px);
+  color: var(--faint);
+}
+@media (max-width: 768px) {
+  .k-footer .inner {
+    flex-direction: column;
+  }
+  .k-footer .brand {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 12vw var(--pad);
+    gap: 5vw;
+  }
+  .k-footer .cols {
+    flex-wrap: wrap;
+    padding: 10vw var(--pad) 12vw;
+    gap: 10vw 6vw;
+  }
+  .k-footer .col {
+    flex: 1 1 40%;
+    gap: 4vw;
+  }
+  .k-footer .col ul {
+    gap: 3vw;
+    font-size: 5vw;
+  }
+  .k-footer .col.contact ul {
+    font-size: 4.2vw;
+  }
+  .k-footer .legal {
+    padding-bottom: 32vw;
+    flex-direction: column;
+    gap: 2vw;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── gallery page ── */
+.k-gpage {
+  min-height: 100vh;
+}
+.k-gpage .k-container {
+  padding-top: 16vh;
+  padding-bottom: 16vh;
+}
+.k-gpage .head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4vw;
+  margin-bottom: 6vw;
+}
+.k-gpage .head .k-h1 .clip-line > span {
+  display: block;
+  --rv-y: 100%;
+}
+.k-gpage .head .k-link {
+  --rv-y: 50%;
+  --rv-delay: 0.3s;
+}
+.k-gwall {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.k-gtile {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vw;
+  padding: 2.315vw;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  --rv-y: 6%;
+  --rv-delay: calc(var(--i, 0) * 0.08s);
+}
+.k-gtile .cap {
+  display: flex;
+  gap: 1vw;
+  font-size: clamp(16px, 1.6vw, 26px);
+}
+.k-gtile .cap sup {
+  top: 0;
+  font-size: clamp(11px, 0.9vw, 15px);
+  color: var(--faint);
+}
+.k-gtile .ph {
+  position: relative;
+  width: 100%;
+  padding-top: 118%;
+  overflow: hidden;
+  background: #151616;
+}
+.k-gtile .ph img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.6s var(--ease), scale 0.8s var(--ease);
+}
+.k-gtile .ph img.contain {
+  object-fit: contain;
+  filter: none;
+}
+.k-gtile:hover .ph img,
+.k-gtile:focus-visible .ph img {
+  filter: grayscale(0);
+  scale: 1.04;
+}
+@media (max-width: 768px) {
+  .k-gpage .k-container {
+    padding-top: 22vw;
+    padding-bottom: 36vw;
+  }
+  .k-gpage .head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .k-gwall {
+    grid-template-columns: 1fr;
+  }
+  .k-gtile {
+    padding: 5vw;
+    gap: 4vw;
+  }
+}
+.k-lightbox {
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  background: transparent;
+  color: var(--fg);
+}
+.k-lightbox::backdrop {
+  background: rgba(14, 15, 15, 0.94);
+  backdrop-filter: blur(20px);
+}
+.k-lightbox .bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 2vw var(--pad);
+}
+.k-lightbox .bar button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  display: inline-grid;
+  place-items: center;
+}
+.k-lightbox figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--pad) 2vw;
+}
+.k-lightbox img {
+  max-height: calc(100dvh - 160px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.k-lightbox figcaption {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Skip link */
+.k-skip {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 12px 16px;
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 600;
+  translate: 0 -200%;
+}
+.k-skip:focus-visible {
+  translate: 0 0;
+}
+
+/* ScrollSmoother keeps fixed chrome outside the smoothed content. */
+#smooth-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ────────────────────────────────────────────────────────────── inbox ── */
+/* app/inbox: where contact submissions are read. Plain page, no site
+   chrome; same tokens. */
+.inbox {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 64px var(--pad) 96px;
+}
+.inbox-lock {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+.inbox-card {
+  display: flex;
+  width: min(420px, 100%);
+  flex-direction: column;
+  gap: 18px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  background: rgba(72, 72, 72, 0.08);
+}
+.inbox-card img {
+  width: 96px;
+  height: auto;
+}
+.inbox-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.inbox-card p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+.inbox label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.inbox input {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fg);
+  font: inherit;
+}
+.inbox input:focus-visible,
+.inbox a:focus-visible,
+.inbox button:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.inbox button,
+.inbox-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s var(--ease);
+}
+.inbox button:hover,
+.inbox-actions a:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.inbox-error {
+  color: var(--err) !important;
+}
+.inbox-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.inbox-title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.inbox-title img {
+  width: 88px;
+  height: auto;
+}
+.inbox-title p {
+  color: var(--faint);
+}
+.inbox-actions {
+  display: flex;
+  gap: 10px;
+}
+.inbox-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0;
+}
+.inbox-filter a {
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.inbox-filter a[aria-current] {
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--bg);
+}
+.inbox-filter a span {
+  margin-left: 4px;
+  opacity: 0.6;
+}
+.inbox-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.inbox-item {
+  display: grid;
+  gap: 14px;
+  padding: 26px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.inbox-item .meta,
+.inbox-item .foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.inbox-item .meta {
+  color: var(--faint);
+  font-size: 13px;
+}
+.inbox-item .tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(149, 182, 197, 0.14);
+  color: var(--teal);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.inbox-item .who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+}
+.inbox-item h2 {
+  font-size: clamp(20px, 1.6vw, 28px);
+  font-weight: 400;
+}
+.inbox-item .who a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.inbox-item .msg {
+  max-width: 75ch;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.inbox-item .file {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+}
+.inbox-item .reply {
+  font-weight: 500;
+}
+.inbox-empty {
+  padding: 40px 0;
+  color: var(--muted);
 }

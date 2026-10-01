@@ -28,7 +28,7 @@ const nextConfig = {
       {
         // Files in /public are served with `max-age=0` by default, so the
         // self-hosted fonts would be revalidated on every navigation. Their
-        // contents only change when scripts/build-fonts.py is re-run, and that
+        // contents only change when `npm run fonts` is re-run, and that
         // is a deliberate act, so they are safe to pin hard. (Assets under
         // /_next/static already get this automatically via content hashing.)
         source: "/fonts/:file*",
@@ -37,7 +37,9 @@ const nextConfig = {
       {
         // Same reasoning, but a shorter window: the wordmark has a stable
         // filename, so a year of immutability would make replacing it awkward.
-        source: "/logo-wordmark.svg",
+        // Browsers may still keep it for a week, so when its content changes,
+        // give it a new filename (as with logo-wordmark.svg → logo-maymun.svg).
+        source: "/logo-maymun.svg",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
       },
     ];
