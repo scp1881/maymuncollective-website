@@ -31,9 +31,9 @@ Tokens live as CSS custom properties at the top of `app/globals.css`. Sizes are 
 | `k-label` "(Section)" | 1.32vw, min 13px | 400 |
 | Links, menu | 0.93–1.06vw, min 13px | 500 |
 
-## Motion (all off under `prefers-reduced-motion`, and nothing hidden without JS)
+## Motion (on for every visitor; `?motion=off` turns it off; nothing hidden without JS)
 
-Everything animated is keyed to `html.motion`, which the boot script in `app/layout.tsx` sets before first paint (`?motion=on|off` overrides it for the browser session; see `components/k/motion.ts`).
+Everything animated is keyed to `html.motion`, which the boot script in `app/layout.tsx` sets before first paint for every visitor; the system's reduced-motion setting is deliberately not consulted, as on the Kurate reference (`?motion=off|on` switches it for the browser session; see `components/k/motion.ts`).
 
 | Piece | Timing (from the reference's own CSS/JS) |
 |---|---|

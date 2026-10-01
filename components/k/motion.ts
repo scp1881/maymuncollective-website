@@ -1,9 +1,10 @@
 /**
  * Whether the page is animating. Decided once, before first paint, by the
- * boot script in app/layout.tsx: motion is on unless the visitor's system
- * asks for reduced motion. `?motion=on` / `?motion=off` overrides that for
- * the rest of the browser session (for demos and testing); every animation
- * in the CSS and the components keys off the resulting html.motion class.
+ * boot script in app/layout.tsx: motion is on for every visitor (the system's
+ * reduced-motion setting is not consulted, by the owner's choice, as on the
+ * Kurate reference). `?motion=off` turns it off for the rest of the browser
+ * session and `?motion=on` back on; every animation in the CSS and the
+ * components keys off the resulting html.motion class.
  */
 export const motionOn = () => typeof document !== "undefined" && document.documentElement.classList.contains("motion");
 

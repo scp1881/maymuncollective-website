@@ -6,10 +6,10 @@
    Maymun Collective — v3, adapted from the Kurate reference (see
    _redesign/KURATE_STUDY.md). Sizes are in vw like the reference, clamped
    where they would fall below legible sizes. All motion is gated behind
-   html.motion (set before first paint from prefers-reduced-motion, with a
-   ?motion=on|off override — see components/k/motion.ts), and every hidden
-   starting state is also gated behind html.js, so without JavaScript or with
-   reduced motion the page is simply static and fully visible.
+   html.motion (on for every visitor, set before first paint; ?motion=off
+   turns it off — see components/k/motion.ts), and every hidden starting
+   state is also gated behind html.js, so without JavaScript or with motion
+   off the page is simply static and fully visible.
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* ─────────────────────────────────────────────────────────────── fonts ──

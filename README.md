@@ -49,7 +49,7 @@ The file must never state something the collective hasn't published itself: no i
 
 The homepage selection is `gallery.images`, and the `/gallery` order is `galleryPage.images`. The hero photograph is `hero.photo`.
 
-**Motion** is driven by `components/k/Experience.tsx` (GSAP ScrollSmoother + ScrollTrigger): sections get `.animated` as they arrive, which releases the CSS reveals in `app/globals.css`. All of it is keyed to one class, `html.motion`, set before first paint unless the visitor's system asks for reduced motion. Without it there is no smooth scroll and every reveal is static; without JavaScript nothing is hidden. To see the animated version on a machine with Reduce Motion on, add `?motion=on` to the URL (and `?motion=off` to see the still one); the choice lasts for the browser session.
+**Motion** is driven by `components/k/Experience.tsx` (GSAP ScrollSmoother + ScrollTrigger): sections get `.animated` as they arrive, which releases the CSS reveals in `app/globals.css`. All of it is keyed to one class, `html.motion`, set before first paint for **every visitor**: by the owner's choice, as on the Kurate reference, the system's Reduce Motion setting is not consulted. Add `?motion=off` to the URL to see the still version (no smooth scroll, every reveal static) and `?motion=on` to turn motion back on; the choice lasts for the browser session. Without JavaScript nothing is hidden.
 
 ### Contact form and inbox
 
@@ -184,6 +184,6 @@ DESIGN.md             # the design system
 - **Headings and landmarks:** one `<h1>` per page (the wordmark on `/`, "Gallery" on `/gallery`), then `<h2>` per section and `<h3>` for the member groups. Semantic `<header>`, `<nav>`, `<main>`, `<section>` and `<footer>`, plus a skip link.
 - **Contrast:** every text pair passes WCAG AA (see DESIGN.md); the reference's 30–50% white small text is lifted to 55–62%.
 - **Keyboard:** one visible focus style everywhere. The menu dropdown closes on Escape and returns focus. The member row is a focusable, labelled region. The lightbox is a native `<dialog>`, with arrow keys between photographs.
-- **Motion:** `prefers-reduced-motion: reduce` turns off all of it: no preloader, smooth scroll, ripple, custom cursor or reveals. (`?motion=on|off` overrides it for testing.)
+- **Motion:** animations play for everyone, including visitors whose system asks for reduced motion (the owner's decision, matching the Kurate reference). `?motion=off` turns all of it off for the browser session: no preloader, smooth scroll, ripple, custom cursor or reveals.
 - **Language:** each word of the tagline carries its own `lang`, so screen readers pronounce it correctly.
 - **SEO:** title, description, canonical, Open Graph and Twitter tags are set from `content/site.ts`. `robots.txt` and `sitemap.xml` are generated.
