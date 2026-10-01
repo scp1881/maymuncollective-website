@@ -57,7 +57,7 @@ The form in the Contact section saves every message as a structured record (name
 
 **One-time setup in Vercel** (nothing is saved until this is done; the form shows an error instead):
 
-1. Project → **Storage** → **Create** → **Blob**, set access to **Private**, and connect it to the project for **Production** and **Preview**. This adds `BLOB_READ_WRITE_TOKEN`, which the form needs for uploads.
+1. Project → **Storage** → **Create** → **Blob**, set access to **Private**, and connect it to the project for **Production** and **Preview**. Connecting adds `BLOB_STORE_ID` (and `BLOB_WEBHOOK_PUBLIC_KEY`); the site then authenticates with Vercel's short-lived OIDC credentials, so there is no long-lived secret to keep. (This project's store is `contact`, private, in Frankfurt.)
 2. Project → **Settings → Environment Variables** → add `INBOX_PASSWORD` (a long random password; share it only with whoever answers messages).
 3. Redeploy, then open `https://maymuncollective.com/inbox`.
 

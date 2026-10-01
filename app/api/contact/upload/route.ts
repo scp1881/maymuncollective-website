@@ -1,12 +1,15 @@
 /**
- * Issues short-lived tokens so the browser can upload an attachment straight
- * to the private Blob store (files can be far larger than the 4.5 MB a
- * function accepts). The contact form has no login, so the token is fenced
- * in instead: one folder per draft id, the accepted media types, the size
- * limit, and 30 minutes. The upload only becomes part of a submission when
- * /api/contact checks it and writes the record.
+ * Presigned uploads: lets the browser put an attachment straight into the
+ * private Blob store (files can be far larger than the 4.5 MB a function
+ * accepts). Works with the project's OIDC connection, so no long-lived token
+ * is involved. The contact form has no login, so each signed URL is fenced
+ * in instead: one exact path inside the draft's own folder, the accepted
+ * media types, the size limit, 30 minutes, and no overwriting. The upload
+ * only becomes part of a submission once /api/contact checks it and writes
+ * the record.
  */
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { issueSignedToken } from "@vercel/blob";
+import { handleUploadPresigned, type HandleUploadPresignedBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { FILE_TYPES, LIMITS } from "@/lib/contact/shared";
 import { storageMode } from "@/lib/contact/store";
@@ -19,18 +22,18 @@ const UPLOAD_PATH = new RegExp(`^contact/uploads/[a-z0-9]{16}/[^/]{1,${LIMITS.fi
 export async function POST(request: Request) {
   if (storageMode() !== "blob") return NextResponse.json({ error: "unavailable" }, { status: 503 });
   try {
-    const body = (await request.json()) as HandleUploadBody;
-    const result = await handleUpload({
+    const body = (await request.json()) as HandleUploadPresignedBody;
+    const result = await handleUploadPresigned({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => {
+      getSignedToken: async (pathname) => {
         if (!UPLOAD_PATH.test(pathname)) throw new Error("Invalid upload path");
-        return {
-          allowedContentTypes: FILE_TYPES,
-          maximumSizeInBytes: LIMITS.fileBytes,
-          addRandomSuffix: true,
-          validUntil: Date.now() + 30 * 60 * 1000,
-        };
+        const validUntil = Date.now() + 30 * 60 * 1000;
+        const fence = { allowedContentTypes: FILE_TYPES, maximumSizeInBytes: LIMITS.fileBytes, validUntil };
+        const token = await issueSignedToken({ pathname, operations: ["put"], ...fence });
+        // The path is already unique (a random draft folder per message),
+        // so no suffix is added, and an existing file is never overwritten.
+        return { token, urlOptions: { ...fence, addRandomSuffix: false, allowOverwrite: false } };
       },
     });
     return NextResponse.json(result);

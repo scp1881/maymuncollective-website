@@ -2,8 +2,9 @@
  * Where contact submissions live. Server only.
  *
  * - "blob": a private Vercel Blob store (production). Connect one to the
- *   project in Vercel → Storage; that sets BLOB_READ_WRITE_TOKEN, which the
- *   browser uploads also need. Each submission is one JSON record under
+ *   project in Vercel → Storage; that sets BLOB_STORE_ID, and the SDK then
+ *   authenticates with Vercel's short-lived OIDC credentials (an older
+ *   BLOB_READ_WRITE_TOKEN works too). Each submission is one JSON record under
  *   contact/submissions/, named by time so listings sort chronologically;
  *   attachments sit under contact/uploads/<draft id>/.
  * - "local": no store configured and not running on Vercel (development).
@@ -20,7 +21,7 @@ import { PATHS, safeFilename, type Attachment, type Submission } from "@/lib/con
 export type Mode = "blob" | "local" | "off";
 
 export function storageMode(): Mode {
-  if (process.env.BLOB_READ_WRITE_TOKEN) return "blob";
+  if (process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN) return "blob";
   if (!process.env.VERCEL) return "local";
   return "off";
 }
