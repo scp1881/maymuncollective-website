@@ -126,6 +126,13 @@ html.has-cursor button {
   min-height: 100vh;
   min-height: 100svh;
 }
+@media (max-width: 768px) {
+  /* Phones: every section but the hero is as tall as its content, so there
+     are no screen-high gaps between them. */
+  .section:not(.k-hero) {
+    min-height: 0;
+  }
+}
 .k-p {
   font-size: clamp(14px, 1.19vw, 20px);
   line-height: 1.45;
@@ -961,6 +968,19 @@ html.js.motion .k-hero.animated .hero-logo img {
   .k-cards:hover .stack .card:nth-child(2) {
     translate: -40% 0;
   }
+  /* Phones fan the stack after the intro (TouchMotion adds .is-fanned),
+     as a pointer does on desktop. */
+  .k-cards.is-fanned .stack .card {
+    transition-delay: 0.125s;
+  }
+  .k-cards.is-fanned .stack .card:nth-child(1) {
+    translate: 0 0;
+    transform: rotate(6deg);
+  }
+  .k-cards.is-fanned .stack .card:nth-child(2) {
+    translate: -40% 0;
+    transform: rotate(-6deg);
+  }
   .k-cards .meta .line {
     width: 44.4vw;
     height: 35.9vw;
@@ -1062,18 +1082,32 @@ html.motion .k-circle .spin {
   --rv-delay: 1.2s;
 }
 @media (max-width: 768px) {
+  /* Phones: text, falling line and link stack in the flow. The padding
+     clears the hero's card stack, which hangs into this section. */
+  .k-statement {
+    padding: calc(10vh + 28vw) 0 12vw;
+  }
   .k-statement .text {
-    top: 58vh;
+    position: relative;
+    top: auto;
+    left: auto;
+    translate: none;
     font-size: 3.6vw;
   }
   .k-statement .text .line {
+    position: relative;
+    left: auto;
+    bottom: auto;
     width: 30vw;
-    height: 28vh;
+    height: 26vh;
+    margin-top: 4vw;
+    translate: none;
   }
   .k-statement .more {
+    position: relative;
     right: auto;
-    left: var(--pad);
-    bottom: 6vh;
+    bottom: auto;
+    margin: 8vw var(--pad) 0;
   }
 }
 
@@ -1354,15 +1388,18 @@ html:not(.motion) .k-disc .last.r {
   translate: 300% 0;
 }
 @media (max-width: 768px) {
+  /* Sized so the outer pieces land inside the margins (they slide out by
+     2.5× and 4× their width). */
   .k-disc {
-    height: 26vw;
+    height: 22vw;
+    margin: 4vw 0 6vw;
   }
   .k-disc .middle {
-    width: 26vw;
+    width: 22vw;
   }
   .k-disc .side,
   .k-disc .last {
-    width: 13vw;
+    width: 11vw;
   }
 }
 
@@ -1562,6 +1599,25 @@ html.motion .k-mcard:hover .media .k-eq > i:nth-child(3n) {
   .k-mcard .media .num {
     font-size: 26vw;
   }
+  /* The card in view plays its equaliser (TouchMotion adds .is-near). */
+  .k-mcard.is-near .media .k-eq {
+    color: var(--teal);
+  }
+  html.motion .k-mcard.is-near .media .k-eq > i {
+    animation: eq-a 1.7s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * 60ms);
+  }
+  html.motion .k-mcard.is-near .media .k-eq > i:nth-child(3n + 2) {
+    animation-name: eq-b;
+    animation-duration: 1.6s;
+  }
+  html.motion .k-mcard.is-near .media .k-eq > i:nth-child(3n) {
+    animation-name: eq-c;
+    animation-duration: 1.8s;
+  }
+  .k-mcard.is-near .media .num {
+    -webkit-text-stroke-color: rgba(250, 250, 250, 0.8);
+  }
 }
 
 /* ─────────────────────────────────────────── music ("records") ── */
@@ -1667,12 +1723,16 @@ html.js.motion .k-music.animated .outline-fill .f {
   .k-music .k-container {
     flex-direction: column;
     gap: 12vw;
+    min-height: 0;
     padding-top: 22vw;
-    padding-bottom: 24vw;
+    padding-bottom: 14vw;
   }
   .k-music .text-col {
     gap: 10vw;
     padding-bottom: 0;
+  }
+  .k-music .arrow.is-near {
+    rotate: 180deg;
   }
 }
 
@@ -1850,8 +1910,8 @@ html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i:nth-child(
     display: grid;
     height: auto;
     min-height: 0;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "name go" "value go";
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas: "name meter go" "value value go";
     gap: 1.5vw 4vw;
     padding: 5vw 1vw;
   }
@@ -1869,7 +1929,38 @@ html.motion .k-channels .strip a:is(:hover, :focus-visible) .k-eq > i:nth-child(
     height: 11vw;
   }
   .k-channels .meter {
+    grid-area: meter;
+    align-self: center;
+    width: 14vw;
+    height: 5.5vw;
+  }
+  .k-channels .meter .k-eq {
+    gap: 2px;
+  }
+  /* The same ten bars in every row (the email strip has more on desktop). */
+  .k-channels .meter .k-eq > i:nth-child(n + 11) {
     display: none;
+  }
+  .k-channels .strip.is-near .k-eq {
+    color: var(--teal);
+  }
+  html.motion .k-channels .strip.is-near .k-eq > i {
+    animation: eq-a 1.7s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * 60ms);
+  }
+  html.motion .k-channels .strip.is-near .k-eq > i:nth-child(3n + 2) {
+    animation-name: eq-b;
+    animation-duration: 1.6s;
+  }
+  html.motion .k-channels .strip.is-near .k-eq > i:nth-child(3n) {
+    animation-name: eq-c;
+    animation-duration: 1.8s;
+  }
+  .k-channels .strip.is-near .name {
+    color: var(--fg);
+  }
+  .k-channels .strip.is-near .go {
+    rotate: 180deg;
   }
   .k-channels .value {
     grid-area: value;
@@ -2368,9 +2459,17 @@ html.motion .k-form .stream .listbox {
   translate: -35% -80%;
 }
 @media (max-width: 768px) {
+  .k-contact .k-container {
+    min-height: 0;
+    padding-bottom: 12vw;
+  }
   .k-contact .ticker {
     top: 12vh;
     font-size: 18vw;
+  }
+  .k-form,
+  .k-form .content {
+    min-height: 0;
   }
   .k-form {
     padding: 8vw 5vw 10vw;

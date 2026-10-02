@@ -2,6 +2,7 @@ import BottomMenu from "@/components/k/BottomMenu";
 import Experience from "@/components/k/Experience";
 import Header from "@/components/k/Header";
 import Preloader from "@/components/k/Preloader";
+import TouchMotion from "@/components/k/TouchMotion";
 import { BackgroundGrid, Cursor } from "@/components/k/Chrome";
 import { ui } from "@/content/site";
 
@@ -21,6 +22,7 @@ export default function SiteLayout({ children }: Readonly<{ children: React.Reac
         <div id="smooth-content">{children}</div>
       </div>
       <Experience />
+      <TouchMotion />
     </>
   );
 }
