@@ -132,6 +132,12 @@ html.has-cursor button {
   .section:not(.k-hero) {
     min-height: 0;
   }
+  /* Nothing may poke out sideways and widen the page (a wider page can be
+     zoomed out on a phone). Clip only the horizontal axis, so the hero's
+     cards still hang down into the next section. */
+  .section {
+    overflow-x: clip;
+  }
 }
 .k-p {
   font-size: clamp(14px, 1.19vw, 20px);
@@ -965,20 +971,23 @@ html.js.motion .k-hero.animated .hero-logo img {
   .k-cards .meta {
     width: 100%;
   }
-  .k-cards:hover .stack .card:nth-child(2) {
-    translate: -40% 0;
-  }
   /* Phones fan the stack after the intro (TouchMotion adds .is-fanned),
-     as a pointer does on desktop. */
+     and a tap can trigger :hover. Either way the cards spread by a tenth of
+     their width each side, not by half a card as on desktop: at 73vw wide
+     the desktop spread pushed the front card ~110px past the right edge,
+     which widened the page and let it be zoomed out. These offsets keep the
+     tilted cards inside the screen from 360px to 768px wide. */
   .k-cards.is-fanned .stack .card {
     transition-delay: 0.125s;
   }
+  .k-cards:hover .stack .card:nth-child(1),
   .k-cards.is-fanned .stack .card:nth-child(1) {
-    translate: 0 0;
+    translate: -40% 0;
     transform: rotate(6deg);
   }
+  .k-cards:hover .stack .card:nth-child(2),
   .k-cards.is-fanned .stack .card:nth-child(2) {
-    translate: -40% 0;
+    translate: -60% 0;
     transform: rotate(-6deg);
   }
   .k-cards .meta .line {
