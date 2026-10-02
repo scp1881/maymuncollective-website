@@ -194,9 +194,6 @@ export const contact = {
   heading: "Contact",
   subheading: "Bookings, collaborations, press.",
   email: site.email,
-  // Shown under the email; the wa.me link is derived from it (non-digits
-  // stripped). Set to "" to hide the WhatsApp line.
-  whatsapp: "+44 7915 378469",
   // `handle` is what the Channels section shows: the account name from each
   // URL; YouTube's is the channel's own name (it has no @handle in the URL).
   socials: [
@@ -210,7 +207,6 @@ export const contact = {
     label: "Channels",
     heading: "Reach us directly.",
     email: "Email",
-    whatsapp: "WhatsApp",
     newTab: ", opens in a new tab",
   },
   // The contact stream in the Contact section: name and email → reason →
@@ -295,5 +291,4 @@ export const ui = {
   close: "Close",
   previous: "Previous photograph",
   next: "Next photograph",
-  whatsappLabel: (n: string) => `Message us on WhatsApp at ${n}`,
 };

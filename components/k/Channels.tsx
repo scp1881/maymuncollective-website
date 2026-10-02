@@ -3,7 +3,8 @@ import { ArrowDownLeft, Eq, Paren, Ring } from "@/components/k/bits";
 import { contact } from "@/content/site";
 
 /**
- * Every direct line to the collective in one row, set like the channel
+ * Every direct line to the collective (email and the socials) in one row,
+ * set like the channel
  * strips of a mixing desk: name and a turning arrow at the top, a level meter
  * in the middle, the address at the foot. The meters rest grey and play in
  * teal when a strip is pointed at or focused (the same equaliser the member
@@ -12,10 +13,8 @@ import { contact } from "@/content/site";
  */
 export default function Channels() {
   const { channels } = contact;
-  const wa = contact.whatsapp.replace(/\D/g, "");
   const strips = [
     { name: channels.email, value: contact.email, href: `mailto:${contact.email}`, external: false, wide: true },
-    ...(wa ? [{ name: channels.whatsapp, value: contact.whatsapp, href: `https://wa.me/${wa}`, external: true, wide: false }] : []),
     ...contact.socials.map((s) => ({ name: s.label, value: s.handle, href: s.href, external: true, wide: false })),
   ];
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { WhatsAppIcon } from "@/components/k/bits";
 import { contact, footer, gallery, nav, site, ui } from "@/content/site";
 
 /**
@@ -9,7 +8,6 @@ import { contact, footer, gallery, nav, site, ui } from "@/content/site";
  */
 export default function Footer({ home = true }: { home?: boolean }) {
   const href = (h: string) => (home ? h : `/${h}`);
-  const wa = contact.whatsapp.replace(/\D/g, "");
   return (
     <footer className="section k-footer" data-start="top 90%" data-grid="false">
       <div className="inner">
@@ -54,12 +52,6 @@ export default function Footer({ home = true }: { home?: boolean }) {
               <li className="rv">
                 <a className="k-grow" href={`mailto:${contact.email}`}>
                   {contact.email}
-                </a>
-              </li>
-              <li className="rv">
-                <a className="k-grow k-wa" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" aria-label={ui.whatsappLabel(contact.whatsapp)}>
-                  <WhatsAppIcon />
-                  {contact.whatsapp}
                 </a>
               </li>
             </ul>

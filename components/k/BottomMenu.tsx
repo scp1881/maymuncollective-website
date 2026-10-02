@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Burger, CloseIcon, SpotifyIcon, WhatsAppIcon } from "@/components/k/bits";
+import { ArrowRight, Burger, CloseIcon, SpotifyIcon } from "@/components/k/bits";
 import { contact, gallery, music, nav, ui } from "@/content/site";
 
 /**
@@ -47,8 +47,6 @@ export default function BottomMenu() {
       document.removeEventListener("pointerdown", onDown);
     };
   }, [open]);
-
-  const wa = contact.whatsapp.replace(/\D/g, "");
 
   return (
     <div ref={root} className={`k-menu ${open ? "is-open" : ""}`}>
@@ -96,19 +94,6 @@ export default function BottomMenu() {
                   <a className="k-link" href={`mailto:${contact.email}`} tabIndex={open ? 0 : -1}>
                     {contact.email}
                     <ArrowRight />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="k-grow k-wa"
-                    href={`https://wa.me/${wa}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={ui.whatsappLabel(contact.whatsapp)}
-                    tabIndex={open ? 0 : -1}
-                  >
-                    <WhatsAppIcon />
-                    {contact.whatsapp}
                   </a>
                 </li>
               </ul>

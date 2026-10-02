@@ -13,7 +13,7 @@ The live design is adapted from the [Kurate](https://kurate-label.vercel.app/) r
 3. **Statement:** the tagline, one language per line, and the splitting vinyl.
 4. **Members:** "A Creative / Collective" and a draggable row of member cards.
 5. **Music:** the Spotify artist player, loaded only as the section approaches.
-6. **Channels:** every direct line in one row of mixer-like strips (email, WhatsApp, Instagram, TikTok, YouTube); each strip's meter plays when it's pointed at.
+6. **Channels:** every direct line in one row of mixer-like strips (email, Instagram, TikTok, YouTube); each strip's meter plays when it's pointed at.
 7. **Contact:** a three-step contact form (details → reason → message, with an optional file) in a frosted panel over a giant email marquee. Messages are read at `/inbox`.
 
 **`/gallery`** shows every image. Each one opens in a lightbox in its original colour.
