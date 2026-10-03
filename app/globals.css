@@ -1099,10 +1099,11 @@ html.motion .k-circle .spin {
   --rv-delay: 1.2s;
 }
 @media (max-width: 768px) {
-  /* Phones: text, falling line and link stack in the flow. The padding
-     clears the hero's card stack, which hangs into this section. */
+  /* Phones: text, falling line and link stack in the flow, on one centre
+     line. The padding clears the hero's card stack, which hangs into this
+     section. */
   .k-statement {
-    padding: calc(10vh + 56vw) 0 16vw;
+    padding: calc(10vh + 56vw) 0 10vw;
   }
   .k-statement .text {
     position: relative;
@@ -1116,7 +1117,7 @@ html.motion .k-circle .spin {
     left: auto;
     bottom: auto;
     width: 30vw;
-    height: 26vh;
+    height: 20vh;
     margin-top: 4vw;
     translate: none;
   }
@@ -1124,7 +1125,9 @@ html.motion .k-circle .spin {
     position: relative;
     right: auto;
     bottom: auto;
-    margin: 8vw var(--pad) 0;
+    display: flex;
+    justify-content: center;
+    margin: 6vw var(--pad) 0;
   }
 }
 
@@ -1233,13 +1236,18 @@ html.js.motion .k-about.animated .uline::after {
   scale: 1 1;
 }
 @media (max-width: 768px) {
+  /* The arc sits whole in the space above the tagline: raised by a fifth
+     of its height as on desktop, its top would be cut off by the
+     container's overflow. */
   .k-about .k-container {
     gap: 12vw;
-    padding-top: 16vh;
+    padding-top: 44vw;
   }
   .k-about .about-line {
+    top: 2vw;
     width: 60vw;
     height: 36vw;
+    translate: -50% 0;
   }
   .k-about .rect {
     width: 19vw;
