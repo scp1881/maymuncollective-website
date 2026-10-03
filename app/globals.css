@@ -907,6 +907,12 @@ html.js.motion .k-hero.animated .hero-logo img {
   height: 100%;
   object-fit: cover;
 }
+/* The back cards' framing, set per photo in components/k/Hero. */
+.k-cards .stack .card img {
+  object-position: var(--pos-lg);
+  scale: var(--zoom-lg);
+  transform-origin: var(--origin-lg);
+}
 .k-cards .stack .card:nth-child(1) {
   z-index: 2;
   transform: rotate(-6.15deg);
@@ -967,6 +973,11 @@ html.js.motion .k-hero.animated .hero-logo img {
   .k-cards .card,
   .k-cards .meta {
     width: 100%;
+  }
+  .k-cards .stack .card img {
+    object-position: var(--pos-sm);
+    scale: var(--zoom-sm);
+    transform-origin: var(--origin-sm);
   }
   /* Phones fan the stack after the intro (TouchMotion adds .is-fanned),
      and a tap can trigger :hover. Either way the cards spread by a tenth of

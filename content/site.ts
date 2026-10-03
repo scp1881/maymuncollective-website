@@ -108,6 +108,21 @@ export const photos: Record<string, Photo> = {
     label: "Backstage",
     position: { sm: "50% 60%", lg: "50% 55%" },
   },
+  // The two back cards of the hero's card stack (framed in components/k/Hero).
+  onstage: {
+    id: "onstage",
+    src: "/images/gallery/07-onstage.jpg",
+    alt: "Four members of Maymun Collective on stage at a show, the crowd cheering behind them.",
+    width: 1334,
+    height: 2000,
+  },
+  blindLive: {
+    id: "blindLive",
+    src: "/images/gallery/08-blind-live.jpg",
+    alt: "Maymun Collective playing on the stage at Blind under purple light, phones raised in the crowd.",
+    width: 1334,
+    height: 2000,
+  },
   crew: {
     id: "crew",
     src: "/images/gallery/06-crew.JPG",
