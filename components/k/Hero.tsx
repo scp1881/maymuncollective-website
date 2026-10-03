@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import TiltCard from "@/components/k/TiltCard";
 import WaterLogo from "@/components/k/WaterLogo";
@@ -5,6 +6,37 @@ import { ArrowDown, LoopLine, SwooshLine } from "@/components/k/bits";
 import { photos, site } from "@/content/site";
 
 const LOGO = "/logo-maymun.svg";
+
+type Frame = { pos: string; zoom: number; origin: string };
+
+/**
+ * How each back card frames its photo. A fanned card shows only its outer
+ * side beside the front card — on desktop its upper part until the page
+ * scrolls, on phones a narrow strip — so each photo is zoomed towards the
+ * people on that side. `lg` is desktop, `sm` phones.
+ */
+const FRAMES: Record<string, { lg: Frame; sm: Frame }> = {
+  // Fans right: the sign and the seated guitarist, the stage's right side.
+  blindLive: {
+    lg: { pos: "50% 50%", zoom: 1.35, origin: "58% 100%" },
+    sm: { pos: "50% 50%", zoom: 1.18, origin: "0% 50%" },
+  },
+  // Fans left: the two members on the left, faces above the fold.
+  onstage: {
+    lg: { pos: "50% 100%", zoom: 1.55, origin: "53% 100%" },
+    sm: { pos: "50% 100%", zoom: 1.28, origin: "100% 100%" },
+  },
+};
+
+const frameStyle = ({ lg, sm }: { lg: Frame; sm: Frame }) =>
+  ({
+    "--pos-lg": lg.pos,
+    "--zoom-lg": lg.zoom,
+    "--origin-lg": lg.origin,
+    "--pos-sm": sm.pos,
+    "--zoom-sm": sm.zoom,
+    "--origin-sm": sm.origin,
+  }) as CSSProperties;
 
 /**
  * The reference's hero, with Maymun's own material: the wordmark large at
@@ -20,7 +52,8 @@ export default function Hero() {
   const first = photos.backstage;
   const second = photos.studio;
   const front = photos.live;
-  const back = [photos.room, photos.crew];
+  // The stack's first card fans out to the right, the second to the left.
+  const back = [photos.blindLive, photos.onstage];
 
   return (
     <section id="top" className="section k-hero" aria-label={site.name}>
@@ -66,8 +99,9 @@ export default function Hero() {
                 alt={p.alt}
                 width={p.width}
                 height={p.height}
-                sizes="(max-width: 768px) 74vw, 33vw"
-                style={{ objectPosition: p.id === "crew" ? "46% 50%" : "50% 50%" }}
+                // The card's width times its zoom.
+                sizes="(max-width: 768px) 95vw, 52vw"
+                style={frameStyle(FRAMES[p.id])}
               />
             </div>
           ))}

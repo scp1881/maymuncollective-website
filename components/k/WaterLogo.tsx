@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { finePointer } from "./motion";
+import { finePointer, motionOn } from "./motion";
 
 /**
  * The reference's water ripple on the hero logo, rebuilt in plain WebGL (no
@@ -10,8 +10,11 @@ import { finePointer } from "./motion";
  * strength; the fragment shader offsets its lookup into the wordmark by that
  * vector, so the letters bend and flow behind the cursor, then settle.
  *
- * Desktop only (> 768px, as in the reference), never under reduced motion,
- * and only after the logo's own entrance has played. Until then — and
+ * On desktop (> 768px with a fine pointer, as in the reference) the mouse
+ * draws the trail. On phones a finger dragged across the hero does, and one
+ * automatic sweep plays after the intro so the effect is seen even without
+ * touching. Never with motion off, and only after the logo's own entrance
+ * has played. Until then — and
  * whenever WebGL is unavailable — the plain SVG wordmark is what shows; when
  * the canvas is ready the two cross-fade (same image, same place).
  * Frames are drawn only while there is something to draw — a live trail, or
@@ -51,8 +54,12 @@ export default function WaterLogo({ src }: { src: string }) {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    if (window.innerWidth <= 768) return;
-    if (!finePointer()) return;
+    const desktop = window.innerWidth > 768 && finePointer();
+    const phone =
+      motionOn() &&
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      window.matchMedia("(max-width: 768px)").matches;
+    if (!desktop && !phone) return;
     const hero = canvas.closest("section") as HTMLElement | null;
     const logo = hero?.querySelector<HTMLElement>(".hero-logo");
     if (!hero || !logo) return;
@@ -223,11 +230,43 @@ export default function WaterLogo({ src }: { src: string }) {
         if (ready && visible && !raf && !disposed) raf = requestAnimationFrame(frame);
       };
 
-      const onMove = (e: PointerEvent) => {
+      const at = (clientX: number, clientY: number) => {
         const r = canvas.getBoundingClientRect();
-        addTouch((e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height);
+        addTouch((clientX - r.left) / r.width, 1 - (clientY - r.top) / r.height);
         trailDirty = true;
         wake();
+      };
+      const onMove = (e: PointerEvent) => at(e.clientX, e.clientY);
+
+      // Phones: a finger dragged over the hero draws the trail. Each touch
+      // starts a fresh stroke, so lifting and touching elsewhere does not
+      // streak a line between the two points.
+      const onTouchStart = (e: TouchEvent) => {
+        last = null;
+        const t = e.touches[0];
+        if (t) at(t.clientX, t.clientY);
+      };
+      const onTouchMove = (e: TouchEvent) => {
+        for (const t of Array.from(e.changedTouches)) at(t.clientX, t.clientY);
+      };
+      // One sweep across the wordmark after the intro, so the ripple is seen
+      // on a phone even without touching.
+      let sweep = 0;
+      const autoSweep = () => {
+        const cr = canvas.getBoundingClientRect();
+        const lr = logo.getBoundingClientRect();
+        const steps = 60;
+        let i = 0;
+        last = null;
+        sweep = window.setInterval(() => {
+          const k = i / steps;
+          const x = lr.left + lr.width * (0.08 + 0.84 * k);
+          const y = lr.top + lr.height * (0.5 + 0.22 * Math.sin(k * Math.PI * 2));
+          addTouch((x - cr.left) / cr.width, 1 - (y - cr.top) / cr.height);
+          trailDirty = true;
+          wake();
+          if (++i > steps) window.clearInterval(sweep);
+        }, 18);
       };
 
       img.onload = () => {
@@ -237,6 +276,7 @@ export default function WaterLogo({ src }: { src: string }) {
         logo.classList.add("webgl-on");
         ready = true;
         wake();
+        if (phone) window.setTimeout(autoSweep, 500);
       };
 
       const io = new IntersectionObserver(([e]) => {
@@ -244,7 +284,11 @@ export default function WaterLogo({ src }: { src: string }) {
         if (visible) wake();
       });
       io.observe(hero);
-      hero.addEventListener("pointermove", onMove, { passive: true });
+      if (desktop) hero.addEventListener("pointermove", onMove, { passive: true });
+      if (phone) {
+        hero.addEventListener("touchstart", onTouchStart, { passive: true });
+        hero.addEventListener("touchmove", onTouchMove, { passive: true });
+      }
       window.addEventListener("scroll", wake, { passive: true });
       let rt = 0;
       const onResize = () => {
@@ -259,6 +303,9 @@ export default function WaterLogo({ src }: { src: string }) {
       cleanups.push(() => {
         io.disconnect();
         hero.removeEventListener("pointermove", onMove);
+        hero.removeEventListener("touchstart", onTouchStart);
+        hero.removeEventListener("touchmove", onTouchMove);
+        window.clearInterval(sweep);
         window.removeEventListener("scroll", wake);
         window.removeEventListener("resize", onResize);
         logo.classList.remove("webgl-on");

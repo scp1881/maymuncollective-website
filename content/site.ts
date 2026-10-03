@@ -108,6 +108,21 @@ export const photos: Record<string, Photo> = {
     label: "Backstage",
     position: { sm: "50% 60%", lg: "50% 55%" },
   },
+  // The two back cards of the hero's card stack (framed in components/k/Hero).
+  onstage: {
+    id: "onstage",
+    src: "/images/gallery/07-onstage.jpg",
+    alt: "Four members of Maymun Collective on stage at a show, the crowd cheering behind them.",
+    width: 1334,
+    height: 2000,
+  },
+  blindLive: {
+    id: "blindLive",
+    src: "/images/gallery/08-blind-live.jpg",
+    alt: "Maymun Collective playing on the stage at Blind under purple light, phones raised in the crowd.",
+    width: 1334,
+    height: 2000,
+  },
   crew: {
     id: "crew",
     src: "/images/gallery/06-crew.JPG",
@@ -194,9 +209,6 @@ export const contact = {
   heading: "Contact",
   subheading: "Bookings, collaborations, press.",
   email: site.email,
-  // Shown under the email; the wa.me link is derived from it (non-digits
-  // stripped). Set to "" to hide the WhatsApp line.
-  whatsapp: "+44 7915 378469",
   // `handle` is what the Channels section shows: the account name from each
   // URL; YouTube's is the channel's own name (it has no @handle in the URL).
   socials: [
@@ -210,7 +222,6 @@ export const contact = {
     label: "Channels",
     heading: "Reach us directly.",
     email: "Email",
-    whatsapp: "WhatsApp",
     newTab: ", opens in a new tab",
   },
   // The contact stream in the Contact section: name and email → reason →
@@ -295,5 +306,4 @@ export const ui = {
   close: "Close",
   previous: "Previous photograph",
   next: "Next photograph",
-  whatsappLabel: (n: string) => `Message us on WhatsApp at ${n}`,
 };

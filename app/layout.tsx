@@ -39,12 +39,13 @@ export const viewport: Viewport = {
 /**
  * Runs before first paint: marks that JavaScript is on (so reveal start
  * states may be hidden), decides whether the page animates (html.motion:
- * on unless the system asks for reduced motion; `?motion=on|off` overrides
- * that for the browser session) and whether the preloader plays — only on a
+ * on for every visitor, as on the Kurate reference, whatever the system's
+ * reduced-motion setting; `?motion=off` turns it off for the browser
+ * session, `?motion=on` back on) and whether the preloader plays — only on a
  * first visit to the homepage with motion on. Everyone else goes straight
  * to html.page-loaded.
  */
-const BOOT = `(function(){var d=document.documentElement;d.classList.add('js');var m=!matchMedia('(prefers-reduced-motion: reduce)').matches;try{var q=/[?&]motion=(on|off)/.exec(location.search);if(q)sessionStorage.setItem('mc-motion',q[1]);var o=sessionStorage.getItem('mc-motion');if(o)m=o==='on'}catch(e){}if(m)d.classList.add('motion');var s=!m||location.pathname!=='/';try{if(localStorage.getItem('mc-loaded')==='1')s=true}catch(e){}if(s)d.classList.add('no-preloader','page-loaded')})();`;
+const BOOT = `(function(){var d=document.documentElement;d.classList.add('js');var m=true;try{var q=/[?&]motion=(on|off)/.exec(location.search);if(q)sessionStorage.setItem('mc-motion',q[1]);var o=sessionStorage.getItem('mc-motion');if(o)m=o==='on'}catch(e){}if(m)d.classList.add('motion');var s=!m||location.pathname!=='/';try{if(localStorage.getItem('mc-loaded')==='1')s=true}catch(e){}if(s)d.classList.add('no-preloader','page-loaded')})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
